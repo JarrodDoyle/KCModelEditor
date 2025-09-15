@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using KeepersCompound.Dark;
 
 namespace KeepersCompound.ModelEditor.UI;
 
@@ -32,7 +33,7 @@ public partial class InstallManager : Control
         _addButton.Pressed += () => _folderSelect.Visible = true;
         _removeButton.Pressed += RemoveDir;
         _loadButton.Pressed += LoadDir;
-        _folderSelect.DirSelected += AddDir;
+        _folderSelect.DirSelected += SelectDir;
         _installPaths.ItemActivated += _ => LoadDir();
         _installPaths.ItemSelected += _ =>
         {
@@ -60,6 +61,15 @@ public partial class InstallManager : Control
                 _removeButton.Disabled = false;
                 _loadButton.Disabled = false;
             }
+        }
+    }
+
+    private void SelectDir(string path)
+    {
+        var context = new InstallContext(path);
+        if (context.Valid)
+        {
+            AddDir(path);
         }
     }
 
