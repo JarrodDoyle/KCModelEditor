@@ -189,3 +189,12 @@ theme_override_font_sizes/font_size = 14
 text = "v4.4.1.stable.linux_x64"
 underline = 1
 uri = "https://github.com/godotengine/godot/releases/tag/4.4.1-stable"
+
+[node name="InvalidPathDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Invalid Install Path"
+initial_position = 2
+size = Vector2i(480, 111)
+force_native = true
+dialog_text = "The selected install path doesn't seem to contain a valid Thief install.
+Please select another folder."

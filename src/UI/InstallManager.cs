@@ -20,6 +20,7 @@ public partial class InstallManager : Control
     private Button _loadButton;
     private ItemList _installPaths;
     private FileDialog _folderSelect;
+    private ConfirmationDialog _invalidPathDialog;
 
     public override void _Ready()
     {
@@ -29,11 +30,13 @@ public partial class InstallManager : Control
         _loadButton = GetNode<Button>("%LoadButton");
         _installPaths = GetNode<ItemList>("%InstallPaths");
         _folderSelect = GetNode<FileDialog>("%FolderSelect");
+        _invalidPathDialog = GetNode<ConfirmationDialog>("%InvalidPathDialog");
 
         _addButton.Pressed += () => _folderSelect.Visible = true;
         _removeButton.Pressed += RemoveDir;
         _loadButton.Pressed += LoadDir;
         _folderSelect.DirSelected += SelectDir;
+        _invalidPathDialog.Confirmed += () => _folderSelect.Visible = true;
         _installPaths.ItemActivated += _ => LoadDir();
         _installPaths.ItemSelected += _ =>
         {
@@ -70,6 +73,10 @@ public partial class InstallManager : Control
         if (context.Valid)
         {
             AddDir(path);
+        }
+        else
+        {
+            _invalidPathDialog.Show();
         }
     }
 
