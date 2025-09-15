@@ -3,6 +3,11 @@
     <ProjectReference Include="..\kc-dark\KeepersCompound.Dark\KeepersCompound.Dark.csproj" />
     <ProjectReference Include="..\kc-dark\KeepersCompound.Formats\KeepersCompound.Formats.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
