@@ -59,10 +59,17 @@ public partial class InstallManager : Control
         _configFilePath = configFilePath;
         if (_configFile.Load(_configFilePath) == Error.Ok)
         {
+            // The blank icon is needed so that each path has the same padding
+            var invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
+            var width = invalidIcon.GetWidth();
+            var height = invalidIcon.GetHeight();
+            var blankTexture = ImageTexture.CreateFromImage(Image.CreateEmpty(width, height, false, Image.Format.Rgba8));
+
             var paths = _configFile.GetValue("general", "install_paths", Array.Empty<string>()).AsStringArray();
             foreach (var path in paths)
             {
-                _installPaths.AddItem(path);
+                var valid = new InstallContext(path).Valid;
+                _installPaths.AddItem(path, valid ? blankTexture : invalidIcon);
             }
 
             if (paths.Length > 0)
