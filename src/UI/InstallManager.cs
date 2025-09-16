@@ -37,13 +37,13 @@ public partial class InstallManager : Control
         _invalidPathDialog = GetNode<ConfirmationDialog>("%InvalidPathDialog");
 
         _addButton.Pressed += () => _folderSelect.Visible = true;
-        _editButton.Pressed += EditDir;
-        _removeButton.Pressed += RemoveDir;
-        _loadButton.Pressed += LoadDir;
+        _editButton.Pressed += EditInstallPath;
+        _removeButton.Pressed += RemoveInstallPath;
+        _loadButton.Pressed += LoadInstallPath;
         _folderSelect.DirSelected += SelectDir;
         _folderSelect.Canceled += () => _editMode = false;
         _invalidPathDialog.Confirmed += () => _folderSelect.Visible = true;
-        _installPaths.ItemActivated += _ => LoadDir();
+        _installPaths.ItemActivated += _ => LoadInstallPath();
         _installPaths.ItemSelected += _ =>
         {
             _editButton.Disabled = false;
@@ -82,51 +82,6 @@ public partial class InstallManager : Control
         }
     }
 
-    private void SelectDir(string path)
-    {
-        var context = new InstallContext(path);
-        if (context.Valid)
-        {
-            if (_editMode)
-            {
-                RemoveDir();
-            }
-            AddDir(path);
-        }
-        else
-        {
-            _invalidPathDialog.Show();
-        }
-    }
-
-    private void AddDir(string path)
-    {
-        _installPaths.AddItem(path);
-        _installPaths.SortItemsByText();
-        UpdateConfig();
-    }
-
-    private void EditDir()
-    {
-        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
-        var path = _installPaths.GetItemText(idx);
-
-        _folderSelect.CurrentDir = path;
-        _folderSelect.Visible = true;
-        _editMode = true;
-    }
-
-    private void RemoveDir()
-    {
-        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
-        _installPaths.RemoveItem(idx);
-        UpdateConfig();
-
-        _editButton.Disabled = true;
-        _removeButton.Disabled = true;
-        _loadButton.Disabled = true;
-    }
-
     private void UpdateConfig()
     {
         var count = _installPaths.ItemCount;
@@ -140,7 +95,52 @@ public partial class InstallManager : Control
         _configFile.Save(_configFilePath);
     }
 
-    private void LoadDir()
+    private void SelectDir(string path)
+    {
+        var context = new InstallContext(path);
+        if (context.Valid)
+        {
+            if (_editMode)
+            {
+                RemoveInstallPath();
+            }
+            AddInstallPath(path);
+        }
+        else
+        {
+            _invalidPathDialog.Show();
+        }
+    }
+
+    private void AddInstallPath(string path)
+    {
+        _installPaths.AddItem(path);
+        _installPaths.SortItemsByText();
+        UpdateConfig();
+    }
+
+    private void EditInstallPath()
+    {
+        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
+        var path = _installPaths.GetItemText(idx);
+
+        _folderSelect.CurrentDir = path;
+        _folderSelect.Visible = true;
+        _editMode = true;
+    }
+
+    private void RemoveInstallPath()
+    {
+        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
+        _installPaths.RemoveItem(idx);
+        UpdateConfig();
+
+        _editButton.Disabled = true;
+        _removeButton.Disabled = true;
+        _loadButton.Disabled = true;
+    }
+
+    private void LoadInstallPath()
     {
         var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
         var path = _installPaths.GetItemText(idx);
