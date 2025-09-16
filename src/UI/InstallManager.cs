@@ -68,8 +68,7 @@ public partial class InstallManager : Control
             var paths = _configFile.GetValue("general", "install_paths", Array.Empty<string>()).AsStringArray();
             foreach (var path in paths)
             {
-                var valid = new InstallContext(path).Valid;
-                _installPaths.AddItem(path, valid ? blankTexture : invalidIcon);
+                _installPaths.AddItem(path, IsInstallPathValid(path) ? blankTexture : invalidIcon);
             }
 
             if (paths.Length > 0)
@@ -97,8 +96,7 @@ public partial class InstallManager : Control
 
     private void SelectDir(string path)
     {
-        var context = new InstallContext(path);
-        if (context.Valid)
+        if (IsInstallPathValid(path))
         {
             if (_editMode)
             {
@@ -145,5 +143,10 @@ public partial class InstallManager : Control
         var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
         var path = _installPaths.GetItemText(idx);
         LoadInstall?.Invoke(path);
+    }
+
+    private static bool IsInstallPathValid(string path)
+    {
+        return new InstallContext(path).Valid;
     }
 }
