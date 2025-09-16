@@ -24,6 +24,7 @@ public partial class InstallManager : Control
     private ConfirmationDialog _invalidPathDialog;
 
     private bool _editMode = false;
+    private Dictionary<string, bool> _validityMap;
 
     public override void _Ready()
     {
@@ -44,18 +45,15 @@ public partial class InstallManager : Control
         _folderSelect.Canceled += () => _editMode = false;
         _invalidPathDialog.Confirmed += () => _folderSelect.Visible = true;
         _installPaths.ItemActivated += _ => LoadInstallPath();
-        _installPaths.ItemSelected += _ =>
-        {
-            _editButton.Disabled = false;
-            _removeButton.Disabled = false;
-            _loadButton.Disabled = false;
-        };
+        _installPaths.ItemSelected += SelectedInstallPath;
 
         _configFile = new ConfigFile();
+        _validityMap = new Dictionary<string, bool>();
     }
 
     public void LoadConfig(string configFilePath)
     {
+        _validityMap.Clear();
         _configFilePath = configFilePath;
         if (_configFile.Load(_configFilePath) == Error.Ok)
         {
@@ -68,15 +66,15 @@ public partial class InstallManager : Control
             var paths = _configFile.GetValue("general", "install_paths", Array.Empty<string>()).AsStringArray();
             foreach (var path in paths)
             {
-                _installPaths.AddItem(path, IsInstallPathValid(path) ? blankTexture : invalidIcon);
+                var valid = IsInstallPathValid(path);
+                _installPaths.AddItem(path, valid ? blankTexture : invalidIcon);
+                _validityMap.Add(path, valid);
             }
 
             if (paths.Length > 0)
             {
                 _installPaths.Select(0);
-                _editButton.Disabled = false;
-                _removeButton.Disabled = false;
-                _loadButton.Disabled = false;
+                SelectedInstallPath(0);
             }
         }
     }
@@ -110,8 +108,19 @@ public partial class InstallManager : Control
         }
     }
 
+    private void SelectedInstallPath(long index)
+    {
+        var path = _installPaths.GetItemText((int)index);
+        var valid = _validityMap.GetValueOrDefault(path, false);
+
+        _editButton.Disabled = false;
+        _removeButton.Disabled = false;
+        _loadButton.Disabled = !valid;
+    }
+
     private void AddInstallPath(string path)
     {
+        _validityMap.Add(path, true);
         _installPaths.AddItem(path);
         _installPaths.SortItemsByText();
         UpdateConfig();
@@ -130,7 +139,9 @@ public partial class InstallManager : Control
     private void RemoveInstallPath()
     {
         var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
+        var path = _installPaths.GetItemText(idx);
         _installPaths.RemoveItem(idx);
+        _validityMap.Remove(path);
         UpdateConfig();
 
         _editButton.Disabled = true;
