@@ -16,16 +16,20 @@ public partial class InstallManager : Control
     private string _configFilePath;
     private LineEdit _searchBar;
     private Button _addButton;
+    private Button _editButton;
     private Button _removeButton;
     private Button _loadButton;
     private ItemList _installPaths;
     private FileDialog _folderSelect;
     private ConfirmationDialog _invalidPathDialog;
 
+    private bool _editMode = false;
+
     public override void _Ready()
     {
         _searchBar = GetNode<LineEdit>("%SearchBar");
         _addButton = GetNode<Button>("%AddButton");
+        _editButton = GetNode<Button>("%EditButton");
         _removeButton = GetNode<Button>("%RemoveButton");
         _loadButton = GetNode<Button>("%LoadButton");
         _installPaths = GetNode<ItemList>("%InstallPaths");
@@ -33,13 +37,16 @@ public partial class InstallManager : Control
         _invalidPathDialog = GetNode<ConfirmationDialog>("%InvalidPathDialog");
 
         _addButton.Pressed += () => _folderSelect.Visible = true;
+        _editButton.Pressed += EditDir;
         _removeButton.Pressed += RemoveDir;
         _loadButton.Pressed += LoadDir;
         _folderSelect.DirSelected += SelectDir;
+        _folderSelect.Canceled += () => _editMode = false;
         _invalidPathDialog.Confirmed += () => _folderSelect.Visible = true;
         _installPaths.ItemActivated += _ => LoadDir();
         _installPaths.ItemSelected += _ =>
         {
+            _editButton.Disabled = false;
             _removeButton.Disabled = false;
             _loadButton.Disabled = false;
         };
@@ -61,6 +68,7 @@ public partial class InstallManager : Control
             if (paths.Length > 0)
             {
                 _installPaths.Select(0);
+                _editButton.Disabled = false;
                 _removeButton.Disabled = false;
                 _loadButton.Disabled = false;
             }
@@ -72,6 +80,10 @@ public partial class InstallManager : Control
         var context = new InstallContext(path);
         if (context.Valid)
         {
+            if (_editMode)
+            {
+                RemoveDir();
+            }
             AddDir(path);
         }
         else
@@ -87,12 +99,23 @@ public partial class InstallManager : Control
         UpdateConfig();
     }
 
+    private void EditDir()
+    {
+        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
+        var path = _installPaths.GetItemText(idx);
+
+        _folderSelect.CurrentDir = path;
+        _folderSelect.Visible = true;
+        _editMode = true;
+    }
+
     private void RemoveDir()
     {
         var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
         _installPaths.RemoveItem(idx);
         UpdateConfig();
 
+        _editButton.Disabled = true;
         _removeButton.Disabled = true;
         _loadButton.Disabled = true;
     }
