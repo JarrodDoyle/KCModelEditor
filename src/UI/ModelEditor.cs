@@ -32,7 +32,7 @@ public partial class ModelEditor : Control
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
             GD.Print(modelFile.VertexPositions.Count);
-            _modelViewport.RenderModel(modelFile);
+            _modelViewport.RenderModel(_resourceManager, modelFile);
         }
     }
 

@@ -1,7 +1,13 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Godot;
 using Godot.Collections;
+using ImageMagick;
+using KeepersCompound.Dark;
+using KeepersCompound.Dark.Resources;
 using KeepersCompound.Formats.Model;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor.Render;
 
@@ -18,11 +24,60 @@ public partial class ModelViewport : SubViewport
         _modelContainer = GetNode<Node3D>("%ModelContainer");
     }
 
-    public void RenderModel(ModelFile modelFile)
+    public void RenderModel(ResourceManager resources, ModelFile modelFile)
     {
         foreach (var child in _modelContainer.GetChildren())
         {
             child.QueueFree();
+        }
+
+        var defaultMaterial = new StandardMaterial3D();
+        var materials = new System.Collections.Generic.Dictionary<int, StandardMaterial3D>();
+        foreach (var rawMaterial in modelFile.Materials)
+        {
+            var slot = rawMaterial.Slot;
+
+            if (rawMaterial.Type == 0)
+            {
+                var resName = PathUtils.ConvertSeparator(Path.GetFileNameWithoutExtension(rawMaterial.Name));
+                if (!resources.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
+                    !TryLoadTexture(resources, virtualPath, out var texture))
+                {
+                    Log.Warning(
+                        "Failed to find model texture, or model texture format unsupported, adding default material: {Name}, {Slot}",
+                        resName, slot);
+                    materials.Add(slot, defaultMaterial);
+                }
+                else
+                {
+                    var material = new StandardMaterial3D
+                    {
+                        AlbedoTexture = texture,
+                        Transparency = BaseMaterial3D.TransparencyEnum.AlphaDepthPrePass,
+                    };
+                    var name = rawMaterial.Name.ToLower();
+                    for (var i = 0; i < 4; i++)
+                    {
+                        if (name.Contains($"replace{i}"))
+                        {
+                            material.SetMeta($"TxtRepl{i}", true);
+                        }
+                    }
+
+                    materials.Add(slot, material);
+                }
+            }
+            else
+            {
+                var r = rawMaterial.Color.R;
+                var g = rawMaterial.Color.G;
+                var b = rawMaterial.Color.B;
+                var colour = new Color(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+                materials.Add(slot, new StandardMaterial3D
+                {
+                    AlbedoColor = colour
+                });
+            }
         }
 
         var objCount = modelFile.Objects.Count;
@@ -31,11 +86,11 @@ public partial class ModelViewport : SubViewport
         {
             var subObject = modelFile.Objects[i];
             var polyCount = modelFile.Polygons.Count;
-            var vertices = new List<Vector3>();
-            var normals = new List<Vector3>();
-            var uvs = new List<Vector2>();
-            var indices = new List<int>();
+            var transform = subObject.JointType == ModelObjectType.Static || subObject.JointIndex == -1
+                ? Transform3D.Identity
+                : subObject.Transform.ToGodot();
 
+            var matPolyMap = new System.Collections.Generic.Dictionary<int, List<int>>();
             for (var j = 0; j < polyCount; j++)
             {
                 var poly = modelFile.Polygons[j];
@@ -48,39 +103,61 @@ public partial class ModelViewport : SubViewport
                     continue;
                 }
 
-                var faceNormal = modelFile.FaceNormals[poly.NormalIndex].ToGodot();
-                foreach (var vertexIndex in poly.VertexIndices)
+                if (matPolyMap.ContainsKey(poly.Data))
                 {
-                    vertices.Add(modelFile.VertexPositions[vertexIndex.PositionIndex].ToGodot());
-                    normals.Add(poly.UseVertexNormals
-                        ? modelFile.VertexNormals[vertexIndex.NormalIndex].Normal.ToGodot()
-                        : faceNormal);
-                    uvs.Add(poly.Type == ModelPolygonType.Textured
-                        ? modelFile.VertexUvs[vertexIndex.UvIndex].ToGodot(false)
-                        : Vector2.Zero);
+                    matPolyMap[poly.Data].Add(j);
                 }
-
-                var polyVertexCount = poly.VertexIndices.Count;
-                var indexOffset = vertices.Count - polyVertexCount;
-                for (var k = 1; k < polyVertexCount - 1; k++)
+                else
                 {
-                    indices.Add(indexOffset);
-                    indices.Add(indexOffset + k);
-                    indices.Add(indexOffset + k + 1);
+                    matPolyMap[poly.Data] = [j];
                 }
             }
 
-            var transform = subObject.JointType == ModelObjectType.Static || subObject.JointIndex == -1
-                ? Transform3D.Identity
-                : subObject.Transform.ToGodot();
-            var array = new Array();
             var arrayMesh = new ArrayMesh();
-            array.Resize((int)Mesh.ArrayType.Max);
-            array[(int)Mesh.ArrayType.Vertex] = vertices.ToArray();
-            array[(int)Mesh.ArrayType.Normal] = normals.ToArray();
-            array[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-            array[(int)Mesh.ArrayType.Index] = indices.ToArray();
-            arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, array);
+            foreach (var (slot, polyIdxs) in matPolyMap)
+            {
+                var material = materials.GetValueOrDefault(slot, defaultMaterial);
+                var vertices = new List<Vector3>();
+                var normals = new List<Vector3>();
+                var uvs = new List<Vector2>();
+                var indices = new List<int>();
+
+                foreach (var polyIdx in polyIdxs)
+                {
+                    var poly = modelFile.Polygons[polyIdx];
+                    var faceNormal = modelFile.FaceNormals[poly.NormalIndex].ToGodot();
+                    foreach (var vertexIndex in poly.VertexIndices)
+                    {
+                        vertices.Add(modelFile.VertexPositions[vertexIndex.PositionIndex].ToGodot());
+                        normals.Add(poly.UseVertexNormals
+                            ? modelFile.VertexNormals[vertexIndex.NormalIndex].Normal.ToGodot()
+                            : faceNormal);
+                        uvs.Add(poly.Type == ModelPolygonType.Textured
+                            ? modelFile.VertexUvs[vertexIndex.UvIndex].ToGodot(false)
+                            : Vector2.Zero);
+                    }
+
+                    var polyVertexCount = poly.VertexIndices.Count;
+                    var indexOffset = vertices.Count - polyVertexCount;
+                    for (var k = 1; k < polyVertexCount - 1; k++)
+                    {
+                        indices.Add(indexOffset);
+                        indices.Add(indexOffset + k);
+                        indices.Add(indexOffset + k + 1);
+                    }
+                }
+
+                var array = new Array();
+                array.Resize((int)Mesh.ArrayType.Max);
+                array[(int)Mesh.ArrayType.Vertex] = vertices.ToArray();
+                array[(int)Mesh.ArrayType.Normal] = normals.ToArray();
+                array[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
+                array[(int)Mesh.ArrayType.Index] = indices.ToArray();
+
+                var surfaceIdx = arrayMesh.GetSurfaceCount();
+                arrayMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, array);
+                arrayMesh.SurfaceSetMaterial(surfaceIdx, material);
+            }
 
             meshes[i] = new MeshInstance3D
             {
@@ -107,5 +184,61 @@ public partial class ModelViewport : SubViewport
                 childIndex = modelFile.Objects[childIndex].SiblingObjectIndex;
             }
         }
+    }
+
+    private static bool TryLoadTexture(ResourceManager resources, string virtualPath,
+        [MaybeNullWhen(false)] out Texture2D texture)
+    {
+        texture = null;
+        if (!resources.TryGetFileMemoryStream(virtualPath, out var stream))
+        {
+            return false;
+        }
+
+        MagickImage? magickImage = null;
+        var ext = Path.GetExtension(virtualPath).ToLower();
+        switch (ext)
+        {
+            case ".png":
+            case ".dds":
+            case ".bmp":
+                magickImage = new MagickImage(stream);
+                break;
+            case ".pcx":
+            case ".gif":
+            {
+                magickImage = new MagickImage(stream);
+                var colorZero = magickImage.GetColormapColor(0);
+                if (colorZero != null)
+                {
+                    magickImage.Transparent(colorZero);
+                }
+
+                break;
+            }
+            case ".tga":
+            {
+                // TGA doesn't have a signature so we have to specify the format when loading from a stream
+                magickImage = new MagickImage(stream, MagickFormat.Tga);
+                break;
+            }
+        }
+
+        if (magickImage == null)
+        {
+            Log.Warning("Cannot load texture at virtual path ({VPath}). Unsupported file type.", virtualPath);
+            return false;
+        }
+
+        using var pngStream = new MemoryStream();
+        magickImage.Format = MagickFormat.Png;
+        magickImage.Write(pngStream);
+
+        var width = (int)magickImage.Width;
+        var height = (int)magickImage.Height;
+        var image = Image.CreateEmpty(width, height, true, Image.Format.Rgba8);
+        image.LoadPngFromBuffer(pngStream.GetBuffer());
+        texture = ImageTexture.CreateFromImage(image);
+        return true;
     }
 }
