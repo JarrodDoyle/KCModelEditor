@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using KeepersCompound.Dark;
 using KeepersCompound.Dark.Resources;
+using KeepersCompound.ModelEditor.Render;
 
 namespace KeepersCompound.ModelEditor.UI;
 
@@ -12,12 +13,14 @@ public partial class ModelEditor : Control
     private OptionButton _campaignsOptionButton;
     private Button _reloadResourcesButton;
     private Tree _modelsTree;
+    private ModelViewport _modelViewport;
 
     public override void _Ready()
     {
         _campaignsOptionButton = GetNode<OptionButton>("%CampaignsOptionButton");
         _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
         _modelsTree = GetNode<Tree>("%ModelsTree");
+        _modelViewport = GetNode<ModelViewport>("%ModelViewport");
         
         _campaignsOptionButton.ItemSelected += OnCampaignSelected;
         _modelsTree.ItemSelected += OnModelSelected;
@@ -26,12 +29,11 @@ public partial class ModelEditor : Control
     private void OnModelSelected()
     {
         var modelName = _modelsTree.GetSelected().GetText(0);
-        if (!_resourceManager.TryGetModel(modelName, out var modelFile))
+        if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
-            return;
+            GD.Print(modelFile.VertexPositions.Count);
+            _modelViewport.RenderModel(modelFile);
         }
-
-        GD.Print(modelFile.VertexPositions.Count);
     }
 
     private void OnCampaignSelected(long index)

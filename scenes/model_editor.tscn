@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bmvch3t460c6k"]
+[gd_scene load_steps=11 format=3 uid="uid://bmvch3t460c6k"]
 
 [ext_resource type="Theme" uid="uid://bcibt73qths3g" path="res://assets/minimal_theme.tres" id="1_q4b0d"]
 [ext_resource type="Script" uid="uid://lql6oolb38v0" path="res://src/UI/ModelEditor.cs" id="1_wp7jf"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://c8q1ysaieox5q" path="res://assets/icons/Object.svg" id="5_detkr"]
 [ext_resource type="Texture2D" uid="uid://c5d4yxllrje7b" path="res://assets/icons/Sort.svg" id="6_728lh"]
 [ext_resource type="Texture2D" uid="uid://cdlaiy1ipg51k" path="res://assets/icons/MeshInstance3D.svg" id="7_detkr"]
+[ext_resource type="PackedScene" uid="uid://cjis76ea3bcw4" path="res://scenes/model_viewport.tscn" id="8_728lh"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xnqnd"]
 bg_color = Color(0.145098, 0.145098, 0.145098, 1)
@@ -176,7 +177,8 @@ layout_mode = 2
 size_flags_vertical = 3
 stretch = true
 
-[node name="SubViewport" type="SubViewport" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer/MarginContainer/SubViewportContainer"]
+[node name="ModelViewport" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer/MarginContainer/SubViewportContainer" instance=ExtResource("8_728lh")]
+unique_name_in_owner = true
 handle_input_locally = false
 size = Vector2i(922, 562)
 render_target_update_mode = 4
