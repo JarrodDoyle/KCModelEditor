@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://b4pf8koqmkgfv" path="res://src/Render/ModelViewport.cs" id="1_onm0c"]
 
 [sub_resource type="Environment" id="Environment_nuyio"]
-ssao_enabled = true
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
 
 [node name="ModelViewport" type="SubViewport"]
 script = ExtResource("1_onm0c")
