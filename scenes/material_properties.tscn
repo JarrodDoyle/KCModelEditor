@@ -5,12 +5,10 @@
 
 [node name="MaterialProperties" type="FoldableContainer"]
 theme = ExtResource("1_lr8pg")
-folded = true
 title_text_overrun_behavior = 3
 script = ExtResource("1_2magm")
 
 [node name="Properties" type="VBoxContainer" parent="."]
-visible = false
 layout_mode = 2
 
 [node name="Name" type="HBoxContainer" parent="Properties"]
