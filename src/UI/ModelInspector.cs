@@ -10,7 +10,9 @@ public partial class ModelInspector : PanelContainer
 {
     private ModelFile? _modelFile;
     private readonly List<ObjectProperties> _objectProperties = [];
+    private readonly List<MaterialProperties> _materialProperties = [];
     private PackedScene? _objectPropertiesScene;
+    private PackedScene? _materialPropertiesScene;
 
     #region Nodes
 
@@ -23,6 +25,7 @@ public partial class ModelInspector : PanelContainer
     private LineEdit? _modelVertexCount;
     private LineEdit? _modelPolygonCount;
     private VBoxContainer? _objectPropertiesContainer;
+    private VBoxContainer? _materialPropertiesContainer;
 
     #endregion
 
@@ -37,8 +40,10 @@ public partial class ModelInspector : PanelContainer
         _modelVertexCount = GetNode<LineEdit>("%ModelVertexCount");
         _modelPolygonCount = GetNode<LineEdit>("%ModelPolygonCount");
         _objectPropertiesContainer = GetNode<VBoxContainer>("%ObjectPropertiesContainer");
+        _materialPropertiesContainer = GetNode<VBoxContainer>("%MaterialPropertiesContainer");
 
         _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
+        _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
     }
 
     public void SetModel(ModelFile modelFile)
@@ -72,6 +77,25 @@ public partial class ModelInspector : PanelContainer
             _objectPropertiesContainer?.AddChild(instance);
             _objectProperties.Add(instance);
             instance.SetModelObject(_modelFile, i);
+        }
+
+        foreach (var node in _materialProperties)
+        {
+            node.QueueFree();
+        }
+
+        _materialProperties.Clear();
+        for (var i = 0; i < modelFile.Materials.Count; i++)
+        {
+            if (_materialPropertiesScene?.Instantiate() is not MaterialProperties instance)
+            {
+                Log.Error("Material Properties inspector scene is null.");
+                continue;
+            }
+
+            _materialPropertiesContainer?.AddChild(instance);
+            _materialProperties.Add(instance);
+            instance.SetModelMaterial(_modelFile, i);
         }
     }
 }

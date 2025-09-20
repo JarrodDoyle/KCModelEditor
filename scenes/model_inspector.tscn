@@ -190,3 +190,17 @@ label_settings = SubResource("LabelSettings_xpsmv")
 [node name="ObjectPropertiesContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="MaterialHeader" type="PanelContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_728lh")
+
+[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/MaterialHeader"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Materials"
+label_settings = SubResource("LabelSettings_xpsmv")
+
+[node name="MaterialPropertiesContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
