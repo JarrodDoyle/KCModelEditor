@@ -33,7 +33,6 @@ public partial class ModelEditor : Control
         var modelName = _modelsTree.GetSelected().GetText(0);
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
-            GD.Print(modelFile.VertexPositions.Count);
             _modelViewport.RenderModel(_resourceManager, modelFile);
             _modelInspector.SetModel(modelFile);
         }
