@@ -1,12 +1,16 @@
+using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 using KeepersCompound.Formats.Model;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelInspector : PanelContainer
 {
     private ModelFile? _modelFile;
+    private readonly List<ObjectProperties> _objectProperties = [];
+    private PackedScene? _objectPropertiesScene;
 
     #region Nodes
 
@@ -18,6 +22,7 @@ public partial class ModelInspector : PanelContainer
     private SpinBox? _modelCenterZ;
     private LineEdit? _modelVertexCount;
     private LineEdit? _modelPolygonCount;
+    private VBoxContainer? _objectPropertiesContainer;
 
     #endregion
 
@@ -31,6 +36,9 @@ public partial class ModelInspector : PanelContainer
         _modelCenterZ = GetNode<SpinBox>("%ModelCenterZ");
         _modelVertexCount = GetNode<LineEdit>("%ModelVertexCount");
         _modelPolygonCount = GetNode<LineEdit>("%ModelPolygonCount");
+        _objectPropertiesContainer = GetNode<VBoxContainer>("%ObjectPropertiesContainer");
+
+        _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
     }
 
     public void SetModel(ModelFile modelFile)
@@ -46,5 +54,24 @@ public partial class ModelInspector : PanelContainer
         _modelCenterZ?.Value = _modelFile.Center.Z;
         _modelVertexCount?.Text = _modelFile.VertexPositions.Count.ToString();
         _modelPolygonCount?.Text = _modelFile.Polygons.Count.ToString();
+
+        foreach (var node in _objectProperties)
+        {
+            node.QueueFree();
+        }
+
+        _objectProperties.Clear();
+        for (var i = 0; i < modelFile.Objects.Count; i++)
+        {
+            if (_objectPropertiesScene?.Instantiate() is not ObjectProperties instance)
+            {
+                Log.Error("Object Properties inspector scene is null.");
+                continue;
+            }
+
+            _objectPropertiesContainer?.AddChild(instance);
+            _objectProperties.Add(instance);
+            instance.SetModelObject(_modelFile, i);
+        }
     }
 }
