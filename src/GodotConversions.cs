@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 
 namespace KeepersCompound.ModelEditor;
@@ -20,5 +21,10 @@ public static class GodotConversions
     {
         var t = mat.Translation / (scale ? InverseScale : 1.0f);
         return new Godot.Transform3D(mat.M22, mat.M32, mat.M12, mat.M23, mat.M33, mat.M13, mat.M21, mat.M31, mat.M11, t.Y, t.Z, t.X);
+    }
+
+    public static Godot.Color ToGodot(this Color color)
+    {
+        return new Godot.Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
     }
 }

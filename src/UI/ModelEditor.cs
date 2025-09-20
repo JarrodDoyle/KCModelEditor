@@ -14,6 +14,7 @@ public partial class ModelEditor : Control
     private Button _reloadResourcesButton;
     private Tree _modelsTree;
     private ModelViewport _modelViewport;
+    private ModelInspector _modelInspector;
 
     public override void _Ready()
     {
@@ -21,6 +22,7 @@ public partial class ModelEditor : Control
         _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
         _modelsTree = GetNode<Tree>("%ModelsTree");
         _modelViewport = GetNode<ModelViewport>("%ModelViewport");
+        _modelInspector = GetNode<ModelInspector>("%ModelInspector");
         
         _campaignsOptionButton.ItemSelected += OnCampaignSelected;
         _modelsTree.ItemSelected += OnModelSelected;
@@ -31,8 +33,8 @@ public partial class ModelEditor : Control
         var modelName = _modelsTree.GetSelected().GetText(0);
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
-            GD.Print(modelFile.VertexPositions.Count);
             _modelViewport.RenderModel(_resourceManager, modelFile);
+            _modelInspector.SetModel(modelFile);
         }
     }
 

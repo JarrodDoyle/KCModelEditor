@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3 uid="uid://dm7t23ax6kh1s"]
+
+[ext_resource type="Script" uid="uid://dv7sp0ufid7eh" path="res://src/UI/ObjectProperties.cs" id="1_8liqw"]
+[ext_resource type="Theme" uid="uid://bcibt73qths3g" path="res://assets/minimal_theme.tres" id="1_kluq6"]
+
+[node name="ObjectProperties" type="FoldableContainer"]
+theme = ExtResource("1_kluq6")
+title_text_overrun_behavior = 3
+script = ExtResource("1_8liqw")
+
+[node name="Properties" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Name" type="HBoxContainer" parent="Properties"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Name"
+text_overrun_behavior = 3
+
+[node name="ObjectName" type="LineEdit" parent="Properties/Name"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="JointType" type="HBoxContainer" parent="Properties"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/JointType"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Joint Type"
+text_overrun_behavior = 3
+
+[node name="ObjectJointType" type="OptionButton" parent="Properties/JointType"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text_overrun_behavior = 4
+fit_to_longest_item = false
+item_count = 3
+popup/item_0/text = "Static"
+popup/item_0/id = 0
+popup/item_0/disabled = true
+popup/item_1/text = "Rotating"
+popup/item_1/id = 1
+popup/item_1/disabled = true
+popup/item_2/text = "Sliding"
+popup/item_2/id = 2
+popup/item_2/disabled = true
+
+[node name="JointIndex" type="HBoxContainer" parent="Properties"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/JointIndex"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Joint Index"
+text_overrun_behavior = 3
+
+[node name="ObjectJointIndex" type="SpinBox" parent="Properties/JointIndex"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+rounded = true
+editable = false

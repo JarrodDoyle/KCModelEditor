@@ -1,0 +1,141 @@
+[gd_scene load_steps=3 format=3 uid="uid://g8haby7whlv2"]
+
+[ext_resource type="Script" uid="uid://tj1hkpb862fq" path="res://src/UI/MaterialProperties.cs" id="1_2magm"]
+[ext_resource type="Theme" uid="uid://bcibt73qths3g" path="res://assets/minimal_theme.tres" id="1_lr8pg"]
+
+[node name="MaterialProperties" type="FoldableContainer"]
+theme = ExtResource("1_lr8pg")
+title_text_overrun_behavior = 3
+script = ExtResource("1_2magm")
+
+[node name="Properties" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Name" type="HBoxContainer" parent="Properties"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Name"
+text_overrun_behavior = 3
+
+[node name="MaterialName" type="LineEdit" parent="Properties/Name"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="JointType" type="HBoxContainer" parent="Properties"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/JointType"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Type"
+text_overrun_behavior = 3
+
+[node name="MaterialType" type="OptionButton" parent="Properties/JointType"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text_overrun_behavior = 4
+fit_to_longest_item = false
+item_count = 2
+popup/item_0/text = "Texture"
+popup/item_0/id = 0
+popup/item_0/disabled = true
+popup/item_1/text = "Color"
+popup/item_1/id = 1
+popup/item_1/disabled = true
+
+[node name="Slot" type="HBoxContainer" parent="Properties"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/Slot"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Slot"
+text_overrun_behavior = 3
+
+[node name="MaterialSlot" type="SpinBox" parent="Properties/Slot"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+rounded = true
+editable = false
+
+[node name="Transparency" type="HBoxContainer" parent="Properties"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/Transparency"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Transparency"
+text_overrun_behavior = 3
+
+[node name="MaterialTransparency" type="SpinBox" parent="Properties/Transparency"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="SelfIllumination" type="HBoxContainer" parent="Properties"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/SelfIllumination"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Self-Illumination"
+text_overrun_behavior = 3
+
+[node name="MaterialSelfIllumination" type="SpinBox" parent="Properties/SelfIllumination"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="Color" type="HBoxContainer" parent="Properties"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/Color"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Color"
+text_overrun_behavior = 3
+
+[node name="MaterialColor" type="ColorPickerButton" parent="Properties/Color"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+edit_alpha = false
+edit_intensity = false
+
+[node name="PaletteIndex" type="HBoxContainer" parent="Properties"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Properties/PaletteIndex"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Palette Index"
+text_overrun_behavior = 3
+
+[node name="MaterialPaletteIndex" type="SpinBox" parent="Properties/PaletteIndex"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 255.0
+rounded = true
+editable = false
