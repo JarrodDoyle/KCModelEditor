@@ -1,10 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dm7t23ax6kh1s"]
+[gd_scene load_steps=2 format=3 uid="uid://dm7t23ax6kh1s"]
 
 [ext_resource type="Script" uid="uid://dv7sp0ufid7eh" path="res://src/UI/ObjectProperties.cs" id="1_8liqw"]
-[ext_resource type="Theme" uid="uid://bcibt73qths3g" path="res://assets/minimal_theme.tres" id="1_kluq6"]
 
 [node name="ObjectProperties" type="FoldableContainer"]
-theme = ExtResource("1_kluq6")
 title_text_overrun_behavior = 3
 script = ExtResource("1_8liqw")
 

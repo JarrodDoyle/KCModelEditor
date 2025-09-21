@@ -1,6 +1,5 @@
-[gd_scene load_steps=12 format=3 uid="uid://bmvch3t460c6k"]
+[gd_scene load_steps=11 format=3 uid="uid://bmvch3t460c6k"]
 
-[ext_resource type="Theme" uid="uid://bcibt73qths3g" path="res://assets/minimal_theme.tres" id="1_q4b0d"]
 [ext_resource type="Script" uid="uid://lql6oolb38v0" path="res://src/UI/ModelEditor.cs" id="1_wp7jf"]
 [ext_resource type="Texture2D" uid="uid://c5fivllqo0d7s" path="res://assets/icons/Reload.svg" id="4_detkr"]
 [ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="4_xnqnd"]
@@ -29,7 +28,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_q4b0d")
 script = ExtResource("1_wp7jf")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -183,7 +181,7 @@ stretch = true
 [node name="ModelViewport" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/VBoxContainer/PanelContainer/MarginContainer/SubViewportContainer" instance=ExtResource("8_728lh")]
 unique_name_in_owner = true
 handle_input_locally = false
-size = Vector2i(690, 562)
+size = Vector2i(647, 562)
 render_target_update_mode = 4
 
 [node name="ModelInspector" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer" instance=ExtResource("9_fjp6t")]

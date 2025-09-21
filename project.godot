@@ -15,6 +15,16 @@ run/main_scene="uid://c1lbh6jvr2r8k"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/energy_saving/keep_screen_on=false
+
 [dotnet]
 
 project/assembly_name="KeepersCompound.ModelEditor"
+
+[gui]
+
+theme/custom="uid://bcibt73qths3g"
