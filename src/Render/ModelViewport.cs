@@ -15,9 +15,35 @@ public partial class ModelViewport : SubViewport
 {
     #region Nodes
 
-    private Node3D _modelContainer;
+    private Node3D? _modelContainer;
+    private LineRenderer? _boundingBox;
 
     #endregion
+
+    public bool BoundingBoxVisible
+    {
+        get;
+        set
+        {
+            field = value;
+            _boundingBox?.Visible = value;
+        }
+    }
+
+    public bool WireframesVisible
+    {
+        get;
+        set
+        {
+            field = value;
+            foreach (var node in _wireframes)
+            {
+                node.Visible = value;
+            }
+        }
+    }
+
+    private readonly List<LineRenderer> _wireframes = [];
 
     public override void _Ready()
     {
@@ -26,6 +52,13 @@ public partial class ModelViewport : SubViewport
 
     public void RenderModel(ResourceManager resources, ModelFile modelFile)
     {
+        if (_modelContainer == null)
+        {
+            Log.Error("Model container is null.");
+            return;
+        }
+
+        _wireframes.Clear();
         foreach (var child in _modelContainer.GetChildren())
         {
             child.QueueFree();
@@ -113,6 +146,7 @@ public partial class ModelViewport : SubViewport
                 }
             }
 
+            var edges = new HashSet<(int, int)>();
             var arrayMesh = new ArrayMesh();
             foreach (var (slot, polyIdxs) in matPolyMap)
             {
@@ -126,8 +160,12 @@ public partial class ModelViewport : SubViewport
                 {
                     var poly = modelFile.Polygons[polyIdx];
                     var faceNormal = modelFile.FaceNormals[poly.NormalIndex].ToGodot();
-                    foreach (var vertexIndex in poly.VertexIndices)
+                    var vertexCount = poly.VertexIndices.Count;
+                    for (var j = 0; j < vertexCount; j++)
                     {
+                        var vertexIndex = poly.VertexIndices[j];
+                        var nextVertexIndex = poly.VertexIndices[(j + 1) % vertexCount];
+                        edges.Add((vertexIndex.PositionIndex, nextVertexIndex.PositionIndex));
                         vertices.Add(modelFile.VertexPositions[vertexIndex.PositionIndex].ToGodot());
                         normals.Add(poly.UseVertexNormals
                             ? modelFile.VertexNormals[vertexIndex.NormalIndex].Normal.ToGodot()
@@ -165,6 +203,18 @@ public partial class ModelViewport : SubViewport
                 Position = -modelFile.Center.ToGodot(),
                 Transform = transform,
             };
+
+            var lineVertices = new List<Vector3>();
+            foreach (var (i0, i1) in edges)
+            {
+                lineVertices.Add(modelFile.VertexPositions[i0].ToGodot());
+                lineVertices.Add(modelFile.VertexPositions[i1].ToGodot());
+            }
+
+            var objectWireframe = new LineRenderer { Vertices = lineVertices, LineColor = Colors.AliceBlue };
+            objectWireframe.Visible = WireframesVisible;
+            _wireframes.Add(objectWireframe);
+            meshes[i].AddChild(objectWireframe);
         }
 
         _modelContainer.AddChild(meshes[0]);
@@ -184,6 +234,13 @@ public partial class ModelViewport : SubViewport
                 childIndex = modelFile.Objects[childIndex].SiblingObjectIndex;
             }
         }
+
+        var minBounds = modelFile.MinBounds.ToGodot();
+        var maxBounds = modelFile.MaxBounds.ToGodot();
+        var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
+        _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
+        _modelContainer.AddChild(_boundingBox);
+        _boundingBox.Visible = BoundingBoxVisible;
     }
 
     private static bool TryLoadTexture(ResourceManager resources, string virtualPath,
