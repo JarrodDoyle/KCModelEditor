@@ -15,9 +15,35 @@ public partial class ModelViewport : SubViewport
 {
     #region Nodes
 
-    private Node3D _modelContainer;
+    private Node3D? _modelContainer;
+    private LineRenderer? _boundingBox;
 
     #endregion
+
+    public bool BoundingBoxVisible
+    {
+        get;
+        set
+        {
+            field = value;
+            _boundingBox?.Visible = value;
+        }
+    }
+
+    public bool WireframesVisible
+    {
+        get;
+        set
+        {
+            field = value;
+            foreach (var node in _wireframes)
+            {
+                node.Visible = value;
+            }
+        }
+    }
+
+    private readonly List<LineRenderer> _wireframes = [];
 
     public override void _Ready()
     {
@@ -26,6 +52,13 @@ public partial class ModelViewport : SubViewport
 
     public void RenderModel(ResourceManager resources, ModelFile modelFile)
     {
+        if (_modelContainer == null)
+        {
+            Log.Error("Model container is null.");
+            return;
+        }
+
+        _wireframes.Clear();
         foreach (var child in _modelContainer.GetChildren())
         {
             child.QueueFree();
@@ -178,11 +211,10 @@ public partial class ModelViewport : SubViewport
                 lineVertices.Add(modelFile.VertexPositions[i1].ToGodot());
             }
 
-            meshes[i].AddChild(new LineRenderer
-            {
-                Vertices = lineVertices,
-                LineColor = Colors.AliceBlue,
-            });
+            var objectWireframe = new LineRenderer { Vertices = lineVertices, LineColor = Colors.AliceBlue };
+            objectWireframe.Visible = WireframesVisible;
+            _wireframes.Add(objectWireframe);
+            meshes[i].AddChild(objectWireframe);
         }
 
         _modelContainer.AddChild(meshes[0]);
@@ -206,7 +238,9 @@ public partial class ModelViewport : SubViewport
         var minBounds = modelFile.MinBounds.ToGodot();
         var maxBounds = modelFile.MaxBounds.ToGodot();
         var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
-        _modelContainer.AddChild(LineRenderer.CreateAabb(boundsAabb, Colors.Brown));
+        _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
+        _modelContainer.AddChild(_boundingBox);
+        _boundingBox.Visible = BoundingBoxVisible;
     }
 
     private static bool TryLoadTexture(ResourceManager resources, string virtualPath,

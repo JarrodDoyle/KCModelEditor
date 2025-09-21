@@ -15,6 +15,7 @@ public partial class ModelEditor : Control
     private Tree _modelsTree;
     private ModelViewport _modelViewport;
     private ModelInspector _modelInspector;
+    private PopupMenu _viewMenu;
 
     public override void _Ready()
     {
@@ -23,9 +24,30 @@ public partial class ModelEditor : Control
         _modelsTree = GetNode<Tree>("%ModelsTree");
         _modelViewport = GetNode<ModelViewport>("%ModelViewport");
         _modelInspector = GetNode<ModelInspector>("%ModelInspector");
-        
+        _viewMenu = GetNode<PopupMenu>("%View");
+
         _campaignsOptionButton.ItemSelected += OnCampaignSelected;
         _modelsTree.ItemSelected += OnModelSelected;
+        _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
+    }
+
+    private void ViewMenuOnIndexPressed(long indexLong)
+    {
+        var index = (int)indexLong;
+        if (_viewMenu.IsItemCheckable(index))
+        {
+            _viewMenu.SetItemChecked(index, !_viewMenu.IsItemChecked(index));
+        }
+
+        switch (index)
+        {
+            case 0:
+                _modelViewport.BoundingBoxVisible = _viewMenu.IsItemChecked(index);
+                break;
+            case 1:
+                _modelViewport.WireframesVisible = _viewMenu.IsItemChecked(index);
+                break;
+        }
     }
 
     private void OnModelSelected()
