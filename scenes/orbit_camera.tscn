@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bot2kma0yfxnn"]
+
+[ext_resource type="Script" uid="uid://b436o1wwsoalh" path="res://src/OrbitCamera.cs" id="1_ukmu0"]
+
+[node name="OrbitCamera" type="Node3D"]
+script = ExtResource("1_ukmu0")
+
+[node name="Camera" type="Camera3D" parent="."]
+unique_name_in_owner = true
