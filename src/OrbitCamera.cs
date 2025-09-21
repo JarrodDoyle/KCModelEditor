@@ -71,8 +71,9 @@ public partial class OrbitCamera : Node3D
             _cameraPitch += pitch;
         } else if (_panning)
         {
-            var offset = new Vector3(-_mouseMotion.X, _mouseMotion.Y, 0) * PanSensitivity;
-            Position = Position.Lerp(Position + offset, LerpSpeed * (float)delta);
+            var targetOffset = new Vector3(-_mouseMotion.X, _mouseMotion.Y, 0) * PanSensitivity;
+            var offset = Vector3.Zero.Lerp(targetOffset, LerpSpeed * (float)delta);
+            TranslateObjectLocal(offset);
         }
 
         _mouseMotion = Vector2.Zero;
