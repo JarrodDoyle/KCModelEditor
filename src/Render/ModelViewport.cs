@@ -184,6 +184,11 @@ public partial class ModelViewport : SubViewport
                 childIndex = modelFile.Objects[childIndex].SiblingObjectIndex;
             }
         }
+
+        var minBounds = modelFile.MinBounds.ToGodot();
+        var maxBounds = modelFile.MaxBounds.ToGodot();
+        var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
+        _modelContainer.AddChild(LineRenderer.CreateAabb(boundsAabb, Colors.Brown));
     }
 
     private static bool TryLoadTexture(ResourceManager resources, string virtualPath,
