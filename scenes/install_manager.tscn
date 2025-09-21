@@ -1,6 +1,5 @@
-[gd_scene load_steps=11 format=3 uid="uid://dm8et7nwwnq34"]
+[gd_scene load_steps=10 format=3 uid="uid://dm8et7nwwnq34"]
 
-[ext_resource type="Theme" uid="uid://bcibt73qths3g" path="res://assets/minimal_theme.tres" id="1_6g0al"]
 [ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="2_0givp"]
 [ext_resource type="Script" uid="uid://bn6fyumt2nyv7" path="res://src/UI/InstallManager.cs" id="2_dopy0"]
 [ext_resource type="Texture2D" uid="uid://bsjq127cgueo6" path="res://assets/icons/Add.svg" id="3_dopy0"]
@@ -31,7 +30,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_6g0al")
 script = ExtResource("2_dopy0")
 
 [node name="FolderSelect" type="FileDialog" parent="."]

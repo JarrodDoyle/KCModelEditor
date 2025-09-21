@@ -18,3 +18,7 @@ config/icon="res://icon.svg"
 [dotnet]
 
 project/assembly_name="KeepersCompound.ModelEditor"
+
+[gui]
+
+theme/custom="uid://bcibt73qths3g"
