@@ -113,6 +113,7 @@ public partial class ModelViewport : SubViewport
                 }
             }
 
+            var edges = new HashSet<(int, int)>();
             var arrayMesh = new ArrayMesh();
             foreach (var (slot, polyIdxs) in matPolyMap)
             {
@@ -126,8 +127,12 @@ public partial class ModelViewport : SubViewport
                 {
                     var poly = modelFile.Polygons[polyIdx];
                     var faceNormal = modelFile.FaceNormals[poly.NormalIndex].ToGodot();
-                    foreach (var vertexIndex in poly.VertexIndices)
+                    var vertexCount = poly.VertexIndices.Count;
+                    for (var j = 0; j < vertexCount; j++)
                     {
+                        var vertexIndex = poly.VertexIndices[j];
+                        var nextVertexIndex = poly.VertexIndices[(j + 1) % vertexCount];
+                        edges.Add((vertexIndex.PositionIndex, nextVertexIndex.PositionIndex));
                         vertices.Add(modelFile.VertexPositions[vertexIndex.PositionIndex].ToGodot());
                         normals.Add(poly.UseVertexNormals
                             ? modelFile.VertexNormals[vertexIndex.NormalIndex].Normal.ToGodot()
@@ -165,6 +170,19 @@ public partial class ModelViewport : SubViewport
                 Position = -modelFile.Center.ToGodot(),
                 Transform = transform,
             };
+
+            var lineVertices = new List<Vector3>();
+            foreach (var (i0, i1) in edges)
+            {
+                lineVertices.Add(modelFile.VertexPositions[i0].ToGodot());
+                lineVertices.Add(modelFile.VertexPositions[i1].ToGodot());
+            }
+
+            meshes[i].AddChild(new LineRenderer
+            {
+                Vertices = lineVertices,
+                LineColor = Colors.AliceBlue,
+            });
         }
 
         _modelContainer.AddChild(meshes[0]);
