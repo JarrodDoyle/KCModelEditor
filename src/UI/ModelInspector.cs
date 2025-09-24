@@ -8,6 +8,14 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelInspector : PanelContainer
 {
+    #region Events
+
+    public delegate void ModelEditedEventHandler();
+
+    public event ModelEditedEventHandler ModelEdited;
+
+    #endregion
+
     private ModelFile? _modelFile;
     private readonly List<ObjectProperties> _objectProperties = [];
     private readonly List<MaterialProperties> _materialProperties = [];
@@ -81,6 +89,7 @@ public partial class ModelInspector : PanelContainer
 
         foreach (var node in _materialProperties)
         {
+            node.MaterialEdited -= OnModelEdited;
             node.QueueFree();
         }
 
@@ -96,6 +105,12 @@ public partial class ModelInspector : PanelContainer
             _materialPropertiesContainer?.AddChild(instance);
             _materialProperties.Add(instance);
             instance.SetModelMaterial(_modelFile, i);
+            instance.MaterialEdited += OnModelEdited;
         }
+    }
+
+    private void OnModelEdited()
+    {
+        ModelEdited.Invoke();
     }
 }

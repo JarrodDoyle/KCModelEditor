@@ -6,6 +6,14 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class MaterialProperties : FoldableContainer
 {
+    #region Events
+
+    public delegate void MaterialEditedEventHandler();
+
+    public event MaterialEditedEventHandler MaterialEdited;
+
+    #endregion
+
     private ModelMaterial? _modelMaterial;
 
     #region Nodes
@@ -37,6 +45,8 @@ public partial class MaterialProperties : FoldableContainer
         _selfIlluminationContainer = GetNode<HBoxContainer>("%SelfIllumination");
         _colorContainer = GetNode<HBoxContainer>("%Color");
         _paletteIndexContainer = GetNode<HBoxContainer>("%PaletteIndex");
+
+        _materialName.TextSubmitted += MaterialNameOnTextSubmitted;
     }
 
     public void SetModelMaterial(ModelFile modelFile, int index)
@@ -69,5 +79,11 @@ public partial class MaterialProperties : FoldableContainer
             _colorContainer?.Visible = false;
             _paletteIndexContainer?.Visible = false;
         }
+    }
+
+    private void MaterialNameOnTextSubmitted(string newText)
+    {
+        _modelMaterial?.Name = newText;
+        MaterialEdited.Invoke();
     }
 }
