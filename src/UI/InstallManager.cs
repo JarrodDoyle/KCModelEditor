@@ -25,6 +25,8 @@ public partial class InstallManager : Control
 
     private bool _editMode = false;
     private Dictionary<string, bool> _validityMap;
+    private Texture2D _invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
+    private Texture2D? _blankIcon;
 
     public override void _Ready()
     {
@@ -49,6 +51,10 @@ public partial class InstallManager : Control
 
         _configFile = new ConfigFile();
         _validityMap = new Dictionary<string, bool>();
+
+        var width = _invalidIcon.GetWidth();
+        var height = _invalidIcon.GetHeight();
+        _blankIcon = ImageTexture.CreateFromImage(Image.CreateEmpty(width, height, false, Image.Format.Rgba8));
     }
 
     public void LoadConfig(string configFilePath)
@@ -57,17 +63,11 @@ public partial class InstallManager : Control
         _configFilePath = configFilePath;
         if (_configFile.Load(_configFilePath) == Error.Ok)
         {
-            // The blank icon is needed so that each path has the same padding
-            var invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
-            var width = invalidIcon.GetWidth();
-            var height = invalidIcon.GetHeight();
-            var blankTexture = ImageTexture.CreateFromImage(Image.CreateEmpty(width, height, false, Image.Format.Rgba8));
-
             var paths = _configFile.GetValue("general", "install_paths", Array.Empty<string>()).AsStringArray();
             foreach (var path in paths)
             {
                 var valid = IsInstallPathValid(path);
-                _installPaths.AddItem(path, valid ? blankTexture : invalidIcon);
+                _installPaths.AddItem(path, valid ? _blankIcon : _invalidIcon);
                 _validityMap.Add(path, valid);
             }
 
@@ -121,7 +121,7 @@ public partial class InstallManager : Control
     private void AddInstallPath(string path)
     {
         _validityMap.Add(path, true);
-        _installPaths.AddItem(path);
+        _installPaths.AddItem(path, _blankIcon);
         _installPaths.SortItemsByText();
         UpdateConfig();
     }
