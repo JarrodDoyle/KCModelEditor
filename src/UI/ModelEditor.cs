@@ -14,6 +14,10 @@ public partial class ModelEditor : Control
 {
     private InstallContext _installContext;
     private ResourceManager _resourceManager = new();
+    private ModelFile? _currentModel;
+
+    #region Nodes
+
     private OptionButton _campaignsOptionButton;
     private Button _reloadResourcesButton;
     private Tree _modelsTree;
@@ -21,8 +25,9 @@ public partial class ModelEditor : Control
     private ModelInspector _modelInspector;
     private PopupMenu _fileMenu;
     private PopupMenu _viewMenu;
+    private FileDialog _saveAsDialog;
 
-    private ModelFile? _currentModel;
+    #endregion
 
     public override void _Ready()
     {
@@ -33,14 +38,24 @@ public partial class ModelEditor : Control
         _modelInspector = GetNode<ModelInspector>("%ModelInspector");
         _fileMenu = GetNode<PopupMenu>("%File");
         _viewMenu = GetNode<PopupMenu>("%View");
+        _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
         _campaignsOptionButton.ItemSelected += OnCampaignSelected;
         _modelsTree.ItemSelected += OnModelSelected;
         _fileMenu.IndexPressed += FileMenuOnIndexPressed;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
+        _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
     }
 
     #region EventHandling
+
+    private void SaveAsDialogOnFileSelected(string path)
+    {
+        if (_currentModel != null)
+        {
+            Save(path, _currentModel);
+        }
+    }
 
     private void ViewMenuOnIndexPressed(long indexLong)
     {
@@ -74,7 +89,19 @@ public partial class ModelEditor : Control
                     {
                         Save(path, _currentModel);
                     }
+                    else
+                    {
+                        _saveAsDialog.Show();
+                    }
                 }
+
+                break;
+            case 1:
+                if (_currentModel != null)
+                {
+                    _saveAsDialog.Show();
+                }
+
                 break;
         }
     }
@@ -102,8 +129,10 @@ public partial class ModelEditor : Control
     {
         var campaignName = _campaignsOptionButton.GetItemText((int)index);
         _resourceManager.Initialise(_installContext, campaignName);
-        
         _modelsTree.Clear();
+
+        var campaignPath = Path.Join(_installContext.FmsDir, campaignName);
+        _saveAsDialog.CurrentDir = campaignPath;
 
         var modelNames = new SortedSet<string>(_resourceManager.ModelNames);
         var root = _modelsTree.CreateItem();
@@ -119,7 +148,7 @@ public partial class ModelEditor : Control
     public void SetInstallContext(InstallContext installContext)
     {
         _installContext = installContext;
-        
+
         _modelsTree.Clear();
         _campaignsOptionButton.Clear();
         foreach (var fm in _installContext.Fms)
