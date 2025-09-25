@@ -115,14 +115,6 @@ public partial class ModelEditor : Control
         }
     }
 
-    private void OnModelEdited()
-    {
-        if (_currentModel != null)
-        {
-            _modelViewport.RenderModel(_resourceManager, _currentModel);
-        }
-    }
-
     private void OnModelSelected()
     {
         var modelName = _modelsTree.GetSelected().GetText(0);
