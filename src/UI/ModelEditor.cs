@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using Godot;
 using KeepersCompound.Dark;
 using KeepersCompound.Dark.Resources;
+using KeepersCompound.Formats.Model;
 using KeepersCompound.ModelEditor.Render;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
@@ -15,7 +19,10 @@ public partial class ModelEditor : Control
     private Tree _modelsTree;
     private ModelViewport _modelViewport;
     private ModelInspector _modelInspector;
+    private PopupMenu _fileMenu;
     private PopupMenu _viewMenu;
+
+    private ModelFile? _currentModel;
 
     public override void _Ready()
     {
@@ -24,12 +31,16 @@ public partial class ModelEditor : Control
         _modelsTree = GetNode<Tree>("%ModelsTree");
         _modelViewport = GetNode<ModelViewport>("%ModelViewport");
         _modelInspector = GetNode<ModelInspector>("%ModelInspector");
+        _fileMenu = GetNode<PopupMenu>("%File");
         _viewMenu = GetNode<PopupMenu>("%View");
 
         _campaignsOptionButton.ItemSelected += OnCampaignSelected;
         _modelsTree.ItemSelected += OnModelSelected;
+        _fileMenu.IndexPressed += FileMenuOnIndexPressed;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
     }
+
+    #region EventHandling
 
     private void ViewMenuOnIndexPressed(long indexLong)
     {
@@ -50,13 +61,40 @@ public partial class ModelEditor : Control
         }
     }
 
+    private void FileMenuOnIndexPressed(long indexLong)
+    {
+        var index = (int)indexLong;
+        switch (index)
+        {
+            case 0:
+                if (_currentModel != null)
+                {
+                    var modelName = _modelsTree.GetSelected().GetText(0);
+                    if (_resourceManager.TryGetFilePath($"obj/{modelName}.bin", out var path))
+                    {
+                        Save(path, _currentModel);
+                    }
+                }
+                break;
+        }
+    }
+
+    private void OnModelEdited()
+    {
+        if (_currentModel != null)
+        {
+            _modelViewport.RenderModel(_resourceManager, _currentModel);
+        }
+    }
+
     private void OnModelSelected()
     {
         var modelName = _modelsTree.GetSelected().GetText(0);
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
-            _modelViewport.RenderModel(_resourceManager, modelFile);
-            _modelInspector.SetModel(modelFile);
+            _currentModel = modelFile;
+            _modelViewport.RenderModel(_resourceManager, _currentModel);
+            _modelInspector.SetModel(_currentModel);
         }
     }
 
@@ -76,6 +114,8 @@ public partial class ModelEditor : Control
         }
     }
 
+    #endregion
+
     public void SetInstallContext(InstallContext installContext)
     {
         _installContext = installContext;
@@ -92,5 +132,14 @@ public partial class ModelEditor : Control
         {
             popupMenu.SetItemAsRadioCheckable(i, false);
         }
+    }
+
+    private static void Save(string path, ModelFile modelFile)
+    {
+        var parser = new ModelFileParser();
+        using var outStream = File.Open(path, FileMode.Create);
+        using var writer = new BinaryWriter(outStream, Encoding.UTF8, false);
+        parser.Write(writer, modelFile);
+        Log.Information("Saved model to {path}", path);
     }
 }
