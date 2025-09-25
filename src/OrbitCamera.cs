@@ -9,7 +9,7 @@ public partial class OrbitCamera : Node3D
     [Export] public float Distance { get; set; } = 5.0f;
     [Export] public float MinDistance { get; set; } = 0.5f;
     [Export] public float MaxDistance { get; set; } = 15.0f;
-    [Export] public float ZoomStep { get; set; } = 0.5f;
+    [Export] public float ZoomStep { get; set; } = 0.25f;
     [Export] public float LerpSpeed { get; set; } = 10.0f;
     [Export] public float OrbitSensitivity { get; set; } = 0.25f;
     [Export] public float PanSensitivity { get; set; } = 0.1f;
