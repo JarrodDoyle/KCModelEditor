@@ -122,7 +122,7 @@ public partial class ModelEditor : Control
         {
             _currentModel = modelFile;
             _modelViewport.RenderModel(_resourceManager, _currentModel);
-            _modelInspector.SetModel(_currentModel);
+            _modelInspector.SetModel(_resourceManager, _currentModel);
         }
     }
 

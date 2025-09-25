@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Godot;
+using KeepersCompound.Dark.Resources;
 using KeepersCompound.Formats.Model;
 using Serilog;
 
@@ -54,7 +55,7 @@ public partial class ModelInspector : PanelContainer
         _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
     }
 
-    public void SetModel(ModelFile modelFile)
+    public void SetModel(ResourceManager resourceManager, ModelFile modelFile)
     {
         _modelFile = modelFile;
 
@@ -104,7 +105,7 @@ public partial class ModelInspector : PanelContainer
 
             _materialPropertiesContainer?.AddChild(instance);
             _materialProperties.Add(instance);
-            instance.SetModelMaterial(_modelFile, i);
+            instance.SetModelMaterial(resourceManager, _modelFile, i);
             instance.MaterialEdited += OnModelEdited;
         }
     }

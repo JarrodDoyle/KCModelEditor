@@ -1,4 +1,6 @@
+using System.IO;
 using Godot;
+using KeepersCompound.Dark.Resources;
 using KeepersCompound.Formats.Model;
 using Serilog;
 
@@ -14,11 +16,10 @@ public partial class MaterialProperties : FoldableContainer
 
     #endregion
 
-    private ModelMaterial? _modelMaterial;
-
     #region Nodes
 
     private LineEdit? _materialName;
+    private Button? _materialNameBrowse;
     private OptionButton? _materialType;
     private SpinBox? _materialSlot;
     private SpinBox? _materialTransparency;
@@ -32,9 +33,14 @@ public partial class MaterialProperties : FoldableContainer
 
     #endregion
 
+    private ResourceManager? _resourceManager;
+    private ModelMaterial? _modelMaterial;
+    private PackedScene? _itemSelectorScene;
+
     public override void _Ready()
     {
         _materialName = GetNode<LineEdit>("%MaterialName");
+        _materialNameBrowse = GetNode<Button>("%MaterialNameBrowse");
         _materialType = GetNode<OptionButton>("%MaterialType");
         _materialSlot = GetNode<SpinBox>("%MaterialSlot");
         _materialTransparency = GetNode<SpinBox>("%MaterialTransparency");
@@ -47,9 +53,12 @@ public partial class MaterialProperties : FoldableContainer
         _paletteIndexContainer = GetNode<HBoxContainer>("%PaletteIndex");
 
         _materialName.TextSubmitted += MaterialNameOnTextSubmitted;
+        _materialNameBrowse.Pressed += MaterialNameBrowseOnPressed;
+
+        _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
     }
 
-    public void SetModelMaterial(ModelFile modelFile, int index)
+    public void SetModelMaterial(ResourceManager resourceManager, ModelFile modelFile, int index)
     {
         if (index < 0 || index >= modelFile.Materials.Count)
         {
@@ -57,6 +66,7 @@ public partial class MaterialProperties : FoldableContainer
             return;
         }
 
+        _resourceManager = resourceManager;
         _modelMaterial = modelFile.Materials[index];
 
         Title = $"Material #{index}";
@@ -76,14 +86,50 @@ public partial class MaterialProperties : FoldableContainer
 
         if (_modelMaterial.Type == ModelMaterialType.Texture)
         {
+            _materialNameBrowse?.Visible = true;
             _colorContainer?.Visible = false;
             _paletteIndexContainer?.Visible = false;
         }
     }
+
+    #region Event Handling
 
     private void MaterialNameOnTextSubmitted(string newText)
     {
         _modelMaterial?.Name = newText;
         MaterialEdited.Invoke();
     }
+
+    private void MaterialNameBrowseOnPressed()
+    {
+        if (_resourceManager == null)
+        {
+            return;
+        }
+
+        if (_itemSelectorScene?.Instantiate() is not ItemSelectorWindow instance)
+        {
+            Log.Error("Item Selector Window failed to initialise.");
+            return;
+        }
+
+        foreach (var name in _resourceManager.ModelTextureNames)
+        {
+            Log.Debug("Model Texture: {name}", name);
+            instance.AddItem(Path.GetFileName(name));
+        }
+
+        AddChild(instance);
+        instance.Selected += index =>
+        {
+            if (instance.TryGetItem(index, out var item))
+            {
+                _materialName?.Text = item;
+                _modelMaterial?.Name = item;
+                MaterialEdited.Invoke();
+            }
+        };
+    }
+
+    #endregion
 }
