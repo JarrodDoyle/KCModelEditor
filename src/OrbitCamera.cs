@@ -9,10 +9,9 @@ public partial class OrbitCamera : Node3D
     [Export] public float Distance { get; set; } = 5.0f;
     [Export] public float MinDistance { get; set; } = 0.5f;
     [Export] public float MaxDistance { get; set; } = 15.0f;
-    [Export] public float ZoomStep { get; set; } = 0.5f;
+    [Export] public float ZoomStep { get; set; } = 0.25f;
     [Export] public float LerpSpeed { get; set; } = 10.0f;
     [Export] public float OrbitSensitivity { get; set; } = 0.25f;
-    [Export] public float PanSensitivity { get; set; } = 0.1f;
 
     #endregion
 
@@ -24,6 +23,7 @@ public partial class OrbitCamera : Node3D
 
     private Vector2 _mouseMotion = Vector2.Zero;
     private float _cameraPitch;
+    private float _panSensitivity;
     private bool _panning;
 
     #region Overrides
@@ -31,6 +31,7 @@ public partial class OrbitCamera : Node3D
     public override void _Ready()
     {
         _camera = GetNode<Camera3D>("%Camera");
+        _panSensitivity = Distance / 25.0f;
     }
 
     public override void _UnhandledInput(InputEvent inputEvent)
@@ -51,9 +52,11 @@ public partial class OrbitCamera : Node3D
                         break;
                     case MouseButton.WheelUp:
                         Distance = float.Clamp(Distance - ZoomStep, MinDistance, MaxDistance);
+                        _panSensitivity = Distance / 25.0f;
                         break;
                     case MouseButton.WheelDown:
                         Distance = float.Clamp(Distance + ZoomStep, MinDistance, MaxDistance);
+                        _panSensitivity = Distance / 25.0f;
                         break;
                 }
                 break;
@@ -71,7 +74,7 @@ public partial class OrbitCamera : Node3D
             _cameraPitch += pitch;
         } else if (_panning)
         {
-            var targetOffset = new Vector3(-_mouseMotion.X, _mouseMotion.Y, 0) * PanSensitivity;
+            var targetOffset = new Vector3(-_mouseMotion.X, _mouseMotion.Y, 0) * _panSensitivity;
             var offset = Vector3.Zero.Lerp(targetOffset, LerpSpeed * (float)delta);
             TranslateObjectLocal(offset);
         }
