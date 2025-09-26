@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Godot;
 
 namespace KeepersCompound.ModelEditor.UI;
@@ -61,6 +62,29 @@ public partial class ItemSelectorWindow : Window
         return item != null;
     }
 
+    public bool TrySelectItem(string targetText)
+    {
+        if (_itemList == null)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < _itemList.ItemCount; i++)
+        {
+            if (_itemList.GetItemText(i) != targetText)
+            {
+                continue;
+            }
+
+            _itemList.Select(i);
+            _itemList.EnsureCurrentIsVisible();
+            _selectButton?.Disabled = false;
+            return true;
+        }
+
+        return false;
+    }
+
     private void TriggerCanceled()
     {
         Canceled?.Invoke();
@@ -84,18 +108,35 @@ public partial class ItemSelectorWindow : Window
 
     private void UpdateItemList()
     {
-        _itemList?.Clear();
-        var search = _searchBar == null ? "" : _searchBar.Text;
+        if (_itemList == null)
+        {
+            return;
+        }
+
+        _selectButton?.Disabled = true;
+        var previousSelection = _itemList.IsAnythingSelected()
+            ? _itemList.GetItemText(_itemList.GetSelectedItems()[0])
+            : null;
+
+        _itemList.Clear();
+        var search = _searchBar?.Text ?? "";
         foreach (var item in _items)
         {
             if (item.Contains(search, StringComparison.InvariantCultureIgnoreCase))
             {
-                _itemList?.AddItem(item);
+                _itemList.AddItem(item);
+                if (item != previousSelection)
+                {
+                    continue;
+                }
+
+                _itemList.Select(_itemList.ItemCount - 1);
+                _selectButton?.Disabled = false;
             }
         }
 
-        _itemList?.SortItemsByText();
-        _selectButton?.Disabled = true;
+        _itemList.SortItemsByText();
+        _itemList.EnsureCurrentIsVisible();
     }
 
     #region Event Handling

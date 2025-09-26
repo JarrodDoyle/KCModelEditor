@@ -120,6 +120,7 @@ public partial class MaterialProperties : FoldableContainer
         }
 
         AddChild(instance);
+        instance.TrySelectItem(_materialName?.Text ?? "");
         instance.Selected += index =>
         {
             if (instance.TryGetItem(index, out var item))
