@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://g8haby7whlv2"]
+[gd_scene load_steps=3 format=3 uid="uid://g8haby7whlv2"]
 
 [ext_resource type="Script" uid="uid://tj1hkpb862fq" path="res://src/UI/MaterialProperties.cs" id="1_2magm"]
+[ext_resource type="Texture2D" uid="uid://cl55shbqwd8hy" path="res://assets/icons/FileBrowse.svg" id="2_lr8pg"]
 
 [node name="MaterialProperties" type="FoldableContainer"]
 title_text_overrun_behavior = 3
@@ -19,11 +20,20 @@ size_flags_vertical = 1
 text = "Name"
 text_overrun_behavior = 3
 
-[node name="MaterialName" type="LineEdit" parent="Properties/Name"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Properties/Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MaterialName" type="LineEdit" parent="Properties/Name/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
+
+[node name="MaterialNameBrowse" type="Button" parent="Properties/Name/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+icon = ExtResource("2_lr8pg")
 
 [node name="JointType" type="HBoxContainer" parent="Properties"]
 layout_mode = 2

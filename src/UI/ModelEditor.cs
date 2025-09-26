@@ -42,8 +42,9 @@ public partial class ModelEditor : Control
 
         _campaignsOptionButton.ItemSelected += OnCampaignSelected;
         _modelsTree.ItemSelected += OnModelSelected;
-        _fileMenu.IndexPressed += FileMenuOnIndexPressed;
+        _modelInspector.ModelEdited += OnModelEdited;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
+        _fileMenu.IndexPressed += FileMenuOnIndexPressed;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
     }
 
@@ -121,7 +122,7 @@ public partial class ModelEditor : Control
         {
             _currentModel = modelFile;
             _modelViewport.RenderModel(_resourceManager, _currentModel);
-            _modelInspector.SetModel(_currentModel);
+            _modelInspector.SetModel(_resourceManager, _currentModel);
         }
     }
 

@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1otvvvkdloah"]
+
+[ext_resource type="Script" uid="uid://weiurk75t0cs" path="res://src/UI/ItemSelectorWindow.cs" id="1_b14ac"]
+[ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="2_pv8bd"]
+
+[node name="ItemSelectorWindow" type="Window"]
+oversampling_override = 1.0
+initial_position = 2
+size = Vector2i(320, 480)
+wrap_controls = true
+transient = true
+exclusive = true
+script = ExtResource("1_b14ac")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.14509805, 0.14509805, 0.14509805, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer"]
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="ColorRect/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search..."
+clear_button_enabled = true
+right_icon = ExtResource("2_pv8bd")
+
+[node name="ItemList" type="ItemList" parent="ColorRect/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+allow_search = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[node name="SelectButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Select"
