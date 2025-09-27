@@ -12,41 +12,53 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
-    private InstallContext _installContext;
-    private ResourceManager _resourceManager = new();
+    private InstallContext _installContext = new("");
+    private readonly ResourceManager _resourceManager = new();
     private ModelFile? _currentModel;
 
     #region Nodes
 
-    private OptionButton _campaignsOptionButton;
-    private Button _reloadResourcesButton;
-    private Tree _modelsTree;
-    private ModelViewport _modelViewport;
-    private ModelInspector _modelInspector;
-    private PopupMenu _fileMenu;
-    private PopupMenu _viewMenu;
-    private FileDialog _saveAsDialog;
+    private ModelSelectorPanel _modelSelectorPanel = null!;
+    private ModelViewport _modelViewport = null!;
+    private ModelInspector _modelInspector = null!;
+    private PopupMenu _fileMenu = null!;
+    private PopupMenu _viewMenu = null!;
+    private FileDialog _saveAsDialog = null!;
 
     #endregion
 
+    #region Overrides
+
     public override void _Ready()
     {
-        _campaignsOptionButton = GetNode<OptionButton>("%CampaignsOptionButton");
-        _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
-        _modelsTree = GetNode<Tree>("%ModelsTree");
+        _modelSelectorPanel = GetNode<ModelSelectorPanel>("%ModelSelectorPanel");
         _modelViewport = GetNode<ModelViewport>("%ModelViewport");
         _modelInspector = GetNode<ModelInspector>("%ModelInspector");
         _fileMenu = GetNode<PopupMenu>("%File");
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
-        _campaignsOptionButton.ItemSelected += OnCampaignSelected;
-        _modelsTree.ItemSelected += OnModelSelected;
+        _modelSelectorPanel.SetResourceManager(_resourceManager);
+
+        _modelSelectorPanel.CampaignSelected += OnCampaignSelected;
+        _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
         _fileMenu.IndexPressed += FileMenuOnIndexPressed;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
     }
+
+    public override void _ExitTree()
+    {
+        _modelSelectorPanel.CampaignSelected -= OnCampaignSelected;
+        _modelSelectorPanel.ModelSelected -= OnModelSelected;
+        _modelInspector.ModelEdited -= OnModelEdited;
+        _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
+        _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
+        _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
+    }
+
+    #endregion
 
     #region EventHandling
 
@@ -85,7 +97,7 @@ public partial class ModelEditor : Control
             case 0:
                 if (_currentModel != null)
                 {
-                    var modelName = _modelsTree.GetSelected().GetText(0);
+                    var modelName = _modelSelectorPanel.Model;
                     if (_resourceManager.TryGetFilePath($"obj/{modelName}.bin", out var path))
                     {
                         Save(path, _currentModel);
@@ -117,7 +129,7 @@ public partial class ModelEditor : Control
 
     private void OnModelSelected()
     {
-        var modelName = _modelsTree.GetSelected().GetText(0);
+        var modelName = _modelSelectorPanel.Model;
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
             _currentModel = modelFile;
@@ -126,22 +138,13 @@ public partial class ModelEditor : Control
         }
     }
 
-    private void OnCampaignSelected(long index)
+    private void OnCampaignSelected()
     {
-        var campaignName = _campaignsOptionButton.GetItemText((int)index);
-        _resourceManager.Initialise(_installContext, campaignName);
-        _modelsTree.Clear();
-
+        var campaignName = _modelSelectorPanel.Campaign;
         var campaignPath = Path.Join(_installContext.FmsDir, campaignName);
+        _resourceManager.Initialise(_installContext, campaignName);
         _saveAsDialog.CurrentDir = campaignPath;
-
-        var modelNames = new SortedSet<string>(_resourceManager.ModelNames);
-        var root = _modelsTree.CreateItem();
-        foreach (var modelName in modelNames)
-        {
-            var child = root.CreateChild();
-            child.SetText(0, modelName);
-        }
+        _modelSelectorPanel.SetModels(new SortedSet<string>(_resourceManager.ModelNames));
     }
 
     #endregion
@@ -149,19 +152,7 @@ public partial class ModelEditor : Control
     public void SetInstallContext(InstallContext installContext)
     {
         _installContext = installContext;
-
-        _modelsTree.Clear();
-        _campaignsOptionButton.Clear();
-        foreach (var fm in _installContext.Fms)
-        {
-            _campaignsOptionButton.AddItem(fm);
-        }
-
-        var popupMenu = _campaignsOptionButton.GetPopup();
-        for (var i = 0; i < popupMenu.ItemCount; i++)
-        {
-            popupMenu.SetItemAsRadioCheckable(i, false);
-        }
+        _modelSelectorPanel.SetCampaigns(new SortedSet<string>(_installContext.Fms));
     }
 
     private static void Save(string path, ModelFile modelFile)

@@ -1,0 +1,93 @@
+[gd_scene load_steps=6 format=3 uid="uid://boeq66jstbagx"]
+
+[ext_resource type="Script" uid="uid://uk44par4dr1k" path="res://src/UI/ModelSelectorPanel.cs" id="1_mjb0t"]
+[ext_resource type="Texture2D" uid="uid://c5fivllqo0d7s" path="res://assets/icons/Reload.svg" id="2_g44gu"]
+[ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="3_iakj5"]
+[ext_resource type="Texture2D" uid="uid://c5d4yxllrje7b" path="res://assets/icons/Sort.svg" id="5_agkdy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xnqnd"]
+bg_color = Color(0.145098, 0.145098, 0.145098, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="ModelSelectorPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(256, 0)
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 206.0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_xnqnd")
+script = ExtResource("1_mjb0t")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CampaignsOptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+selected = 0
+fit_to_longest_item = false
+item_count = 1
+popup/item_0/text = "Original Resources"
+popup/item_0/id = 0
+
+[node name="ReloadResourcesButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("2_g44gu")
+flat = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Filter Models"
+clear_button_enabled = true
+right_icon = ExtResource("3_iakj5")
+
+[node name="SortMenu" type="MenuButton" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("5_agkdy")
+item_count = 5
+popup/item_0/text = "Sort"
+popup/item_0/id = 0
+popup/item_0/separator = true
+popup/item_1/text = "Name (Ascending)"
+popup/item_1/checkable = 2
+popup/item_1/checked = true
+popup/item_1/id = 1
+popup/item_2/text = "Name (Descending)"
+popup/item_2/checkable = 2
+popup/item_2/id = 2
+popup/item_3/text = "Filter"
+popup/item_3/id = 3
+popup/item_3/separator = true
+popup/item_4/text = "Original Models"
+popup/item_4/checkable = 1
+popup/item_4/id = 4
+
+[node name="ModelsTree" type="Tree" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_folding = true
+hide_root = true
+scroll_horizontal_enabled = false

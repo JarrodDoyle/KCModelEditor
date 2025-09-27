@@ -1,20 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://bmvch3t460c6k"]
+[gd_scene load_steps=7 format=3 uid="uid://bmvch3t460c6k"]
 
 [ext_resource type="Script" uid="uid://lql6oolb38v0" path="res://src/UI/ModelEditor.cs" id="1_wp7jf"]
-[ext_resource type="Texture2D" uid="uid://c5fivllqo0d7s" path="res://assets/icons/Reload.svg" id="4_detkr"]
-[ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="4_xnqnd"]
-[ext_resource type="Texture2D" uid="uid://c8q1ysaieox5q" path="res://assets/icons/Object.svg" id="5_detkr"]
-[ext_resource type="Texture2D" uid="uid://c5d4yxllrje7b" path="res://assets/icons/Sort.svg" id="6_728lh"]
+[ext_resource type="PackedScene" uid="uid://boeq66jstbagx" path="res://scenes/model_selector_panel.tscn" id="2_fq75r"]
 [ext_resource type="Texture2D" uid="uid://cdlaiy1ipg51k" path="res://assets/icons/MeshInstance3D.svg" id="7_detkr"]
 [ext_resource type="PackedScene" uid="uid://cjis76ea3bcw4" path="res://scenes/model_viewport.tscn" id="8_728lh"]
 [ext_resource type="PackedScene" uid="uid://b3a0dd2e8diyp" path="res://scenes/model_inspector.tscn" id="9_fjp6t"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xnqnd"]
-bg_color = Color(0.145098, 0.145098, 0.145098, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ypwed"]
 bg_color = Color(0.145098, 0.145098, 0.145098, 1)
@@ -94,71 +84,9 @@ auto_translate_mode = 1
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="PanelContainer" type="PanelContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_xnqnd")
-
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="CampaignsOptionButton" type="OptionButton" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="ModelSelectorPanel" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer" instance=ExtResource("2_fq75r")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-selected = 0
-item_count = 1
-popup/item_0/text = "Original Resources"
-popup/item_0/id = 0
-
-[node name="ReloadResourcesButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("4_detkr")
-flat = true
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="LineEdit" type="LineEdit" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Filter Models"
-right_icon = ExtResource("4_xnqnd")
-
-[node name="Button" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-toggle_mode = true
-icon = ExtResource("5_detkr")
-flat = true
-
-[node name="MenuButton" type="MenuButton" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-icon = ExtResource("6_728lh")
-item_count = 2
-popup/item_0/text = "Sort by Name (Ascending)"
-popup/item_0/checkable = 2
-popup/item_0/id = 0
-popup/item_1/text = "Sort by Name (Descending)"
-popup/item_1/checkable = 2
-popup/item_1/id = 1
-
-[node name="ModelsTree" type="Tree" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-hide_folding = true
-hide_root = true
-scroll_horizontal_enabled = false
 
 [node name="HSplitContainer" type="HSplitContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer"]
 layout_mode = 2
