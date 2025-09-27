@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 
@@ -20,6 +21,9 @@ public partial class ModelSelectorPanel : PanelContainer
 
     private OptionButton _campaignsOptionButton = null!;
     private Button _reloadResourcesButton = null!;
+    private LineEdit _searchBar = null!;
+    private Button _omToggleButton = null!;
+    private MenuButton _sortMenu = null!;
     private Tree _modelsTree = null!;
 
     #endregion
@@ -38,15 +42,20 @@ public partial class ModelSelectorPanel : PanelContainer
     {
         _campaignsOptionButton = GetNode<OptionButton>("%CampaignsOptionButton");
         _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
+        _searchBar = GetNode<LineEdit>("%SearchBar");
+        _omToggleButton = GetNode<Button>("%OmToggleButton");
+        _sortMenu = GetNode<MenuButton>("%SortMenu");
         _modelsTree = GetNode<Tree>("%ModelsTree");
 
         _campaignsOptionButton.ItemSelected += OnCampaignsOptionButtonItemSelected;
+        _searchBar.TextChanged += OnSearchBarTextChanged;
         _modelsTree.ItemSelected += OnModelsTreeItemSelected;
     }
 
     public override void _ExitTree()
     {
         _campaignsOptionButton.ItemSelected -= OnCampaignsOptionButtonItemSelected;
+        _searchBar.TextChanged -= OnSearchBarTextChanged;
         _modelsTree.ItemSelected -= OnModelsTreeItemSelected;
     }
 
@@ -68,14 +77,7 @@ public partial class ModelSelectorPanel : PanelContainer
         if (_modelItemsUpdated)
         {
             _modelItemsUpdated = false;
-            _modelsTree.Clear();
-
-            var root = _modelsTree.CreateItem();
-            foreach (var item in _modelItems)
-            {
-                var child = root.CreateChild();
-                child.SetText(0, item);
-            }
+            RecalculateModelsTree();
         }
     }
 
@@ -83,10 +85,20 @@ public partial class ModelSelectorPanel : PanelContainer
 
     #region Event Responses
 
+    private void OnSearchBarTextChanged(string newText)
+    {
+        RecalculateModelsTree();
+    }
+
     private void OnModelsTreeItemSelected()
     {
-        Model = _modelsTree.GetSelected().GetText(0);
-        ModelSelected?.Invoke();
+        // Avoids resending event when using search bar
+        var newModel = _modelsTree.GetSelected().GetText(0);
+        if (newModel != Model)
+        {
+            Model = newModel;
+            ModelSelected?.Invoke();
+        }
     }
 
     private void OnCampaignsOptionButtonItemSelected(long index)
@@ -107,5 +119,27 @@ public partial class ModelSelectorPanel : PanelContainer
     {
         _modelItemsUpdated = true;
         _modelItems = models;
+    }
+
+    private void RecalculateModelsTree()
+    {
+        _modelsTree.Clear();
+
+        var filter = _searchBar.Text;
+        var root = _modelsTree.CreateItem();
+        foreach (var item in _modelItems)
+        {
+            if (!item.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+            {
+                continue;
+            }
+
+            var child = root.CreateChild();
+            child.SetText(0, item);
+            if (item == Model)
+            {
+                child.Select(0);
+            }
+        }
     }
 }
