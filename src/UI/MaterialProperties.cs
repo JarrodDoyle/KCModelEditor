@@ -113,7 +113,7 @@ public partial class MaterialProperties : FoldableContainer
             return;
         }
 
-        foreach (var name in _resourceManager.ModelTextureNames)
+        foreach (var name in _resourceManager.GetModelTextureNames())
         {
             Log.Debug("Model Texture: {name}", name);
             instance.AddItem(Path.GetFileName(name));
