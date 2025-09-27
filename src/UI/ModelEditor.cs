@@ -12,20 +12,22 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
-    private InstallContext _installContext;
-    private ResourceManager _resourceManager = new();
+    private InstallContext _installContext = new("");
+    private readonly ResourceManager _resourceManager = new();
     private ModelFile? _currentModel;
 
     #region Nodes
 
-    private ModelSelectorPanel _modelSelectorPanel;
-    private ModelViewport _modelViewport;
-    private ModelInspector _modelInspector;
-    private PopupMenu _fileMenu;
-    private PopupMenu _viewMenu;
-    private FileDialog _saveAsDialog;
+    private ModelSelectorPanel _modelSelectorPanel = null!;
+    private ModelViewport _modelViewport = null!;
+    private ModelInspector _modelInspector = null!;
+    private PopupMenu _fileMenu = null!;
+    private PopupMenu _viewMenu = null!;
+    private FileDialog _saveAsDialog = null!;
 
     #endregion
+
+    #region Overrides
 
     public override void _Ready()
     {
@@ -43,6 +45,18 @@ public partial class ModelEditor : Control
         _fileMenu.IndexPressed += FileMenuOnIndexPressed;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
     }
+
+    public override void _ExitTree()
+    {
+        _modelSelectorPanel.CampaignSelected -= OnCampaignSelected;
+        _modelSelectorPanel.ModelSelected -= OnModelSelected;
+        _modelInspector.ModelEdited -= OnModelEdited;
+        _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
+        _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
+        _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
+    }
+
+    #endregion
 
     #region EventHandling
 
