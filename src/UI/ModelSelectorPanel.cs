@@ -37,13 +37,11 @@ public partial class ModelSelectorPanel : PanelContainer
     public string Campaign { get; private set; } = "";
     public string Model { get; private set; } = "";
 
-    private ResourceManager _resourceManager = new();
     private SortedSet<string> _campaignItems = [];
     private SortedSet<string> _modelItems = [];
     private bool _campaignItemsUpdated;
     private bool _modelItemsUpdated;
     private SortMode _currentSortMode;
-    private bool _showOriginalModels;
 
     #region Overrides
 
@@ -135,11 +133,6 @@ public partial class ModelSelectorPanel : PanelContainer
                 treeRecalculationNeeded = _currentSortMode != SortMode.NameDescending;
                 _currentSortMode = SortMode.NameDescending;
                 break;
-            case 4:
-                _showOriginalModels = !_sortMenu.IsItemChecked(4);
-                _sortMenu.SetItemChecked(4, _showOriginalModels);
-                treeRecalculationNeeded = true;
-                break;
         }
 
         if (treeRecalculationNeeded)
@@ -149,11 +142,6 @@ public partial class ModelSelectorPanel : PanelContainer
     }
 
     #endregion
-
-    public void SetResourceManager(ResourceManager resourceManager)
-    {
-        _resourceManager = resourceManager;
-    }
 
     public void SetCampaigns(SortedSet<string> campaigns)
     {
@@ -181,11 +169,6 @@ public partial class ModelSelectorPanel : PanelContainer
         foreach (var item in items)
         {
             if (!item.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
-            {
-                continue;
-            }
-
-            if (!_showOriginalModels && !_resourceManager.TryGetFilePath($"obj/{item}.bin", out _))
             {
                 continue;
             }

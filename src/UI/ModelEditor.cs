@@ -12,8 +12,8 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
-    private InstallContext _installContext = new("");
-    private readonly ResourceManager _resourceManager = new();
+    private InstallContext _installContext = null!;
+    private ResourceManager _resourceManager = null!;
     private ModelFile? _currentModel;
 
     #region Nodes
@@ -37,8 +37,6 @@ public partial class ModelEditor : Control
         _fileMenu = GetNode<PopupMenu>("%File");
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
-
-        _modelSelectorPanel.SetResourceManager(_resourceManager);
 
         _modelSelectorPanel.CampaignSelected += OnCampaignSelected;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
@@ -142,9 +140,9 @@ public partial class ModelEditor : Control
     {
         var campaignName = _modelSelectorPanel.Campaign;
         var campaignPath = Path.Join(_installContext.FmsDir, campaignName);
-        _resourceManager.Initialise(_installContext, campaignName);
+        _resourceManager.SetActiveCampaign(campaignName);
         _saveAsDialog.CurrentDir = campaignPath;
-        _modelSelectorPanel.SetModels(new SortedSet<string>(_resourceManager.ModelNames));
+        _modelSelectorPanel.SetModels(new SortedSet<string>(_resourceManager.GetModelNames()));
     }
 
     #endregion
@@ -152,7 +150,11 @@ public partial class ModelEditor : Control
     public void SetInstallContext(InstallContext installContext)
     {
         _installContext = installContext;
-        _modelSelectorPanel.SetCampaigns(new SortedSet<string>(_installContext.Fms));
+        _resourceManager = new ResourceManager(installContext);
+
+        var campaigns = new SortedSet<string>(_installContext.Fms) { "" };
+        _modelSelectorPanel.SetCampaigns(campaigns);
+        _modelSelectorPanel.SetModels(new SortedSet<string>(_resourceManager.GetModelNames()));
     }
 
     private static void Save(string path, ModelFile modelFile)

@@ -66,7 +66,7 @@ right_icon = ExtResource("3_iakj5")
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("5_agkdy")
-item_count = 5
+item_count = 3
 popup/item_0/text = "Sort"
 popup/item_0/id = 0
 popup/item_0/separator = true
@@ -77,12 +77,6 @@ popup/item_1/id = 1
 popup/item_2/text = "Name (Descending)"
 popup/item_2/checkable = 2
 popup/item_2/id = 2
-popup/item_3/text = "Filter"
-popup/item_3/id = 3
-popup/item_3/separator = true
-popup/item_4/text = "Original Models"
-popup/item_4/checkable = 1
-popup/item_4/id = 4
 
 [node name="ModelsTree" type="Tree" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
