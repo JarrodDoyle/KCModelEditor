@@ -38,6 +38,8 @@ public partial class ModelEditor : Control
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
+        _modelSelectorPanel.SetResourceManager(_resourceManager);
+
         _modelSelectorPanel.CampaignSelected += OnCampaignSelected;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;

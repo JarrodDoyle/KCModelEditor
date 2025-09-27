@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using KeepersCompound.Dark.Resources;
 
 namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelSelectorPanel : PanelContainer
 {
+    private enum SortMode
+    {
+        NameAscending,
+        NameDescending,
+    }
+
     #region Events
 
     public delegate void CampaignSelectedEventHandler();
@@ -22,8 +29,7 @@ public partial class ModelSelectorPanel : PanelContainer
     private OptionButton _campaignsOptionButton = null!;
     private Button _reloadResourcesButton = null!;
     private LineEdit _searchBar = null!;
-    private Button _omToggleButton = null!;
-    private MenuButton _sortMenu = null!;
+    private PopupMenu _sortMenu = null!;
     private Tree _modelsTree = null!;
 
     #endregion
@@ -31,10 +37,13 @@ public partial class ModelSelectorPanel : PanelContainer
     public string Campaign { get; private set; } = "";
     public string Model { get; private set; } = "";
 
+    private ResourceManager _resourceManager = new();
     private SortedSet<string> _campaignItems = [];
     private SortedSet<string> _modelItems = [];
     private bool _campaignItemsUpdated;
     private bool _modelItemsUpdated;
+    private SortMode _currentSortMode;
+    private bool _showOriginalModels;
 
     #region Overrides
 
@@ -43,12 +52,12 @@ public partial class ModelSelectorPanel : PanelContainer
         _campaignsOptionButton = GetNode<OptionButton>("%CampaignsOptionButton");
         _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
         _searchBar = GetNode<LineEdit>("%SearchBar");
-        _omToggleButton = GetNode<Button>("%OmToggleButton");
-        _sortMenu = GetNode<MenuButton>("%SortMenu");
+        _sortMenu = GetNode<MenuButton>("%SortMenu").GetPopup();
         _modelsTree = GetNode<Tree>("%ModelsTree");
 
         _campaignsOptionButton.ItemSelected += OnCampaignsOptionButtonItemSelected;
         _searchBar.TextChanged += OnSearchBarTextChanged;
+        _sortMenu.IndexPressed += OnSortMenuIndexPressed;
         _modelsTree.ItemSelected += OnModelsTreeItemSelected;
     }
 
@@ -56,6 +65,7 @@ public partial class ModelSelectorPanel : PanelContainer
     {
         _campaignsOptionButton.ItemSelected -= OnCampaignsOptionButtonItemSelected;
         _searchBar.TextChanged -= OnSearchBarTextChanged;
+        _sortMenu.IndexPressed -= OnSortMenuIndexPressed;
         _modelsTree.ItemSelected -= OnModelsTreeItemSelected;
     }
 
@@ -107,7 +117,43 @@ public partial class ModelSelectorPanel : PanelContainer
         CampaignSelected?.Invoke();
     }
 
+    private void OnSortMenuIndexPressed(long indexLong)
+    {
+        var treeRecalculationNeeded = false;
+        var index = (int)indexLong;
+        switch (index)
+        {
+            case 1:
+                _sortMenu.SetItemChecked(1, true);
+                _sortMenu.SetItemChecked(2, false);
+                treeRecalculationNeeded = _currentSortMode != SortMode.NameAscending;
+                _currentSortMode = SortMode.NameAscending;
+                break;
+            case 2:
+                _sortMenu.SetItemChecked(1, false);
+                _sortMenu.SetItemChecked(2, true);
+                treeRecalculationNeeded = _currentSortMode != SortMode.NameDescending;
+                _currentSortMode = SortMode.NameDescending;
+                break;
+            case 4:
+                _showOriginalModels = !_sortMenu.IsItemChecked(4);
+                _sortMenu.SetItemChecked(4, _showOriginalModels);
+                treeRecalculationNeeded = true;
+                break;
+        }
+
+        if (treeRecalculationNeeded)
+        {
+            RecalculateModelsTree();
+        }
+    }
+
     #endregion
+
+    public void SetResourceManager(ResourceManager resourceManager)
+    {
+        _resourceManager = resourceManager;
+    }
 
     public void SetCampaigns(SortedSet<string> campaigns)
     {
@@ -126,10 +172,20 @@ public partial class ModelSelectorPanel : PanelContainer
         _modelsTree.Clear();
 
         var filter = _searchBar.Text;
+        var items = _currentSortMode switch {
+            SortMode.NameAscending => _modelItems,
+            SortMode.NameDescending => _modelItems.Reverse(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
         var root = _modelsTree.CreateItem();
-        foreach (var item in _modelItems)
+        foreach (var item in items)
         {
             if (!item.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!_showOriginalModels && !_resourceManager.TryGetFilePath($"obj/{item}.bin", out _))
             {
                 continue;
             }
