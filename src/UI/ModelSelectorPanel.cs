@@ -15,18 +15,14 @@ public partial class ModelSelectorPanel : PanelContainer
 
     #region Events
 
-    public delegate void CampaignSelectedEventHandler();
-
     public delegate void ModelSelectedEventHandler();
 
-    public event CampaignSelectedEventHandler? CampaignSelected;
     public event ModelSelectedEventHandler? ModelSelected;
 
     #endregion
 
     #region Nodes
 
-    private OptionButton _campaignsOptionButton = null!;
     private Button _reloadResourcesButton = null!;
     private LineEdit _searchBar = null!;
     private PopupMenu _sortMenu = null!;
@@ -37,23 +33,20 @@ public partial class ModelSelectorPanel : PanelContainer
     public string Campaign { get; private set; } = "";
     public string Model { get; private set; } = "";
 
-    private SortedSet<string> _campaignItems = [];
-    private SortedSet<string> _modelItems = [];
-    private bool _campaignItemsUpdated;
-    private bool _modelItemsUpdated;
+    private ResourceManager _resourceManager = null!;
     private SortMode _currentSortMode;
+    private Texture2D _folderIcon = ResourceLoader.Load<Texture2D>("uid://w5l7qwkxn1wo");
+    private Texture2D _modelIcon = ResourceLoader.Load<Texture2D>("uid://5qhdsw7gx3h2");
 
     #region Overrides
 
     public override void _Ready()
     {
-        _campaignsOptionButton = GetNode<OptionButton>("%CampaignsOptionButton");
         _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
         _searchBar = GetNode<LineEdit>("%SearchBar");
         _sortMenu = GetNode<MenuButton>("%SortMenu").GetPopup();
         _modelsTree = GetNode<Tree>("%ModelsTree");
 
-        _campaignsOptionButton.ItemSelected += OnCampaignsOptionButtonItemSelected;
         _searchBar.TextChanged += OnSearchBarTextChanged;
         _sortMenu.IndexPressed += OnSortMenuIndexPressed;
         _modelsTree.ItemSelected += OnModelsTreeItemSelected;
@@ -61,32 +54,9 @@ public partial class ModelSelectorPanel : PanelContainer
 
     public override void _ExitTree()
     {
-        _campaignsOptionButton.ItemSelected -= OnCampaignsOptionButtonItemSelected;
         _searchBar.TextChanged -= OnSearchBarTextChanged;
         _sortMenu.IndexPressed -= OnSortMenuIndexPressed;
         _modelsTree.ItemSelected -= OnModelsTreeItemSelected;
-    }
-
-    public override void _Process(double delta)
-    {
-        if (_campaignItemsUpdated)
-        {
-            _campaignItemsUpdated = false;
-            _campaignsOptionButton.Clear();
-
-            var popupMenu = _campaignsOptionButton.GetPopup();
-            foreach (var item in _campaignItems)
-            {
-                _campaignsOptionButton.AddItem(item);
-                popupMenu.SetItemAsRadioCheckable(popupMenu.ItemCount - 1, false);
-            }
-        }
-
-        if (_modelItemsUpdated)
-        {
-            _modelItemsUpdated = false;
-            RecalculateModelsTree();
-        }
     }
 
     #endregion
@@ -95,24 +65,22 @@ public partial class ModelSelectorPanel : PanelContainer
 
     private void OnSearchBarTextChanged(string newText)
     {
-        RecalculateModelsTree();
+        FilterTree(newText);
     }
 
     private void OnModelsTreeItemSelected()
     {
         // Avoids resending event when using search bar
-        var newModel = _modelsTree.GetSelected().GetText(0);
-        if (newModel != Model)
+        var item = _modelsTree.GetSelected();
+        var metaData = item.GetMetadata(0).AsStringArray();
+        var newCampaign = metaData[0];
+        var newModel = metaData[1];
+        if (newModel != Model || newCampaign != Campaign)
         {
             Model = newModel;
+            Campaign = newCampaign;
             ModelSelected?.Invoke();
         }
-    }
-
-    private void OnCampaignsOptionButtonItemSelected(long index)
-    {
-        Campaign = _campaignsOptionButton.GetItemText((int)index);
-        CampaignSelected?.Invoke();
     }
 
     private void OnSortMenuIndexPressed(long indexLong)
@@ -137,48 +105,101 @@ public partial class ModelSelectorPanel : PanelContainer
 
         if (treeRecalculationNeeded)
         {
-            RecalculateModelsTree();
+            RebuildTree();
         }
     }
 
     #endregion
 
-    public void SetCampaigns(SortedSet<string> campaigns)
+    public void SetResourceManager(ResourceManager resourceManager)
     {
-        _campaignItemsUpdated = true;
-        _campaignItems = campaigns;
+        _resourceManager = resourceManager;
+        RebuildTree();
     }
 
-    public void SetModels(SortedSet<string> models)
-    {
-        _modelItemsUpdated = true;
-        _modelItems = models;
-    }
-
-    private void RecalculateModelsTree()
+    private void RebuildTree()
     {
         _modelsTree.Clear();
 
-        var filter = _searchBar.Text;
-        var items = _currentSortMode switch {
-            SortMode.NameAscending => _modelItems,
-            SortMode.NameDescending => _modelItems.Reverse(),
+        var root = _modelsTree.CreateItem();
+
+        _resourceManager.SetActiveCampaign("");
+        AddCurrentCampaignModels("Original Resources");
+
+        var fmsRaw = new SortedSet<string>(_resourceManager.Context.Fms);
+        var fms = _currentSortMode switch
+        {
+            SortMode.NameAscending => fmsRaw,
+            SortMode.NameDescending => fmsRaw.Reverse(),
             _ => throw new ArgumentOutOfRangeException()
         };
-        var root = _modelsTree.CreateItem();
-        foreach (var item in items)
+        foreach (var fm in fms)
         {
-            if (!item.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+            _resourceManager.SetActiveCampaign(fm);
+            AddCurrentCampaignModels(fm);
+        }
+
+        return;
+
+        void AddCurrentCampaignModels(string parentText)
+        {
+            var campaignItem = root.CreateChild();
+            campaignItem.SetSelectable(0, false);
+            campaignItem.SetText(0, parentText);
+            campaignItem.SetIcon(0, _folderIcon);
+            campaignItem.Collapsed = true;
+
+            var campaign = _resourceManager.ActiveCampaign;
+            var rawItems = new SortedSet<string>(_resourceManager.GetModelNames());
+            var items = _currentSortMode switch
             {
-                continue;
+                SortMode.NameAscending => rawItems,
+                SortMode.NameDescending => rawItems.Reverse(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            foreach (var item in items)
+            {
+                var child = campaignItem.CreateChild();
+                child.SetText(0, item);
+                child.SetMetadata(0, new[] { campaign, item });
+                child.SetIcon(0, _modelIcon);
+                if (campaign == Campaign && item == Model)
+                {
+                    child.Select(0);
+                }
+            }
+        }
+    }
+
+    private void FilterTree(string filter)
+    {
+        var root = _modelsTree.GetRoot();
+        foreach (var campaignItem in root.GetChildren())
+        {
+            var visibleChildren = 0;
+            foreach (var modelItem in campaignItem.GetChildren())
+            {
+                var metaData = modelItem.GetMetadata(0).AsStringArray();
+                var campaign = metaData[0];
+                var model = metaData[1];
+                modelItem.Visible =
+                    campaign.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+                    model.Contains(filter, StringComparison.InvariantCultureIgnoreCase);
+
+                if (!modelItem.Visible)
+                {
+                    continue;
+                }
+
+                visibleChildren++;
+                if (campaign == Campaign && model == Model)
+                {
+                    modelItem.Select(0);
+                }
             }
 
-            var child = root.CreateChild();
-            child.SetText(0, item);
-            if (item == Model)
-            {
-                child.Select(0);
-            }
+            campaignItem.Visible = visibleChildren > 0;
         }
     }
 }
