@@ -23,6 +23,8 @@ public partial class Main : Node
         _modelEditor = GetNode<ModelEditor>("%ModelEditor");
 
         _installManager.SetConfig(_editorConfig);
+        _modelEditor.SetConfig(_editorConfig);
+
         _installManager.LoadInstall += LoadEditor;
     }
 

@@ -8,7 +8,43 @@ namespace KeepersCompound.ModelEditor;
 
 public class EditorConfig
 {
+    #region Events
+
+    public delegate void ShowBoundingBoxChangedEventHandler(bool value);
+
+    public delegate void ShowWireframeChangedEventHandler(bool value);
+
+    public event ShowBoundingBoxChangedEventHandler? ShowBoundingBoxChanged;
+    public event ShowWireframeChangedEventHandler? ShowWireframeChanged;
+
+    #endregion
+
     public HashSet<string> InstallPaths { get; } = [];
+    public bool ShowBoundingBox
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                ShowBoundingBoxChanged?.Invoke(value);
+            }
+            field = value;
+        }
+    }
+
+    public bool ShowWireframe
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                ShowWireframeChanged?.Invoke(value);
+            }
+            field = value;
+        }
+    }
 
     private readonly string _configFilePath;
     private readonly ConfigFile _configFile = new();
@@ -28,12 +64,17 @@ public class EditorConfig
         {
             InstallPaths.Add(path);
         }
+
+        ShowBoundingBox = _configFile.GetValue("viewport", "show_bounds", false).AsBool();
+        ShowWireframe = _configFile.GetValue("viewport", "show_wireframe", false).AsBool();
     }
 
     public void Save()
     {
         Log.Information("Saving config file: {path}", _configFilePath);
         _configFile.SetValue("general", "install_paths", InstallPaths.ToArray());
+        _configFile.SetValue("viewport", "show_bounds", ShowBoundingBox);
+        _configFile.SetValue("viewport", "show_wireframe", ShowWireframe);
         _configFile.Save(_configFilePath);
     }
 }
