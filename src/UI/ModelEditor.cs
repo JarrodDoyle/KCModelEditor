@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Godot;
@@ -38,6 +37,11 @@ public partial class ModelEditor : Control
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
+        _viewMenu.SetItemChecked(0, EditorConfig.Instance.ShowBoundingBox);
+        _viewMenu.SetItemChecked(1, EditorConfig.Instance.ShowWireframe);
+
+        EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
@@ -52,6 +56,9 @@ public partial class ModelEditor : Control
         _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
         _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
+
+        EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
     }
 
     #endregion
@@ -69,18 +76,13 @@ public partial class ModelEditor : Control
     private void ViewMenuOnIndexPressed(long indexLong)
     {
         var index = (int)indexLong;
-        if (_viewMenu.IsItemCheckable(index))
-        {
-            _viewMenu.SetItemChecked(index, !_viewMenu.IsItemChecked(index));
-        }
-
         switch (index)
         {
             case 0:
-                _modelViewport.BoundingBoxVisible = _viewMenu.IsItemChecked(index);
+                EditorConfig.Instance.ShowBoundingBox = !_viewMenu.IsItemChecked(index);
                 break;
             case 1:
-                _modelViewport.WireframesVisible = _viewMenu.IsItemChecked(index);
+                EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked(index);
                 break;
         }
     }
@@ -146,6 +148,16 @@ public partial class ModelEditor : Control
         _installContext = installContext;
         _resourceManager = new ResourceManager(installContext);
         _modelSelectorPanel.SetResourceManager(_resourceManager);
+    }
+
+    private void EditorConfigOnShowWireframeChanged(bool value)
+    {
+        _viewMenu.SetItemChecked(1, value);
+    }
+
+    private void EditorConfigOnShowBoundingBoxChanged(bool value)
+    {
+        _viewMenu.SetItemChecked(0, value);
     }
 
     private static void Save(string path, ModelFile modelFile)

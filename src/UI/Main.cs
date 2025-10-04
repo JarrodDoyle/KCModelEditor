@@ -8,20 +8,27 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class Main : Node
 {
-    [Export(PropertyHint.File)] private string _configFilePath = "user://config.ini";
     private InstallContext _installContext;
     private InstallManager _installManager;
     private ModelEditor _modelEditor;
 
-    public override void _Ready()
+    public override void _EnterTree()
     {
         ConfigureLogger();
+    }
+
+    public override void _Ready()
+    {
 
         _installManager = GetNode<InstallManager>("%InstallManager");
         _modelEditor = GetNode<ModelEditor>("%ModelEditor");
 
-        _installManager.LoadConfig(_configFilePath);
         _installManager.LoadInstall += LoadEditor;
+    }
+
+    public override void _ExitTree()
+    {
+        EditorConfig.Instance.Save();
     }
 
     private void LoadEditor(string installPath)

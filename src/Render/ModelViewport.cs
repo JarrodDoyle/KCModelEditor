@@ -20,34 +20,32 @@ public partial class ModelViewport : SubViewport
 
     #endregion
 
-    public bool BoundingBoxVisible
-    {
-        get;
-        set
-        {
-            field = value;
-            _boundingBox?.Visible = value;
-        }
-    }
-
-    public bool WireframesVisible
-    {
-        get;
-        set
-        {
-            field = value;
-            foreach (var node in _wireframes)
-            {
-                node.Visible = value;
-            }
-        }
-    }
-
     private readonly List<LineRenderer> _wireframes = [];
 
     public override void _Ready()
     {
         _modelContainer = GetNode<Node3D>("%ModelContainer");
+        EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+    }
+
+    public override void _ExitTree()
+    {
+        EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+    }
+
+    private void EditorConfigOnShowWireframeChanged(bool value)
+    {
+        foreach (var node in _wireframes)
+        {
+            node.Visible = value;
+        }
+    }
+
+    private void EditorConfigOnShowBoundingBoxChanged(bool value)
+    {
+        _boundingBox?.Visible = value;
     }
 
     public void RenderModel(ResourceManager resources, ModelFile modelFile)
@@ -212,7 +210,7 @@ public partial class ModelViewport : SubViewport
             }
 
             var objectWireframe = new LineRenderer { Vertices = lineVertices, LineColor = Colors.AliceBlue };
-            objectWireframe.Visible = WireframesVisible;
+            objectWireframe.Visible = EditorConfig.Instance.ShowWireframe;
             _wireframes.Add(objectWireframe);
             meshes[i].AddChild(objectWireframe);
         }
@@ -240,7 +238,7 @@ public partial class ModelViewport : SubViewport
         var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
         _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
         _modelContainer.AddChild(_boundingBox);
-        _boundingBox.Visible = BoundingBoxVisible;
+        _boundingBox.Visible = EditorConfig.Instance.ShowBoundingBox;
     }
 
     private static bool TryLoadTexture(ResourceManager resources, string virtualPath,
