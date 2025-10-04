@@ -11,7 +11,6 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
-    private EditorConfig _editorConfig = null!;
     private InstallContext _installContext = null!;
     private ResourceManager _resourceManager = null!;
     private ModelFile? _currentModel;
@@ -38,6 +37,11 @@ public partial class ModelEditor : Control
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
+        _viewMenu.SetItemChecked(0, EditorConfig.Instance.ShowBoundingBox);
+        _viewMenu.SetItemChecked(1, EditorConfig.Instance.ShowWireframe);
+
+        EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
@@ -53,8 +57,8 @@ public partial class ModelEditor : Control
         _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
 
-        _editorConfig.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
-        _editorConfig.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
     }
 
     #endregion
@@ -75,10 +79,10 @@ public partial class ModelEditor : Control
         switch (index)
         {
             case 0:
-                _editorConfig.ShowBoundingBox = !_viewMenu.IsItemChecked(index);
+                EditorConfig.Instance.ShowBoundingBox = !_viewMenu.IsItemChecked(index);
                 break;
             case 1:
-                _editorConfig.ShowWireframe = !_viewMenu.IsItemChecked(index);
+                EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked(index);
                 break;
         }
     }
@@ -144,18 +148,6 @@ public partial class ModelEditor : Control
         _installContext = installContext;
         _resourceManager = new ResourceManager(installContext);
         _modelSelectorPanel.SetResourceManager(_resourceManager);
-    }
-
-    public void SetConfig(EditorConfig config)
-    {
-        _editorConfig = config;
-        _modelViewport.SetConfig(_editorConfig);
-
-        _viewMenu.SetItemChecked(0, _editorConfig.ShowBoundingBox);
-        _viewMenu.SetItemChecked(1, _editorConfig.ShowWireframe);
-
-        _editorConfig.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
-        _editorConfig.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
     }
 
     private void EditorConfigOnShowWireframeChanged(bool value)

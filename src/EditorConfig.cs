@@ -19,7 +19,9 @@ public class EditorConfig
 
     #endregion
 
+    public static EditorConfig Instance { get; } = new();
     public HashSet<string> InstallPaths { get; } = [];
+
     public bool ShowBoundingBox
     {
         get;
@@ -29,6 +31,7 @@ public class EditorConfig
             {
                 ShowBoundingBoxChanged?.Invoke(value);
             }
+
             field = value;
         }
     }
@@ -42,18 +45,18 @@ public class EditorConfig
             {
                 ShowWireframeChanged?.Invoke(value);
             }
+
             field = value;
         }
     }
 
-    private readonly string _configFilePath;
+    private const string ConfigFilePath = "user://config.ini";
     private readonly ConfigFile _configFile = new();
 
-    public EditorConfig(string configPath)
+    private EditorConfig()
     {
-        _configFilePath = configPath;
-        Log.Information("Initialising editor config: {path}", _configFilePath);
-        if (_configFile.Load(_configFilePath) != Error.Ok)
+        Log.Information("Initialising editor config: {path}", ConfigFilePath);
+        if (_configFile.Load(ConfigFilePath) != Error.Ok)
         {
             Log.Warning("Editor config file does not exist. Initialising with default values.");
             return;
@@ -71,10 +74,10 @@ public class EditorConfig
 
     public void Save()
     {
-        Log.Information("Saving config file: {path}", _configFilePath);
+        Log.Information("Saving config file: {path}", ConfigFilePath);
         _configFile.SetValue("general", "install_paths", InstallPaths.ToArray());
         _configFile.SetValue("viewport", "show_bounds", ShowBoundingBox);
         _configFile.SetValue("viewport", "show_wireframe", ShowWireframe);
-        _configFile.Save(_configFilePath);
+        _configFile.Save(ConfigFilePath);
     }
 }

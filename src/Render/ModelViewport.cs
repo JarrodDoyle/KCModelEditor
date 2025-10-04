@@ -21,24 +21,18 @@ public partial class ModelViewport : SubViewport
     #endregion
 
     private readonly List<LineRenderer> _wireframes = [];
-    private EditorConfig _editorConfig = null!;
 
     public override void _Ready()
     {
         _modelContainer = GetNode<Node3D>("%ModelContainer");
+        EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
     }
 
     public override void _ExitTree()
     {
-        _editorConfig.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
-        _editorConfig.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
-    }
-
-    public void SetConfig(EditorConfig config)
-    {
-        _editorConfig = config;
-        _editorConfig.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
-        _editorConfig.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
     }
 
     private void EditorConfigOnShowWireframeChanged(bool value)
@@ -216,7 +210,7 @@ public partial class ModelViewport : SubViewport
             }
 
             var objectWireframe = new LineRenderer { Vertices = lineVertices, LineColor = Colors.AliceBlue };
-            objectWireframe.Visible = _editorConfig.ShowWireframe;
+            objectWireframe.Visible = EditorConfig.Instance.ShowWireframe;
             _wireframes.Add(objectWireframe);
             meshes[i].AddChild(objectWireframe);
         }
@@ -244,7 +238,7 @@ public partial class ModelViewport : SubViewport
         var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
         _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
         _modelContainer.AddChild(_boundingBox);
-        _boundingBox.Visible = _editorConfig.ShowBoundingBox;
+        _boundingBox.Visible = EditorConfig.Instance.ShowBoundingBox;
     }
 
     private static bool TryLoadTexture(ResourceManager resources, string virtualPath,
