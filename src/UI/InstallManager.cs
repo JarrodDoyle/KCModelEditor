@@ -11,8 +11,8 @@ public partial class InstallManager : Control
     public delegate void LoadInstallEventHandler(string installPath);
 
     public event LoadInstallEventHandler LoadInstall;
-    
-    private ConfigFile _configFile;
+
+    private EditorConfig _editorConfig;
     private string _configFilePath;
     private LineEdit _searchBar;
     private Button _addButton;
@@ -49,7 +49,6 @@ public partial class InstallManager : Control
         _installPaths.ItemActivated += _ => LoadInstallPath();
         _installPaths.ItemSelected += SelectedInstallPath;
 
-        _configFile = new ConfigFile();
         _validityMap = new Dictionary<string, bool>();
 
         var width = _invalidIcon.GetWidth();
@@ -57,39 +56,23 @@ public partial class InstallManager : Control
         _blankIcon = ImageTexture.CreateFromImage(Image.CreateEmpty(width, height, false, Image.Format.Rgba8));
     }
 
-    public void LoadConfig(string configFilePath)
+    public void SetConfig(EditorConfig config)
     {
-        _validityMap.Clear();
-        _configFilePath = configFilePath;
-        if (_configFile.Load(_configFilePath) == Error.Ok)
-        {
-            var paths = _configFile.GetValue("general", "install_paths", Array.Empty<string>()).AsStringArray();
-            foreach (var path in paths)
-            {
-                var valid = IsInstallPathValid(path);
-                _installPaths.AddItem(path, valid ? _blankIcon : _invalidIcon);
-                _validityMap.Add(path, valid);
-            }
+        _editorConfig = config;
 
-            if (paths.Length > 0)
-            {
-                _installPaths.Select(0);
-                SelectedInstallPath(0);
-            }
-        }
-    }
-
-    private void UpdateConfig()
-    {
-        var count = _installPaths.ItemCount;
-        var paths = new List<string>();
-        for (var i = 0; i < count; i++)
+        var paths = config.InstallPaths;
+        foreach (var path in paths)
         {
-            paths.Add(_installPaths.GetItemText(i));
+            var valid = IsInstallPathValid(path);
+            _installPaths.AddItem(path, valid ? _blankIcon : _invalidIcon);
+            _validityMap.Add(path, valid);
         }
 
-        _configFile.SetValue("general", "install_paths", paths.ToArray());
-        _configFile.Save(_configFilePath);
+        if (paths.Count > 0)
+        {
+            _installPaths.Select(0);
+            SelectedInstallPath(0);
+        }
     }
 
     private void SelectDir(string path)
@@ -123,7 +106,7 @@ public partial class InstallManager : Control
         _validityMap.Add(path, true);
         _installPaths.AddItem(path, _blankIcon);
         _installPaths.SortItemsByText();
-        UpdateConfig();
+        _editorConfig.InstallPaths.Add(path);
     }
 
     private void EditInstallPath()
@@ -142,7 +125,7 @@ public partial class InstallManager : Control
         var path = _installPaths.GetItemText(idx);
         _installPaths.RemoveItem(idx);
         _validityMap.Remove(path);
-        UpdateConfig();
+        _editorConfig.InstallPaths.Remove(path);
 
         _editButton.Disabled = true;
         _removeButton.Disabled = true;
