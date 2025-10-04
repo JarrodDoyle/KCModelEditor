@@ -38,7 +38,6 @@ public partial class ModelEditor : Control
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
-        _modelSelectorPanel.CampaignSelected += OnCampaignSelected;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
@@ -48,7 +47,6 @@ public partial class ModelEditor : Control
 
     public override void _ExitTree()
     {
-        _modelSelectorPanel.CampaignSelected -= OnCampaignSelected;
         _modelSelectorPanel.ModelSelected -= OnModelSelected;
         _modelInspector.ModelEdited -= OnModelEdited;
         _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
@@ -127,6 +125,11 @@ public partial class ModelEditor : Control
 
     private void OnModelSelected()
     {
+        var campaignName = _modelSelectorPanel.Campaign;
+        var campaignPath = Path.Join(_installContext.FmsDir, campaignName);
+        _resourceManager.SetActiveCampaign(campaignName);
+        _saveAsDialog.CurrentDir = campaignPath;
+
         var modelName = _modelSelectorPanel.Model;
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
@@ -136,25 +139,13 @@ public partial class ModelEditor : Control
         }
     }
 
-    private void OnCampaignSelected()
-    {
-        var campaignName = _modelSelectorPanel.Campaign;
-        var campaignPath = Path.Join(_installContext.FmsDir, campaignName);
-        _resourceManager.SetActiveCampaign(campaignName);
-        _saveAsDialog.CurrentDir = campaignPath;
-        _modelSelectorPanel.SetModels(new SortedSet<string>(_resourceManager.GetModelNames()));
-    }
-
     #endregion
 
     public void SetInstallContext(InstallContext installContext)
     {
         _installContext = installContext;
         _resourceManager = new ResourceManager(installContext);
-
-        var campaigns = new SortedSet<string>(_installContext.Fms) { "" };
-        _modelSelectorPanel.SetCampaigns(campaigns);
-        _modelSelectorPanel.SetModels(new SortedSet<string>(_resourceManager.GetModelNames()));
+        _modelSelectorPanel.SetResourceManager(_resourceManager);
     }
 
     private static void Save(string path, ModelFile modelFile)
