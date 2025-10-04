@@ -76,6 +76,7 @@ public partial class InstallManager : Control
             {
                 RemoveInstallPath();
             }
+
             AddInstallPath(path);
         }
         else
@@ -129,7 +130,10 @@ public partial class InstallManager : Control
     {
         var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
         var path = _installPaths.GetItemText(idx);
-        LoadInstall?.Invoke(path);
+        if (_validityMap.GetValueOrDefault(path, false))
+        {
+            LoadInstall?.Invoke(path);
+        }
     }
 
     private static bool IsInstallPathValid(string path)
