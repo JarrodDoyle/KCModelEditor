@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using Godot;
@@ -39,9 +40,11 @@ public partial class ModelEditor : Control
 
         _viewMenu.SetItemChecked(0, EditorConfig.Instance.ShowBoundingBox);
         _viewMenu.SetItemChecked(1, EditorConfig.Instance.ShowWireframe);
+        SetFileMenuTextureMode(EditorConfig.Instance.TextureMode);
 
         EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.TextureModeChanged += EditorConfigOnTextureModeChanged;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
@@ -59,6 +62,7 @@ public partial class ModelEditor : Control
 
         EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.TextureModeChanged -= EditorConfigOnTextureModeChanged;
     }
 
     #endregion
@@ -83,6 +87,12 @@ public partial class ModelEditor : Control
                 break;
             case 1:
                 EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked(index);
+                break;
+            case 3:
+                EditorConfig.Instance.TextureMode = TextureMode.Linear;
+                break;
+            case 4:
+                EditorConfig.Instance.TextureMode = TextureMode.NearestNeighbour;
                 break;
         }
     }
@@ -141,6 +151,33 @@ public partial class ModelEditor : Control
         }
     }
 
+    private void EditorConfigOnTextureModeChanged(TextureMode value)
+    {
+        SetFileMenuTextureMode(value);
+        var textureFilterMode = value switch {
+            TextureMode.Linear => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
+            TextureMode.NearestNeighbour => BaseMaterial3D.TextureFilterEnum.NearestWithMipmapsAnisotropic,
+            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+        };
+
+        foreach (var node in GetTree().GetNodesInGroup(GroupName.ModelMeshes))
+        {
+            if (node is not MeshInstance3D meshInstance)
+            {
+                continue;
+            }
+
+            var mesh = meshInstance.Mesh;
+            for (var i = 0; i < mesh.GetSurfaceCount(); i++)
+            {
+                if (mesh.SurfaceGetMaterial(i) is StandardMaterial3D material)
+                {
+                    material.TextureFilter = textureFilterMode;
+                }
+            }
+        }
+    }
+
     #endregion
 
     public void SetInstallContext(InstallContext installContext)
@@ -167,5 +204,22 @@ public partial class ModelEditor : Control
         using var writer = new BinaryWriter(outStream, Encoding.UTF8, false);
         parser.Write(writer, modelFile);
         Log.Information("Saved model to {path}", path);
+    }
+
+    private void SetFileMenuTextureMode(TextureMode textureMode)
+    {
+        switch (textureMode)
+        {
+            case TextureMode.Linear:
+                _viewMenu.SetItemChecked(3, true);
+                _viewMenu.SetItemChecked(4, false);
+                break;
+            case TextureMode.NearestNeighbour:
+                _viewMenu.SetItemChecked(3, false);
+                _viewMenu.SetItemChecked(4, true);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }

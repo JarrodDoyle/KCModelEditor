@@ -85,6 +85,12 @@ public partial class ModelViewport : SubViewport
                     {
                         AlbedoTexture = texture,
                         Transparency = BaseMaterial3D.TransparencyEnum.AlphaDepthPrePass,
+                        TextureFilter = EditorConfig.Instance.TextureMode switch
+                        {
+                            TextureMode.Linear => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
+                            TextureMode.NearestNeighbour => BaseMaterial3D.TextureFilterEnum.NearestWithMipmapsAnisotropic,
+                            _ => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
+                        }
                     };
                     var name = rawMaterial.Name.ToLower();
                     for (var i = 0; i < 4; i++)
@@ -201,6 +207,7 @@ public partial class ModelViewport : SubViewport
                 Position = -modelFile.Center.ToGodot(),
                 Transform = transform,
             };
+            meshes[i].AddToGroup(GroupName.ModelMeshes);
 
             var lineVertices = new List<Vector3>();
             foreach (var (i0, i1) in edges)
