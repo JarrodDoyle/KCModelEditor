@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using KeepersCompound.ModelEditor.Render;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor;
@@ -14,8 +15,11 @@ public class EditorConfig
 
     public delegate void ShowWireframeChangedEventHandler(bool value);
 
+    public delegate void TextureModeChangedEventHandler(TextureMode value);
+
     public event ShowBoundingBoxChangedEventHandler? ShowBoundingBoxChanged;
     public event ShowWireframeChangedEventHandler? ShowWireframeChanged;
+    public event TextureModeChangedEventHandler? TextureModeChanged;
 
     #endregion
 
@@ -50,6 +54,19 @@ public class EditorConfig
         }
     }
 
+    public TextureMode TextureMode
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                TextureModeChanged?.Invoke(value);
+                field = value;
+            }
+        }
+    }
+
     private const string ConfigFilePath = "user://config.ini";
     private readonly ConfigFile _configFile = new();
 
@@ -70,6 +87,7 @@ public class EditorConfig
 
         ShowBoundingBox = _configFile.GetValue("viewport", "show_bounds", false).AsBool();
         ShowWireframe = _configFile.GetValue("viewport", "show_wireframe", false).AsBool();
+        TextureMode = (TextureMode)_configFile.GetValue("viewport", "texture_mode", 0).AsInt32();
     }
 
     public void Save()
@@ -78,6 +96,7 @@ public class EditorConfig
         _configFile.SetValue("general", "install_paths", InstallPaths.ToArray());
         _configFile.SetValue("viewport", "show_bounds", ShowBoundingBox);
         _configFile.SetValue("viewport", "show_wireframe", ShowWireframe);
+        _configFile.SetValue("viewport", "texture_mode", (int)TextureMode);
         _configFile.Save(ConfigFilePath);
     }
 }
