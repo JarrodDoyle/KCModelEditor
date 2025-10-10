@@ -151,6 +151,16 @@ public partial class ModelEditor : Control
         }
     }
 
+    private void EditorConfigOnShowWireframeChanged(bool value)
+    {
+        _viewMenu.SetItemChecked(1, value);
+    }
+
+    private void EditorConfigOnShowBoundingBoxChanged(bool value)
+    {
+        _viewMenu.SetItemChecked(0, value);
+    }
+
     private void EditorConfigOnTextureModeChanged(TextureMode value)
     {
         SetFileMenuTextureMode(value);
@@ -185,16 +195,6 @@ public partial class ModelEditor : Control
         _installContext = installContext;
         _resourceManager = new ResourceManager(installContext);
         _modelSelectorPanel.SetResourceManager(_resourceManager);
-    }
-
-    private void EditorConfigOnShowWireframeChanged(bool value)
-    {
-        _viewMenu.SetItemChecked(1, value);
-    }
-
-    private void EditorConfigOnShowBoundingBoxChanged(bool value)
-    {
-        _viewMenu.SetItemChecked(0, value);
     }
 
     private static void Save(string path, ModelFile modelFile)
