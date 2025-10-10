@@ -6,8 +6,8 @@ namespace KeepersCompound.ModelEditor.Render;
 
 public partial class LineRenderer : Node3D
 {
-    public List<Vector3> Vertices { get; set; } = [];
-    public Color LineColor { get; set; } = Colors.White;
+    public List<Vector3> Vertices { get; init; } = [];
+    public Color LineColor { get; init; } = Colors.White;
 
     #region Godot Overrides
 
