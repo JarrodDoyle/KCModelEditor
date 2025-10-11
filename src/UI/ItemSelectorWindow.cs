@@ -21,10 +21,10 @@ public partial class ItemSelectorWindow : Window
 
     #region Nodes
 
-    private LineEdit? _searchBar;
-    private ItemList? _itemList;
-    private Button? _cancelButton;
-    private Button? _selectButton;
+    private LineEdit _searchBar = null!;
+    private ItemList _itemList = null!;
+    private Button _cancelButton = null!;
+    private Button _selectButton = null!;
 
     #endregion
 
@@ -58,17 +58,12 @@ public partial class ItemSelectorWindow : Window
 
     public bool TryGetItem(int index, [MaybeNullWhen(false)] out string item)
     {
-        item = _itemList?.GetItemText(index);
+        item = _itemList.GetItemText(index);
         return item != null;
     }
 
     public bool TrySelectItem(string targetText)
     {
-        if (_itemList == null)
-        {
-            return false;
-        }
-
         for (var i = 0; i < _itemList.ItemCount; i++)
         {
             if (_itemList.GetItemText(i) != targetText)
@@ -78,7 +73,7 @@ public partial class ItemSelectorWindow : Window
 
             _itemList.Select(i);
             _itemList.EnsureCurrentIsVisible();
-            _selectButton?.Disabled = false;
+            _selectButton.Disabled = false;
             return true;
         }
 
@@ -94,11 +89,6 @@ public partial class ItemSelectorWindow : Window
     private void TriggerSelected()
     {
         QueueFree();
-        if (_itemList == null)
-        {
-            return;
-        }
-
         var selectedItems = _itemList.GetSelectedItems();
         if (selectedItems.Length > 0)
         {
@@ -108,18 +98,13 @@ public partial class ItemSelectorWindow : Window
 
     private void UpdateItemList()
     {
-        if (_itemList == null)
-        {
-            return;
-        }
-
-        _selectButton?.Disabled = true;
+        _selectButton.Disabled = true;
         var previousSelection = _itemList.IsAnythingSelected()
             ? _itemList.GetItemText(_itemList.GetSelectedItems()[0])
             : null;
 
         _itemList.Clear();
-        var search = _searchBar?.Text ?? "";
+        var search = _searchBar.Text;
         foreach (var item in _items)
         {
             if (item.Contains(search, StringComparison.InvariantCultureIgnoreCase))
@@ -131,7 +116,7 @@ public partial class ItemSelectorWindow : Window
                 }
 
                 _itemList.Select(_itemList.ItemCount - 1);
-                _selectButton?.Disabled = false;
+                _selectButton.Disabled = false;
             }
         }
 
@@ -143,7 +128,7 @@ public partial class ItemSelectorWindow : Window
 
     private void ItemListOnItemSelected(long index)
     {
-        _selectButton?.Disabled = false;
+        _selectButton.Disabled = false;
     }
 
     #endregion
