@@ -17,10 +17,10 @@ public partial class ModelViewport : SubViewport
 
     private Node3D? _modelContainer;
     private LineRenderer? _boundingBox;
+    private readonly List<LineRenderer> _wireframes = [];
+    private readonly List<VHotRenderer> _vhots = [];
 
     #endregion
-
-    private readonly List<LineRenderer> _wireframes = [];
 
     public override void _Ready()
     {
@@ -56,6 +56,7 @@ public partial class ModelViewport : SubViewport
             return;
         }
 
+        _vhots.Clear();
         _wireframes.Clear();
         foreach (var child in _modelContainer.GetChildren())
         {
@@ -220,6 +221,21 @@ public partial class ModelViewport : SubViewport
             objectWireframe.Visible = EditorConfig.Instance.ShowWireframe;
             _wireframes.Add(objectWireframe);
             meshes[i].AddChild(objectWireframe);
+
+            var vHotStart = modelFile.Objects[i].VHotStartIndex;
+            var vHotEnd = vHotStart + modelFile.Objects[i].VHotCount;
+            for (var j = vHotStart; j < vHotEnd; j++)
+            {
+                var modelVHot = modelFile.VHots[j];
+                var vHot = new VHotRenderer
+                {
+                    DisplayName = ((int)modelVHot.Type).ToString(),
+                    Position = modelVHot.Position.ToGodot()
+                };
+
+                _vhots.Add(vHot);
+                meshes[i].AddChild(vHot);
+            }
         }
 
         _modelContainer.AddChild(meshes[0]);
