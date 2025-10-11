@@ -8,9 +8,14 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class Main : Node
 {
-    private InstallContext _installContext;
-    private InstallManager _installManager;
-    private ModelEditor _modelEditor;
+    #region Nodes
+
+    private InstallManager _installManager = null!;
+    private ModelEditor _modelEditor = null!;
+
+    #endregion
+
+    #region Godot Overrides
 
     public override void _EnterTree()
     {
@@ -19,7 +24,6 @@ public partial class Main : Node
 
     public override void _Ready()
     {
-
         _installManager = GetNode<InstallManager>("%InstallManager");
         _modelEditor = GetNode<ModelEditor>("%ModelEditor");
 
@@ -28,21 +32,28 @@ public partial class Main : Node
 
     public override void _ExitTree()
     {
+        _installManager.LoadInstall -= LoadEditor;
         EditorConfig.Instance.Save();
     }
 
+    #endregion
+
+    #region Event Handling
+
     private void LoadEditor(string installPath)
     {
-        _installContext = new InstallContext(installPath);
-        if (!_installContext.Valid)
+        var installContext = new InstallContext(installPath);
+        if (!installContext.Valid)
         {
             return;
         }
         
-        _modelEditor.SetInstallContext(_installContext);
+        _modelEditor.SetInstallContext(installContext);
         _modelEditor.Visible = true;
         _installManager.Visible = false;
     }
+
+    #endregion
 
     private static void ConfigureLogger()
     {

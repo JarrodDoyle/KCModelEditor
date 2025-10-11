@@ -12,30 +12,30 @@ public partial class MaterialProperties : FoldableContainer
 
     public delegate void MaterialEditedEventHandler();
 
-    public event MaterialEditedEventHandler MaterialEdited;
+    public event MaterialEditedEventHandler? MaterialEdited; 
 
     #endregion
 
     #region Nodes
 
-    private LineEdit? _materialName;
-    private Button? _materialNameBrowse;
-    private OptionButton? _materialType;
-    private SpinBox? _materialSlot;
-    private SpinBox? _materialTransparency;
-    private SpinBox? _materialSelfIllumination;
-    private ColorPickerButton? _materialColor;
-    private SpinBox? _materialPaletteIndex;
-    private HBoxContainer? _transparencyContainer;
-    private HBoxContainer? _selfIlluminationContainer;
-    private HBoxContainer? _colorContainer;
-    private HBoxContainer? _paletteIndexContainer;
+    private LineEdit _materialName = null!;
+    private Button _materialNameBrowse = null!;
+    private OptionButton _materialType = null!;
+    private SpinBox _materialSlot = null!;
+    private SpinBox _materialTransparency = null!;
+    private SpinBox _materialSelfIllumination = null!;
+    private ColorPickerButton _materialColor = null!;
+    private SpinBox _materialPaletteIndex = null!;
+    private HBoxContainer _transparencyContainer = null!;
+    private HBoxContainer _selfIlluminationContainer = null!;
+    private HBoxContainer _colorContainer = null!;
+    private HBoxContainer _paletteIndexContainer = null!;
 
     #endregion
 
     private ResourceManager? _resourceManager;
     private ModelMaterial? _modelMaterial;
-    private PackedScene? _itemSelectorScene;
+    private PackedScene _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
 
     public override void _Ready()
     {
@@ -54,8 +54,6 @@ public partial class MaterialProperties : FoldableContainer
 
         _materialName.TextSubmitted += MaterialNameOnTextSubmitted;
         _materialNameBrowse.Pressed += MaterialNameBrowseOnPressed;
-
-        _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
     }
 
     public void SetModelMaterial(ResourceManager resourceManager, ModelFile modelFile, int index)
@@ -70,25 +68,25 @@ public partial class MaterialProperties : FoldableContainer
         _modelMaterial = modelFile.Materials[index];
 
         Title = $"Material #{index}";
-        _materialName?.Text = _modelMaterial.Name;
-        _materialType?.Selected = (int)_modelMaterial.Type;
-        _materialSlot?.Value = _modelMaterial.Slot;
-        _materialTransparency?.Value = _modelMaterial.Transparency;
-        _materialSelfIllumination?.Value = _modelMaterial.SelfIllumination;
-        _materialColor?.Color = _modelMaterial.Color.ToGodot();
-        _materialPaletteIndex?.Value = _modelMaterial.PaletteIndex;
+        _materialName.Text = _modelMaterial.Name;
+        _materialType.Selected = (int)_modelMaterial.Type;
+        _materialSlot.Value = _modelMaterial.Slot;
+        _materialTransparency.Value = _modelMaterial.Transparency;
+        _materialSelfIllumination.Value = _modelMaterial.SelfIllumination;
+        _materialColor.Color = _modelMaterial.Color.ToGodot();
+        _materialPaletteIndex.Value = _modelMaterial.PaletteIndex;
 
         if (modelFile.Version < 4)
         {
-            _transparencyContainer?.Visible = false;
-            _selfIlluminationContainer?.Visible = false;
+            _transparencyContainer.Visible = false;
+            _selfIlluminationContainer.Visible = false;
         }
 
         if (_modelMaterial.Type == ModelMaterialType.Texture)
         {
-            _materialNameBrowse?.Visible = true;
-            _colorContainer?.Visible = false;
-            _paletteIndexContainer?.Visible = false;
+            _materialNameBrowse.Visible = true;
+            _colorContainer.Visible = false;
+            _paletteIndexContainer.Visible = false;
         }
     }
 
@@ -97,7 +95,7 @@ public partial class MaterialProperties : FoldableContainer
     private void MaterialNameOnTextSubmitted(string newText)
     {
         _modelMaterial?.Name = newText;
-        MaterialEdited.Invoke();
+        MaterialEdited?.Invoke();
     }
 
     private void MaterialNameBrowseOnPressed()
@@ -120,14 +118,14 @@ public partial class MaterialProperties : FoldableContainer
         }
 
         AddChild(instance);
-        instance.TrySelectItem(_materialName?.Text ?? "");
+        instance.TrySelectItem(_materialName.Text);
         instance.Selected += index =>
         {
             if (instance.TryGetItem(index, out var item))
             {
-                _materialName?.Text = item;
+                _materialName.Text = item;
                 _modelMaterial?.Name = item;
-                MaterialEdited.Invoke();
+                MaterialEdited?.Invoke();
             }
         };
     }

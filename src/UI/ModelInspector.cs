@@ -13,30 +13,30 @@ public partial class ModelInspector : PanelContainer
 
     public delegate void ModelEditedEventHandler();
 
-    public event ModelEditedEventHandler ModelEdited;
+    public event ModelEditedEventHandler? ModelEdited;
+
+    #endregion
+
+    #region Nodes
+
+    private LineEdit _modelName = null!;
+    private LineEdit _modelVersion = null!;
+    private LineEdit _modelRadius = null!;
+    private SpinBox _modelCenterX = null!;
+    private SpinBox _modelCenterY = null!;
+    private SpinBox _modelCenterZ = null!;
+    private LineEdit _modelVertexCount = null!;
+    private LineEdit _modelPolygonCount = null!;
+    private VBoxContainer _objectPropertiesContainer = null!;
+    private VBoxContainer _materialPropertiesContainer = null!;
+    private readonly List<ObjectProperties> _objectProperties = [];
+    private readonly List<MaterialProperties> _materialProperties = [];
 
     #endregion
 
     private ModelFile? _modelFile;
-    private readonly List<ObjectProperties> _objectProperties = [];
-    private readonly List<MaterialProperties> _materialProperties = [];
-    private PackedScene? _objectPropertiesScene;
-    private PackedScene? _materialPropertiesScene;
-
-    #region Nodes
-
-    private LineEdit? _modelName;
-    private LineEdit? _modelVersion;
-    private LineEdit? _modelRadius;
-    private SpinBox? _modelCenterX;
-    private SpinBox? _modelCenterY;
-    private SpinBox? _modelCenterZ;
-    private LineEdit? _modelVertexCount;
-    private LineEdit? _modelPolygonCount;
-    private VBoxContainer? _objectPropertiesContainer;
-    private VBoxContainer? _materialPropertiesContainer;
-
-    #endregion
+    private PackedScene _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
+    private PackedScene _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
 
     public override void _Ready()
     {
@@ -50,9 +50,6 @@ public partial class ModelInspector : PanelContainer
         _modelPolygonCount = GetNode<LineEdit>("%ModelPolygonCount");
         _objectPropertiesContainer = GetNode<VBoxContainer>("%ObjectPropertiesContainer");
         _materialPropertiesContainer = GetNode<VBoxContainer>("%MaterialPropertiesContainer");
-
-        _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
-        _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
     }
 
     public void SetModel(ResourceManager resourceManager, ModelFile modelFile)
@@ -60,14 +57,14 @@ public partial class ModelInspector : PanelContainer
         _modelFile = modelFile;
 
         // Update all the properties
-        _modelName?.Text = _modelFile.Name;
-        _modelVersion?.Text = _modelFile.Version.ToString();
-        _modelRadius?.Text = _modelFile.Radius.ToString(CultureInfo.InvariantCulture);
-        _modelCenterX?.Value = _modelFile.Center.X;
-        _modelCenterY?.Value = _modelFile.Center.Y;
-        _modelCenterZ?.Value = _modelFile.Center.Z;
-        _modelVertexCount?.Text = _modelFile.VertexPositions.Count.ToString();
-        _modelPolygonCount?.Text = _modelFile.Polygons.Count.ToString();
+        _modelName.Text = _modelFile.Name;
+        _modelVersion.Text = _modelFile.Version.ToString();
+        _modelRadius.Text = _modelFile.Radius.ToString(CultureInfo.InvariantCulture);
+        _modelCenterX.Value = _modelFile.Center.X;
+        _modelCenterY.Value = _modelFile.Center.Y;
+        _modelCenterZ.Value = _modelFile.Center.Z;
+        _modelVertexCount.Text = _modelFile.VertexPositions.Count.ToString();
+        _modelPolygonCount.Text = _modelFile.Polygons.Count.ToString();
 
         foreach (var node in _objectProperties)
         {
@@ -77,13 +74,13 @@ public partial class ModelInspector : PanelContainer
         _objectProperties.Clear();
         for (var i = 0; i < modelFile.Objects.Count; i++)
         {
-            if (_objectPropertiesScene?.Instantiate() is not ObjectProperties instance)
+            if (_objectPropertiesScene.Instantiate() is not ObjectProperties instance)
             {
                 Log.Error("Object Properties inspector scene is null.");
                 continue;
             }
 
-            _objectPropertiesContainer?.AddChild(instance);
+            _objectPropertiesContainer.AddChild(instance);
             _objectProperties.Add(instance);
             instance.SetModelObject(_modelFile, i);
         }
@@ -97,13 +94,13 @@ public partial class ModelInspector : PanelContainer
         _materialProperties.Clear();
         for (var i = 0; i < modelFile.Materials.Count; i++)
         {
-            if (_materialPropertiesScene?.Instantiate() is not MaterialProperties instance)
+            if (_materialPropertiesScene.Instantiate() is not MaterialProperties instance)
             {
                 Log.Error("Material Properties inspector scene is null.");
                 continue;
             }
 
-            _materialPropertiesContainer?.AddChild(instance);
+            _materialPropertiesContainer.AddChild(instance);
             _materialProperties.Add(instance);
             instance.SetModelMaterial(resourceManager, _modelFile, i);
             instance.MaterialEdited += OnModelEdited;
@@ -112,6 +109,6 @@ public partial class ModelInspector : PanelContainer
 
     private void OnModelEdited()
     {
-        ModelEdited.Invoke();
+        ModelEdited?.Invoke();
     }
 }
