@@ -40,10 +40,12 @@ public partial class ModelEditor : Control
 
         _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, EditorConfig.Instance.ShowBoundingBox);
         _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, EditorConfig.Instance.ShowWireframe);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.VHots, EditorConfig.Instance.ShowVHots);
         SetFileMenuTextureMode(EditorConfig.Instance.TextureMode);
 
         EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
         EditorConfig.Instance.TextureModeChanged += EditorConfigOnTextureModeChanged;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _modelInspector.ModelEdited += OnModelEdited;
@@ -62,6 +64,7 @@ public partial class ModelEditor : Control
 
         EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
         EditorConfig.Instance.TextureModeChanged -= EditorConfigOnTextureModeChanged;
     }
 
@@ -87,6 +90,9 @@ public partial class ModelEditor : Control
                 break;
             case ViewMenuIndex.Wireframe:
                 EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked((int)index);
+                break;
+            case ViewMenuIndex.VHots:
+                EditorConfig.Instance.ShowVHots = !_viewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.Linear:
                 EditorConfig.Instance.TextureMode = TextureMode.Linear;
@@ -162,6 +168,11 @@ public partial class ModelEditor : Control
     private void EditorConfigOnShowBoundingBoxChanged(bool value)
     {
         _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, value);
+    }
+
+    private void EditorConfigOnShowVHotsChanged(bool value)
+    {
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.VHots, value);
     }
 
     private void EditorConfigOnTextureModeChanged(TextureMode value)

@@ -2,8 +2,9 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public enum ViewMenuIndex
 {
-    BoundingBox = 0,
-    Wireframe = 1,
-    Linear = 3,
-    NearestNeighbour = 4,
+    BoundingBox = 1,
+    Wireframe = 2,
+    VHots = 3,
+    Linear = 5,
+    NearestNeighbour = 6,
 }

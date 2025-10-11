@@ -22,18 +22,26 @@ public partial class ModelViewport : SubViewport
 
     #endregion
 
+    #region Godot Overrides
+
     public override void _Ready()
     {
         _modelContainer = GetNode<Node3D>("%ModelContainer");
         EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
     }
 
     public override void _ExitTree()
     {
         EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
     }
+
+    #endregion
+
+    #region Event Handling
 
     private void EditorConfigOnShowWireframeChanged(bool value)
     {
@@ -47,6 +55,16 @@ public partial class ModelViewport : SubViewport
     {
         _boundingBox?.Visible = value;
     }
+
+    private void EditorConfigOnShowVHotsChanged(bool value)
+    {
+        foreach (var node in _vhots)
+        {
+            node.Visible = value;
+        }
+    }
+
+    #endregion
 
     public void RenderModel(ResourceManager resources, ModelFile modelFile)
     {
@@ -230,7 +248,8 @@ public partial class ModelViewport : SubViewport
                 var vHot = new VHotRenderer
                 {
                     DisplayName = ((int)modelVHot.Type).ToString(),
-                    Position = modelVHot.Position.ToGodot()
+                    Position = modelVHot.Position.ToGodot(),
+                    Visible = EditorConfig.Instance.ShowVHots,
                 };
 
                 _vhots.Add(vHot);
