@@ -17,23 +17,31 @@ public partial class ModelViewport : SubViewport
 
     private Node3D? _modelContainer;
     private LineRenderer? _boundingBox;
+    private readonly List<LineRenderer> _wireframes = [];
+    private readonly List<VHotRenderer> _vhots = [];
 
     #endregion
 
-    private readonly List<LineRenderer> _wireframes = [];
+    #region Godot Overrides
 
     public override void _Ready()
     {
         _modelContainer = GetNode<Node3D>("%ModelContainer");
         EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
     }
 
     public override void _ExitTree()
     {
         EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorConfig.Instance.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
     }
+
+    #endregion
+
+    #region Event Handling
 
     private void EditorConfigOnShowWireframeChanged(bool value)
     {
@@ -48,6 +56,16 @@ public partial class ModelViewport : SubViewport
         _boundingBox?.Visible = value;
     }
 
+    private void EditorConfigOnShowVHotsChanged(bool value)
+    {
+        foreach (var node in _vhots)
+        {
+            node.Visible = value;
+        }
+    }
+
+    #endregion
+
     public void RenderModel(ResourceManager resources, ModelFile modelFile)
     {
         if (_modelContainer == null)
@@ -56,6 +74,7 @@ public partial class ModelViewport : SubViewport
             return;
         }
 
+        _vhots.Clear();
         _wireframes.Clear();
         foreach (var child in _modelContainer.GetChildren())
         {
@@ -220,6 +239,22 @@ public partial class ModelViewport : SubViewport
             objectWireframe.Visible = EditorConfig.Instance.ShowWireframe;
             _wireframes.Add(objectWireframe);
             meshes[i].AddChild(objectWireframe);
+
+            var vHotStart = modelFile.Objects[i].VHotStartIndex;
+            var vHotEnd = vHotStart + modelFile.Objects[i].VHotCount;
+            for (var j = vHotStart; j < vHotEnd; j++)
+            {
+                var modelVHot = modelFile.VHots[j];
+                var vHot = new VHotRenderer
+                {
+                    DisplayName = ((int)modelVHot.Type).ToString(),
+                    Position = modelVHot.Position.ToGodot(),
+                    Visible = EditorConfig.Instance.ShowVHots,
+                };
+
+                _vhots.Add(vHot);
+                meshes[i].AddChild(vHot);
+            }
         }
 
         _modelContainer.AddChild(meshes[0]);

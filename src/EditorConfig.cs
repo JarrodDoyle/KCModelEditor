@@ -15,10 +15,13 @@ public class EditorConfig
 
     public delegate void ShowWireframeChangedEventHandler(bool value);
 
+    public delegate void ShowVHotsChangedEventHandler(bool value);
+
     public delegate void TextureModeChangedEventHandler(TextureMode value);
 
     public event ShowBoundingBoxChangedEventHandler? ShowBoundingBoxChanged;
     public event ShowWireframeChangedEventHandler? ShowWireframeChanged;
+    public event ShowVHotsChangedEventHandler? ShowVHotsChanged;
     public event TextureModeChangedEventHandler? TextureModeChanged;
 
     #endregion
@@ -51,6 +54,19 @@ public class EditorConfig
             }
 
             field = value;
+        }
+    }
+
+    public bool ShowVHots
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                ShowVHotsChanged?.Invoke(value);
+                field = value;
+            }
         }
     }
 
@@ -87,6 +103,7 @@ public class EditorConfig
 
         ShowBoundingBox = _configFile.GetValue("viewport", "show_bounds", false).AsBool();
         ShowWireframe = _configFile.GetValue("viewport", "show_wireframe", false).AsBool();
+        ShowVHots = _configFile.GetValue("viewport", "show_vhots", false).AsBool();
         TextureMode = (TextureMode)_configFile.GetValue("viewport", "texture_mode", 0).AsInt32();
     }
 
@@ -96,6 +113,7 @@ public class EditorConfig
         _configFile.SetValue("general", "install_paths", InstallPaths.ToArray());
         _configFile.SetValue("viewport", "show_bounds", ShowBoundingBox);
         _configFile.SetValue("viewport", "show_wireframe", ShowWireframe);
+        _configFile.SetValue("viewport", "show_vhots", ShowVHots);
         _configFile.SetValue("viewport", "texture_mode", (int)TextureMode);
         _configFile.Save(ConfigFilePath);
     }
