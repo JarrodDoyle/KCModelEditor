@@ -16,18 +16,22 @@ public partial class InstallManager : Control
 
     #endregion
 
-    private string _configFilePath;
-    private LineEdit _searchBar;
-    private Button _addButton;
-    private Button _editButton;
-    private Button _removeButton;
-    private Button _loadButton;
-    private ItemList _installPaths;
-    private FileDialog _folderSelect;
-    private ConfirmationDialog _invalidPathDialog;
+    #region Nodes
 
+    private LineEdit _searchBar = null!;
+    private Button _addButton = null!;
+    private Button _editButton = null!;
+    private Button _removeButton = null!;
+    private Button _loadButton = null!;
+    private ItemList _installPaths = null!;
+    private FileDialog _folderSelect = null!;
+    private ConfirmationDialog _invalidPathDialog = null!;
+
+    #endregion
+
+    private string _configFilePath = "";
     private bool _editMode = false;
-    private Dictionary<string, bool> _validityMap;
+    private readonly Dictionary<string, bool> _validityMap = new();
     private Texture2D _invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
     private Texture2D? _blankIcon;
 
@@ -56,7 +60,6 @@ public partial class InstallManager : Control
         var height = _invalidIcon.GetHeight();
         _blankIcon = ImageTexture.CreateFromImage(Image.CreateEmpty(width, height, false, Image.Format.Rgba8));
 
-        _validityMap = new Dictionary<string, bool>();
         var paths = EditorConfig.Instance.InstallPaths;
         foreach (var path in paths)
         {

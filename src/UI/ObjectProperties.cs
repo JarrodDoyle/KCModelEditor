@@ -10,9 +10,9 @@ public partial class ObjectProperties : FoldableContainer
 
     #region Nodes
 
-    private LineEdit? _objectName;
-    private OptionButton? _objectJointType;
-    private SpinBox? _objectJointIndex;
+    private LineEdit _objectName = null!;
+    private OptionButton _objectJointType = null!;
+    private SpinBox _objectJointIndex = null!;
 
     #endregion
 
@@ -34,8 +34,8 @@ public partial class ObjectProperties : FoldableContainer
         _modelObject = modelFile.Objects[index];
 
         Title = $"Object #{index}";
-        _objectName?.Text = _modelObject.Name;
-        _objectJointType?.Selected = (int)_modelObject.JointType;
-        _objectJointIndex?.Value = (float)_modelObject.JointIndex;
+        _objectName.Text = _modelObject.Name;
+        _objectJointType.Selected = (int)_modelObject.JointType;
+        _objectJointIndex.Value = (float)_modelObject.JointIndex;
     }
 }
