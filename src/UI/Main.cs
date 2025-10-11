@@ -28,8 +28,11 @@ public partial class Main : Node
 
     public override void _ExitTree()
     {
+        _installManager.LoadInstall -= LoadEditor;
         EditorConfig.Instance.Save();
     }
+
+    #region Event Handling
 
     private void LoadEditor(string installPath)
     {
@@ -43,6 +46,8 @@ public partial class Main : Node
         _modelEditor.Visible = true;
         _installManager.Visible = false;
     }
+
+    #endregion
 
     private static void ConfigureLogger()
     {

@@ -12,7 +12,7 @@ public partial class MaterialProperties : FoldableContainer
 
     public delegate void MaterialEditedEventHandler();
 
-    public event MaterialEditedEventHandler MaterialEdited;
+    public event MaterialEditedEventHandler? MaterialEdited; 
 
     #endregion
 
@@ -97,7 +97,7 @@ public partial class MaterialProperties : FoldableContainer
     private void MaterialNameOnTextSubmitted(string newText)
     {
         _modelMaterial?.Name = newText;
-        MaterialEdited.Invoke();
+        MaterialEdited?.Invoke();
     }
 
     private void MaterialNameBrowseOnPressed()
@@ -127,7 +127,7 @@ public partial class MaterialProperties : FoldableContainer
             {
                 _materialName?.Text = item;
                 _modelMaterial?.Name = item;
-                MaterialEdited.Invoke();
+                MaterialEdited?.Invoke();
             }
         };
     }

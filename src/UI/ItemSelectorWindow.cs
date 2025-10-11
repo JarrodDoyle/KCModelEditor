@@ -39,14 +39,58 @@ public partial class ItemSelectorWindow : Window
         _cancelButton = GetNode<Button>("%CancelButton");
         _selectButton = GetNode<Button>("%SelectButton");
 
-        CloseRequested += TriggerCanceled;
-        _cancelButton.Pressed += TriggerCanceled;
-        _selectButton.Pressed += TriggerSelected;
+        CloseRequested += OnCloseRequested;
+        _cancelButton.Pressed += CancelButtonOnPressed;
+        _selectButton.Pressed += SelectButtonOnPressed;
         _itemList.ItemSelected += ItemListOnItemSelected;
-        _itemList.ItemActivated += _ => TriggerSelected();
-        _searchBar.TextChanged += _ => UpdateItemList();
+        _itemList.ItemActivated += ItemListOnItemActivated;
+        _searchBar.TextChanged += SearchBarOnTextChanged;
 
-        UpdateItemList();
+        UpdateItemList("");
+    }
+
+    public override void _ExitTree()
+    {
+        CloseRequested -= OnCloseRequested;
+        _cancelButton.Pressed -= CancelButtonOnPressed;
+        _selectButton.Pressed -= SelectButtonOnPressed;
+        _itemList.ItemSelected -= ItemListOnItemSelected;
+        _itemList.ItemActivated -= ItemListOnItemActivated;
+        _searchBar.TextChanged -= SearchBarOnTextChanged;
+    }
+
+    #endregion
+
+    #region Event Handling
+
+    private void OnCloseRequested()
+    {
+        TriggerCanceled();
+    }
+
+    private void CancelButtonOnPressed()
+    {
+        TriggerCanceled();
+    }
+
+    private void SelectButtonOnPressed()
+    {
+        TriggerCanceled();
+    }
+
+    private void ItemListOnItemSelected(long index)
+    {
+        _selectButton.Disabled = false;
+    }
+
+    private void ItemListOnItemActivated(long index)
+    {
+        TriggerSelected();
+    }
+
+    private void SearchBarOnTextChanged(string newText)
+    {
+        UpdateItemList(newText);
     }
 
     #endregion
@@ -96,7 +140,7 @@ public partial class ItemSelectorWindow : Window
         }
     }
 
-    private void UpdateItemList()
+    private void UpdateItemList(string search)
     {
         _selectButton.Disabled = true;
         var previousSelection = _itemList.IsAnythingSelected()
@@ -104,7 +148,6 @@ public partial class ItemSelectorWindow : Window
             : null;
 
         _itemList.Clear();
-        var search = _searchBar.Text;
         foreach (var item in _items)
         {
             if (item.Contains(search, StringComparison.InvariantCultureIgnoreCase))
@@ -123,13 +166,4 @@ public partial class ItemSelectorWindow : Window
         _itemList.SortItemsByText();
         _itemList.EnsureCurrentIsVisible();
     }
-
-    #region Event Handling
-
-    private void ItemListOnItemSelected(long index)
-    {
-        _selectButton.Disabled = false;
-    }
-
-    #endregion
 }

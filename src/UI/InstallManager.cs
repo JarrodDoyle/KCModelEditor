@@ -8,9 +8,13 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class InstallManager : Control
 {
+    #region Events
+
     public delegate void LoadInstallEventHandler(string installPath);
 
-    public event LoadInstallEventHandler LoadInstall;
+    public event LoadInstallEventHandler? LoadInstall;
+
+    #endregion
 
     private string _configFilePath;
     private LineEdit _searchBar;

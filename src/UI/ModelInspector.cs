@@ -13,7 +13,7 @@ public partial class ModelInspector : PanelContainer
 
     public delegate void ModelEditedEventHandler();
 
-    public event ModelEditedEventHandler ModelEdited;
+    public event ModelEditedEventHandler? ModelEdited;
 
     #endregion
 
@@ -112,6 +112,6 @@ public partial class ModelInspector : PanelContainer
 
     private void OnModelEdited()
     {
-        ModelEdited.Invoke();
+        ModelEdited?.Invoke();
     }
 }
