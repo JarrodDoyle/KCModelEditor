@@ -38,8 +38,8 @@ public partial class ModelEditor : Control
         _viewMenu = GetNode<PopupMenu>("%View");
         _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
 
-        _viewMenu.SetItemChecked(0, EditorConfig.Instance.ShowBoundingBox);
-        _viewMenu.SetItemChecked(1, EditorConfig.Instance.ShowWireframe);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, EditorConfig.Instance.ShowBoundingBox);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, EditorConfig.Instance.ShowWireframe);
         SetFileMenuTextureMode(EditorConfig.Instance.TextureMode);
 
         EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
@@ -79,20 +79,23 @@ public partial class ModelEditor : Control
 
     private void ViewMenuOnIndexPressed(long indexLong)
     {
-        var index = (int)indexLong;
+        var index = (ViewMenuIndex)indexLong;
         switch (index)
         {
-            case 0:
-                EditorConfig.Instance.ShowBoundingBox = !_viewMenu.IsItemChecked(index);
+            case ViewMenuIndex.BoundingBox:
+                EditorConfig.Instance.ShowBoundingBox = !_viewMenu.IsItemChecked((int)index);
                 break;
-            case 1:
-                EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked(index);
+            case ViewMenuIndex.Wireframe:
+                EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked((int)index);
                 break;
-            case 3:
+            case ViewMenuIndex.Linear:
                 EditorConfig.Instance.TextureMode = TextureMode.Linear;
                 break;
-            case 4:
+            case ViewMenuIndex.NearestNeighbour:
                 EditorConfig.Instance.TextureMode = TextureMode.NearestNeighbour;
+                break;
+            default:
+                Log.Debug("Unknown view menu index pressed: {index}", index);
                 break;
         }
     }
@@ -153,12 +156,12 @@ public partial class ModelEditor : Control
 
     private void EditorConfigOnShowWireframeChanged(bool value)
     {
-        _viewMenu.SetItemChecked(1, value);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, value);
     }
 
     private void EditorConfigOnShowBoundingBoxChanged(bool value)
     {
-        _viewMenu.SetItemChecked(0, value);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, value);
     }
 
     private void EditorConfigOnTextureModeChanged(TextureMode value)
@@ -211,12 +214,12 @@ public partial class ModelEditor : Control
         switch (textureMode)
         {
             case TextureMode.Linear:
-                _viewMenu.SetItemChecked(3, true);
-                _viewMenu.SetItemChecked(4, false);
+                _viewMenu.SetItemChecked((int)ViewMenuIndex.Linear, true);
+                _viewMenu.SetItemChecked((int)ViewMenuIndex.NearestNeighbour, false);
                 break;
             case TextureMode.NearestNeighbour:
-                _viewMenu.SetItemChecked(3, false);
-                _viewMenu.SetItemChecked(4, true);
+                _viewMenu.SetItemChecked((int)ViewMenuIndex.Linear, false);
+                _viewMenu.SetItemChecked((int)ViewMenuIndex.NearestNeighbour, true);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
