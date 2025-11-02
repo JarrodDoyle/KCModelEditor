@@ -118,12 +118,12 @@ public partial class MaterialProperties : FoldableContainer
             foreach (var name in _resourceManager.GetModelTextureNames())
             {
                 Log.Debug("Model Texture: {name}", name);
-                instance.AddItem(Path.GetFileName(name));
+                instance.AddItem(Path.GetFileName(name).ToLower());
             }
         }
 
         AddChild(instance);
-        instance.TrySelectItem(_materialName.Text);
+        instance.TrySelectItem(_materialName.Text.ToLower());
         instance.Selected += index =>
         {
             if (instance.TryGetItem(index, out var item))
