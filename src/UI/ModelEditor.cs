@@ -64,7 +64,9 @@ public partial class ModelEditor : Control
         }
 
         var modelName = _modelSelectorPanel.Model;
-        if (_resourceManager.TryGetFilePath($"obj/{modelName}.bin", out var path))
+        var campaignName = _modelSelectorPanel.Campaign;
+        var virtualPath = $"FMs/{campaignName}/obj/{modelName}.bin";
+        if (campaignName != "" && _resourceManager.TryGetFilePath(virtualPath, out var path))
         {
             Save(path, _currentModel);
         }
