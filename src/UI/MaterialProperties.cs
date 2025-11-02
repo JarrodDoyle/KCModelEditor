@@ -111,10 +111,15 @@ public partial class MaterialProperties : FoldableContainer
             return;
         }
 
-        foreach (var name in _resourceManager.GetModelTextureNames())
+        // We want to be showing both OM and FM model textures
+        foreach (var campaign in new [] { "", _resourceManager.ActiveCampaign })
         {
-            Log.Debug("Model Texture: {name}", name);
-            instance.AddItem(Path.GetFileName(name));
+            _resourceManager.SetActiveCampaign(campaign);
+            foreach (var name in _resourceManager.GetModelTextureNames())
+            {
+                Log.Debug("Model Texture: {name}", name);
+                instance.AddItem(Path.GetFileName(name));
+            }
         }
 
         AddChild(instance);

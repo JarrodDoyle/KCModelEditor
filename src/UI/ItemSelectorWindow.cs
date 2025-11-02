@@ -28,7 +28,7 @@ public partial class ItemSelectorWindow : Window
 
     #endregion
 
-    private readonly List<string> _items = [];
+    private readonly HashSet<string> _items = [];
 
     #region Overrides
 
