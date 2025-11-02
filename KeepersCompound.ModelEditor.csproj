@@ -1,4 +1,4 @@
-<Project Sdk="Godot.NET.Sdk/4.5.0">
+<Project Sdk="Godot.NET.Sdk/4.5.1">
   <ItemGroup>
     <ProjectReference Include="..\kc-dark\KeepersCompound.Dark\KeepersCompound.Dark.csproj" />
     <ProjectReference Include="..\kc-dark\KeepersCompound.Formats\KeepersCompound.Formats.csproj" />
