@@ -62,13 +62,13 @@ public class ModelDocument
         if (!_undo.TryPop(out var action))
         {
             Log.Debug("Nothing left to undo...");
-            Dirty = false;
             return false;
         }
 
         action.Item2(Model);
         _redo.Push(action);
         ActionDone?.Invoke();
+        Dirty = _undo.Count != 0;
         return true;
     }
 
@@ -84,6 +84,7 @@ public class ModelDocument
         action.Item1(Model);
         _undo.Push(action);
         ActionDone?.Invoke();
+        Dirty = true;
         return true;
     }
 }
