@@ -1,14 +1,15 @@
-[gd_scene load_steps=8 format=3 uid="uid://bmvch3t460c6k"]
+[gd_scene load_steps=7 format=3 uid="uid://bmvch3t460c6k"]
 
 [ext_resource type="Script" uid="uid://lql6oolb38v0" path="res://src/UI/ModelEditor.cs" id="1_wp7jf"]
 [ext_resource type="PackedScene" uid="uid://boeq66jstbagx" path="res://scenes/model_selector_panel.tscn" id="2_fq75r"]
 [ext_resource type="PackedScene" uid="uid://dsjg056lyuh41" path="res://scenes/editor_menu.tscn" id="2_xnqnd"]
-[ext_resource type="Texture2D" uid="uid://cdlaiy1ipg51k" path="res://assets/icons/MeshInstance3D.svg" id="7_detkr"]
 [ext_resource type="PackedScene" uid="uid://cjis76ea3bcw4" path="res://scenes/model_viewport.tscn" id="8_728lh"]
 [ext_resource type="PackedScene" uid="uid://b3a0dd2e8diyp" path="res://scenes/model_inspector.tscn" id="9_fjp6t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ypwed"]
 bg_color = Color(0.145098, 0.145098, 0.145098, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
@@ -68,40 +69,28 @@ layout_mode = 2
 [node name="HSplitContainer" type="HSplitContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="TabBar" type="TabBar" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/VBoxContainer"]
-layout_mode = 2
-current_tab = 0
-tab_close_display_policy = 1
-tab_count = 1
-tab_0/title = "Blah"
-tab_0/icon = ExtResource("7_detkr")
-
-[node name="PanelContainer" type="PanelContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/VBoxContainer"]
-layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ypwed")
 
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/VBoxContainer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/VBoxContainer/PanelContainer/MarginContainer"]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 stretch = true
 
-[node name="ModelViewport" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/VBoxContainer/PanelContainer/MarginContainer/SubViewportContainer" instance=ExtResource("8_728lh")]
+[node name="ModelViewport" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer/MarginContainer/SubViewportContainer" instance=ExtResource("8_728lh")]
 unique_name_in_owner = true
 handle_input_locally = false
-size = Vector2i(725, 634)
+size = Vector2i(725, 672)
 render_target_update_mode = 4
 
 [node name="ModelInspector" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer" instance=ExtResource("9_fjp6t")]
