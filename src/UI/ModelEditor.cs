@@ -1,13 +1,9 @@
-using System;
 using System.IO;
-using System.Text;
 using Godot;
 using KeepersCompound.Dark;
 using KeepersCompound.Dark.Resources;
-using KeepersCompound.Formats.Model;
 using KeepersCompound.ModelEditor.Render;
 using KeepersCompound.ModelEditor.UI.Menu;
-using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
@@ -49,6 +45,18 @@ public partial class ModelEditor : Control
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
         _modelSelectorPanel.ModelSelected -= OnModelSelected;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
+    }
+
+    public override void _Input(InputEvent inputEvent)
+    {
+        if (inputEvent.IsActionPressed("ui_redo"))
+        {
+            _currentModel?.RedoAction();
+        }
+        else if (inputEvent.IsActionPressed("ui_undo"))
+        {
+            _currentModel?.UndoAction();
+        }
     }
 
     #endregion

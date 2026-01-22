@@ -164,7 +164,10 @@ public partial class MaterialProperties : FoldableContainer
             return;
         }
 
-        _modelDocument.Model.Materials[_materialIndex].Name = newName;
-        _modelDocument.TriggerActionDone();
+        var previousName = _modelDocument.Model.Materials[_materialIndex].Name;
+        _modelDocument.DoAction((
+            m => { m.Materials[_materialIndex].Name = newName; },
+            m => { m.Materials[_materialIndex].Name = previousName; }
+        ));
     }
 }
