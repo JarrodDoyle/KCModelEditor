@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using Godot;
@@ -14,7 +15,7 @@ public partial class ModelEditor : Control
 {
     private InstallContext _installContext = null!;
     private ResourceManager _resourceManager = null!;
-    private ModelFile? _currentModel;
+    private ModelDocument? _currentModel;
 
     #region Nodes
 
@@ -39,7 +40,6 @@ public partial class ModelEditor : Control
         _editorMenu.SavePressed += EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
-        _modelInspector.ModelEdited += OnModelEdited;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
     }
 
@@ -48,7 +48,6 @@ public partial class ModelEditor : Control
         _editorMenu.SavePressed -= EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
         _modelSelectorPanel.ModelSelected -= OnModelSelected;
-        _modelInspector.ModelEdited -= OnModelEdited;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
     }
 
@@ -58,17 +57,17 @@ public partial class ModelEditor : Control
 
     private void EditorMenuOnSavePressed()
     {
-        if (_currentModel == null)
+        if (_currentModel is not { Dirty: true })
         {
             return;
         }
 
-        var modelName = _modelSelectorPanel.Model;
-        var campaignName = _modelSelectorPanel.Campaign;
+        var modelName = _currentModel.Name;
+        var campaignName = _currentModel.Campaign;
         var virtualPath = $"FMs/{campaignName}/obj/{modelName}.bin";
         if (campaignName != "" && _resourceManager.TryGetFilePath(virtualPath, out var path))
         {
-            Save(path, _currentModel);
+            _currentModel.Save(path);
         }
         else
         {
@@ -86,18 +85,7 @@ public partial class ModelEditor : Control
 
     private void SaveAsDialogOnFileSelected(string path)
     {
-        if (_currentModel != null)
-        {
-            Save(path, _currentModel);
-        }
-    }
-
-    private void OnModelEdited()
-    {
-        if (_currentModel != null)
-        {
-            _modelViewport.RenderModel(_resourceManager, _currentModel);
-        }
+        _currentModel?.Save(path);
     }
 
     private void OnModelSelected()
@@ -110,8 +98,8 @@ public partial class ModelEditor : Control
         var modelName = _modelSelectorPanel.Model;
         if (_resourceManager.TryGetModel(modelName, out var modelFile))
         {
-            _currentModel = modelFile;
-            _modelViewport.RenderModel(_resourceManager, _currentModel);
+            _currentModel = new ModelDocument(modelFile, modelName, campaignName);
+            _modelViewport.SetModel(_resourceManager, _currentModel);
             _modelInspector.SetModel(_resourceManager, _currentModel);
         }
     }
@@ -123,14 +111,5 @@ public partial class ModelEditor : Control
         _installContext = installContext;
         _resourceManager = new ResourceManager(installContext);
         _modelSelectorPanel.SetResourceManager(_resourceManager);
-    }
-
-    private static void Save(string path, ModelFile modelFile)
-    {
-        var parser = new ModelFileParser();
-        using var outStream = File.Open(path, FileMode.Create);
-        using var writer = new BinaryWriter(outStream, Encoding.UTF8, false);
-        parser.Write(writer, modelFile);
-        Log.Information("Saved model to {path}", path);
     }
 }

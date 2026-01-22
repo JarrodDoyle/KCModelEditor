@@ -8,14 +8,6 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class MaterialProperties : FoldableContainer
 {
-    #region Events
-
-    public delegate void MaterialEditedEventHandler();
-
-    public event MaterialEditedEventHandler? MaterialEdited; 
-
-    #endregion
-
     #region Nodes
 
     private LineEdit _materialName = null!;
@@ -34,8 +26,11 @@ public partial class MaterialProperties : FoldableContainer
     #endregion
 
     private ResourceManager? _resourceManager;
-    private ModelMaterial? _modelMaterial;
+    private ModelDocument? _modelDocument;
+    private int _materialIndex;
     private PackedScene _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
+
+    #region Overrides
 
     public override void _Ready()
     {
@@ -56,46 +51,20 @@ public partial class MaterialProperties : FoldableContainer
         _materialNameBrowse.Pressed += MaterialNameBrowseOnPressed;
     }
 
-    public void SetModelMaterial(ResourceManager resourceManager, ModelFile modelFile, int index)
+    public override void _ExitTree()
     {
-        if (index < 0 || index >= modelFile.Materials.Count)
-        {
-            Log.Error("Material index {idx} out of range.", index);
-            return;
-        }
-
-        _resourceManager = resourceManager;
-        _modelMaterial = modelFile.Materials[index];
-
-        Title = $"Material #{index}";
-        _materialName.Text = _modelMaterial.Name;
-        _materialType.Selected = (int)_modelMaterial.Type;
-        _materialSlot.Value = _modelMaterial.Slot;
-        _materialTransparency.Value = _modelMaterial.Transparency;
-        _materialSelfIllumination.Value = _modelMaterial.SelfIllumination;
-        _materialColor.Color = _modelMaterial.Color.ToGodot();
-        _materialPaletteIndex.Value = _modelMaterial.PaletteIndex;
-
-        if (modelFile.Version < 4)
-        {
-            _transparencyContainer.Visible = false;
-            _selfIlluminationContainer.Visible = false;
-        }
-
-        if (_modelMaterial.Type == ModelMaterialType.Texture)
-        {
-            _materialNameBrowse.Visible = true;
-            _colorContainer.Visible = false;
-            _paletteIndexContainer.Visible = false;
-        }
+        _modelDocument?.ActionDone -= ModelDocumentOnActionDone;
+        _materialName.TextSubmitted -= MaterialNameOnTextSubmitted;
+        _materialNameBrowse.Pressed -= MaterialNameBrowseOnPressed;
     }
+
+    #endregion
 
     #region Event Handling
 
     private void MaterialNameOnTextSubmitted(string newText)
     {
-        _modelMaterial?.Name = newText;
-        MaterialEdited?.Invoke();
+        DoNameChange(newText);
     }
 
     private void MaterialNameBrowseOnPressed()
@@ -105,14 +74,14 @@ public partial class MaterialProperties : FoldableContainer
             return;
         }
 
-        if (_itemSelectorScene?.Instantiate() is not ItemSelectorWindow instance)
+        if (_itemSelectorScene.Instantiate() is not ItemSelectorWindow instance)
         {
             Log.Error("Item Selector Window failed to initialise.");
             return;
         }
 
         // We want to be showing both OM and FM model textures
-        foreach (var campaign in new [] { "", _resourceManager.ActiveCampaign })
+        foreach (var campaign in new[] { "", _resourceManager.ActiveCampaign })
         {
             _resourceManager.SetActiveCampaign(campaign);
             foreach (var name in _resourceManager.GetModelTextureNames())
@@ -128,12 +97,74 @@ public partial class MaterialProperties : FoldableContainer
         {
             if (instance.TryGetItem(index, out var item))
             {
-                _materialName.Text = item;
-                _modelMaterial?.Name = item;
-                MaterialEdited?.Invoke();
+                DoNameChange(item);
             }
         };
     }
 
+    private void ModelDocumentOnActionDone()
+    {
+        RefreshUi();
+    }
+
     #endregion
+
+    public void SetModelMaterial(ResourceManager resourceManager, ModelDocument modelDocument, int index)
+    {
+        _resourceManager = resourceManager;
+        _modelDocument = modelDocument;
+        _materialIndex = index;
+
+        _modelDocument.ActionDone += ModelDocumentOnActionDone;
+        RefreshUi();
+    }
+
+    private void RefreshUi()
+    {
+        if (_modelDocument == null)
+        {
+            return;
+        }
+
+        var modelFile = _modelDocument.Model;
+        if (_materialIndex < 0 || _materialIndex >= modelFile.Materials.Count)
+        {
+            Log.Error("Material index {idx} out of range.", _materialIndex);
+            return;
+        }
+
+        var modelMaterial = modelFile.Materials[_materialIndex];
+        Title = $"Material #{_materialIndex}";
+        _materialName.Text = modelMaterial.Name;
+        _materialType.Selected = (int)modelMaterial.Type;
+        _materialSlot.Value = modelMaterial.Slot;
+        _materialTransparency.Value = modelMaterial.Transparency;
+        _materialSelfIllumination.Value = modelMaterial.SelfIllumination;
+        _materialColor.Color = modelMaterial.Color.ToGodot();
+        _materialPaletteIndex.Value = modelMaterial.PaletteIndex;
+
+        if (modelFile.Version < 4)
+        {
+            _transparencyContainer.Visible = false;
+            _selfIlluminationContainer.Visible = false;
+        }
+
+        if (modelMaterial.Type == ModelMaterialType.Texture)
+        {
+            _materialNameBrowse.Visible = true;
+            _colorContainer.Visible = false;
+            _paletteIndexContainer.Visible = false;
+        }
+    }
+
+    private void DoNameChange(string newName)
+    {
+        if (_modelDocument == null)
+        {
+            return;
+        }
+
+        _modelDocument.Model.Materials[_materialIndex].Name = newName;
+        _modelDocument.TriggerActionDone();
+    }
 }

@@ -13,9 +13,12 @@ namespace KeepersCompound.ModelEditor.Render;
 
 public partial class ModelViewport : SubViewport
 {
+    private ResourceManager? _resourceManager;
+    private ModelDocument? _modelDocument;
+
     #region Nodes
 
-    private Node3D? _modelContainer;
+    private Node3D _modelContainer = null!;
     private LineRenderer? _boundingBox;
     private readonly List<LineRenderer> _wireframes = [];
     private readonly List<VHotRenderer> _vhots = [];
@@ -37,6 +40,7 @@ public partial class ModelViewport : SubViewport
         EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
         EditorConfig.Instance.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
+        _modelDocument?.ActionDone -= ModelDocumentOnActionDone;
     }
 
     #endregion
@@ -64,16 +68,23 @@ public partial class ModelViewport : SubViewport
         }
     }
 
+    private void ModelDocumentOnActionDone()
+    {
+        RefreshRender();
+    }
+
     #endregion
 
-    public void RenderModel(ResourceManager resources, ModelFile modelFile)
+    public void SetModel(ResourceManager resourceManager, ModelDocument modelDocument)
     {
-        if (_modelContainer == null)
-        {
-            Log.Error("Model container is null.");
-            return;
-        }
+        _resourceManager = resourceManager;
+        _modelDocument = modelDocument;
+        _modelDocument.ActionDone += ModelDocumentOnActionDone;
+        RefreshRender();
+    }
 
+    private void RefreshRender()
+    {
         _vhots.Clear();
         _wireframes.Clear();
         foreach (var child in _modelContainer.GetChildren())
@@ -81,6 +92,12 @@ public partial class ModelViewport : SubViewport
             child.QueueFree();
         }
 
+        if (_resourceManager == null || _modelDocument == null)
+        {
+            return;
+        }
+
+        var modelFile = _modelDocument.Model;
         var defaultMaterial = new StandardMaterial3D();
         var materials = new System.Collections.Generic.Dictionary<int, StandardMaterial3D>();
         foreach (var rawMaterial in modelFile.Materials)
@@ -90,8 +107,8 @@ public partial class ModelViewport : SubViewport
             if (rawMaterial.Type == 0)
             {
                 var resName = PathUtils.ConvertSeparator(Path.GetFileNameWithoutExtension(rawMaterial.Name));
-                if (!resources.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
-                    !TryLoadTexture(resources, virtualPath, out var texture))
+                if (!_resourceManager.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
+                    !TryLoadTexture(virtualPath, out var texture))
                 {
                     Log.Warning(
                         "Failed to find model texture, or model texture format unsupported, adding default material: {Name}, {Slot}",
@@ -107,7 +124,8 @@ public partial class ModelViewport : SubViewport
                         TextureFilter = EditorConfig.Instance.TextureMode switch
                         {
                             TextureMode.Linear => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
-                            TextureMode.NearestNeighbour => BaseMaterial3D.TextureFilterEnum.NearestWithMipmapsAnisotropic,
+                            TextureMode.NearestNeighbour => BaseMaterial3D.TextureFilterEnum
+                                .NearestWithMipmapsAnisotropic,
                             _ => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
                         }
                     };
@@ -283,11 +301,11 @@ public partial class ModelViewport : SubViewport
         _boundingBox.Visible = EditorConfig.Instance.ShowBoundingBox;
     }
 
-    private static bool TryLoadTexture(ResourceManager resources, string virtualPath,
+    private bool TryLoadTexture(string virtualPath,
         [MaybeNullWhen(false)] out Texture2D texture)
     {
         texture = null;
-        if (!resources.TryGetFileMemoryStream(virtualPath, out var stream))
+        if (_resourceManager == null || !_resourceManager.TryGetFileMemoryStream(virtualPath, out var stream))
         {
             return false;
         }
