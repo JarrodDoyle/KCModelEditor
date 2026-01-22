@@ -75,7 +75,7 @@ public partial class ItemSelectorWindow : Window
 
     private void SelectButtonOnPressed()
     {
-        TriggerCanceled();
+        TriggerSelected();
     }
 
     private void ItemListOnItemSelected(long index)
