@@ -7,14 +7,26 @@ script = ExtResource("1_bv1s7")
 
 [node name="File" type="PopupMenu" parent="."]
 unique_name_in_owner = true
-item_count = 2
+item_count = 5
 item_0/text = "Save"
 item_0/id = 0
 item_1/text = "Save As..."
 item_1/id = 1
+item_2/id = 2
+item_2/separator = true
+item_3/text = "Quit"
+item_3/id = 3
+item_4/text = "Quit to install manager"
+item_4/id = 4
 
 [node name="Edit" type="PopupMenu" parent="."]
+unique_name_in_owner = true
 auto_translate_mode = 1
+item_count = 2
+item_0/text = "Undo"
+item_0/id = 0
+item_1/text = "Redo"
+item_1/id = 1
 
 [node name="View" type="PopupMenu" parent="."]
 unique_name_in_owner = true
