@@ -35,6 +35,8 @@ public partial class ModelEditor : Control
 
         _editorMenu.SavePressed += EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
+        _editorMenu.UndoPressed += EditorMenuOnUndoPressed;
+        _editorMenu.RedoPressed += EditorMenuOnRedoPressed;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
     }
@@ -43,6 +45,8 @@ public partial class ModelEditor : Control
     {
         _editorMenu.SavePressed -= EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
+        _editorMenu.UndoPressed -= EditorMenuOnUndoPressed;
+        _editorMenu.RedoPressed -= EditorMenuOnRedoPressed;
         _modelSelectorPanel.ModelSelected -= OnModelSelected;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
     }
@@ -89,6 +93,16 @@ public partial class ModelEditor : Control
         {
             _saveAsDialog.Show();
         }
+    }
+
+    private void EditorMenuOnUndoPressed()
+    {
+        _currentModel?.UndoAction();
+    }
+
+    private void EditorMenuOnRedoPressed()
+    {
+        _currentModel?.RedoAction();
     }
 
     private void SaveAsDialogOnFileSelected(string path)

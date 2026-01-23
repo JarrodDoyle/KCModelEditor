@@ -12,15 +12,23 @@ public partial class EditorMenu : MenuBar
     public delegate void SavePressedEventHandler();
 
     public delegate void SaveAsPressedEventHandler();
+    
+    public delegate void UndoPressedEventHandler();
+    public delegate void RedoPressedEventHandler();
+    
 
     public event SavePressedEventHandler? SavePressed;
     public event SaveAsPressedEventHandler? SaveAsPressed;
+    public event UndoPressedEventHandler? UndoPressed;
+    public event RedoPressedEventHandler? RedoPressed;
+    
 
     #endregion
 
     #region Nodes
 
     private PopupMenu _fileMenu = null!;
+    private PopupMenu _editMenu = null!;
     private PopupMenu _viewMenu = null!;
 
     #endregion
@@ -30,9 +38,11 @@ public partial class EditorMenu : MenuBar
     public override void _Ready()
     {
         _fileMenu = GetNode<PopupMenu>("%File");
+        _editMenu = GetNode<PopupMenu>("%Edit");
         _viewMenu = GetNode<PopupMenu>("%View");
 
         _fileMenu.IndexPressed += FileMenuOnIndexPressed;
+        _editMenu.IndexPressed += EditMenuOnIndexPressed;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
         EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
@@ -45,6 +55,7 @@ public partial class EditorMenu : MenuBar
     public override void _ExitTree()
     {
         _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
+        _editMenu.IndexPressed -= EditMenuOnIndexPressed;
         _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
         EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
@@ -69,6 +80,23 @@ public partial class EditorMenu : MenuBar
                 break;
             default:
                 Log.Debug("Unknown file menu index pressed: {index}", index);
+                break;
+        }
+    }
+
+    private void EditMenuOnIndexPressed(long indexLong)
+    {
+        var index = (EditMenuIndex)indexLong;
+        switch (index)
+        {
+            case EditMenuIndex.Undo:
+                UndoPressed?.Invoke();
+                break;
+            case EditMenuIndex.Redo:
+                RedoPressed?.Invoke();
+                break;
+            default:
+                Log.Debug("Unknown edit menu index pressed: {index}", index);
                 break;
         }
     }
