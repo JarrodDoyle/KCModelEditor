@@ -12,16 +12,21 @@ public partial class EditorMenu : MenuBar
     public delegate void SavePressedEventHandler();
 
     public delegate void SaveAsPressedEventHandler();
-    
+
+    public delegate void QuitPressedEventHandler();
+
+    public delegate void QuitToInstallsPressedEventHandler();
+
     public delegate void UndoPressedEventHandler();
+
     public delegate void RedoPressedEventHandler();
-    
 
     public event SavePressedEventHandler? SavePressed;
     public event SaveAsPressedEventHandler? SaveAsPressed;
+    public event QuitPressedEventHandler? QuitPressed;
+    public event QuitToInstallsPressedEventHandler? QuitToInstallsPressed;
     public event UndoPressedEventHandler? UndoPressed;
     public event RedoPressedEventHandler? RedoPressed;
-    
 
     #endregion
 
@@ -77,6 +82,12 @@ public partial class EditorMenu : MenuBar
                 break;
             case FileMenuIndex.SaveAs:
                 SaveAsPressed?.Invoke();
+                break;
+            case FileMenuIndex.Quit:
+                QuitPressed?.Invoke();
+                break;
+            case FileMenuIndex.QuitToInstalls:
+                QuitToInstallsPressed?.Invoke();
                 break;
             default:
                 Log.Debug("Unknown file menu index pressed: {index}", index);

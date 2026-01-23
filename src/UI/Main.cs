@@ -28,11 +28,13 @@ public partial class Main : Node
         _modelEditor = GetNode<ModelEditor>("%ModelEditor");
 
         _installManager.LoadInstall += LoadEditor;
+        _modelEditor.QuitToInstalls += ModelEditorOnQuitToInstalls;
     }
 
     public override void _ExitTree()
     {
         _installManager.LoadInstall -= LoadEditor;
+        _modelEditor.QuitToInstalls -= ModelEditorOnQuitToInstalls;
         EditorConfig.Instance.Save();
     }
 
@@ -47,10 +49,16 @@ public partial class Main : Node
         {
             return;
         }
-        
+
         _modelEditor.SetInstallContext(installContext);
         _modelEditor.Visible = true;
         _installManager.Visible = false;
+    }
+
+    private void ModelEditorOnQuitToInstalls()
+    {
+        _modelEditor.Visible = false;
+        _installManager.Visible = true;
     }
 
     #endregion
