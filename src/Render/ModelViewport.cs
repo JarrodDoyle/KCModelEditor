@@ -13,8 +13,8 @@ namespace KeepersCompound.ModelEditor.Render;
 
 public partial class ModelViewport : SubViewport
 {
-    private ResourceManager? _resourceManager;
-    private ModelDocument? _modelDocument;
+    private EditorState _state = null!;
+    private ModelDocument? _document;
 
     #region Nodes
 
@@ -30,22 +30,28 @@ public partial class ModelViewport : SubViewport
     public override void _Ready()
     {
         _modelContainer = GetNode<Node3D>("%ModelContainer");
-        EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
-        EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
-        EditorConfig.Instance.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
     }
 
     public override void _ExitTree()
     {
-        EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
-        EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
-        EditorConfig.Instance.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
-        _modelDocument?.ActionDone -= ModelDocumentOnActionDone;
+        _state.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        _state.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        _state.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
+        _state.ActiveModelChanged -= StateOnActiveModelChanged;
+        _document?.ActionDone -= ModelDocumentOnActionDone;
     }
 
     #endregion
 
     #region Event Handling
+
+    private void StateOnActiveModelChanged(ModelDocument document)
+    {
+        _document?.ActionDone -= ModelDocumentOnActionDone;
+        _document = document;
+        _document.ActionDone += ModelDocumentOnActionDone;
+        RefreshRender();
+    }
 
     private void EditorConfigOnShowWireframeChanged(bool value)
     {
@@ -75,11 +81,13 @@ public partial class ModelViewport : SubViewport
 
     #endregion
 
-    public void SetModel(ResourceManager resourceManager, ModelDocument modelDocument)
+    public void SetState(EditorState state)
     {
-        _resourceManager = resourceManager;
-        _modelDocument = modelDocument;
-        _modelDocument.ActionDone += ModelDocumentOnActionDone;
+        _state = state;
+        _state.Config.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        _state.Config.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        _state.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
+        _state.ActiveModelChanged += StateOnActiveModelChanged;
         RefreshRender();
     }
 
@@ -92,12 +100,12 @@ public partial class ModelViewport : SubViewport
             child.QueueFree();
         }
 
-        if (_resourceManager == null || _modelDocument == null)
+        if (_document == null)
         {
             return;
         }
 
-        var modelFile = _modelDocument.Model;
+        var modelFile = _document.Model;
         var defaultMaterial = new StandardMaterial3D();
         var materials = new System.Collections.Generic.Dictionary<int, StandardMaterial3D>();
         foreach (var rawMaterial in modelFile.Materials)
@@ -107,7 +115,7 @@ public partial class ModelViewport : SubViewport
             if (rawMaterial.Type == 0)
             {
                 var resName = PathUtils.ConvertSeparator(Path.GetFileNameWithoutExtension(rawMaterial.Name));
-                if (!_resourceManager.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
+                if (!_state.Resources.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
                     !TryLoadTexture(virtualPath, out var texture))
                 {
                     Log.Warning(
@@ -121,7 +129,7 @@ public partial class ModelViewport : SubViewport
                     {
                         AlbedoTexture = texture,
                         Transparency = BaseMaterial3D.TransparencyEnum.AlphaDepthPrePass,
-                        TextureFilter = EditorConfig.Instance.TextureMode switch
+                        TextureFilter = _state.Config.TextureMode switch
                         {
                             TextureMode.Linear => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
                             TextureMode.NearestNeighbour => BaseMaterial3D.TextureFilterEnum
@@ -254,7 +262,7 @@ public partial class ModelViewport : SubViewport
             }
 
             var objectWireframe = new LineRenderer { Vertices = lineVertices, LineColor = Colors.AliceBlue };
-            objectWireframe.Visible = EditorConfig.Instance.ShowWireframe;
+            objectWireframe.Visible = _state.Config.ShowWireframe;
             _wireframes.Add(objectWireframe);
             meshes[i].AddChild(objectWireframe);
 
@@ -267,7 +275,7 @@ public partial class ModelViewport : SubViewport
                 {
                     DisplayName = ((int)modelVHot.Type).ToString(),
                     Position = modelVHot.Position.ToGodot(),
-                    Visible = EditorConfig.Instance.ShowVHots,
+                    Visible = _state.Config.ShowVHots,
                 };
 
                 _vhots.Add(vHot);
@@ -298,14 +306,14 @@ public partial class ModelViewport : SubViewport
         var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
         _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
         _modelContainer.AddChild(_boundingBox);
-        _boundingBox.Visible = EditorConfig.Instance.ShowBoundingBox;
+        _boundingBox.Visible = _state.Config.ShowBoundingBox;
     }
 
     private bool TryLoadTexture(string virtualPath,
         [MaybeNullWhen(false)] out Texture2D texture)
     {
         texture = null;
-        if (_resourceManager == null || !_resourceManager.TryGetFileMemoryStream(virtualPath, out var stream))
+        if (!_state.Resources.TryGetFileMemoryStream(virtualPath, out var stream))
         {
             return false;
         }

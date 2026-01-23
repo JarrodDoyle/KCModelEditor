@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -29,7 +28,7 @@ public partial class InstallManager : Control
 
     #endregion
 
-    private string _configFilePath = "";
+    private EditorConfig _config = new();
     private bool _editMode = false;
     private readonly Dictionary<string, bool> _validityMap = new();
     private Texture2D _invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
@@ -60,7 +59,7 @@ public partial class InstallManager : Control
         var height = _invalidIcon.GetHeight();
         _blankIcon = ImageTexture.CreateFromImage(Image.CreateEmpty(width, height, false, Image.Format.Rgba8));
 
-        var paths = EditorConfig.Instance.InstallPaths;
+        var paths = _config.InstallPaths;
         foreach (var path in paths)
         {
             var valid = IsInstallPathValid(path);
@@ -107,7 +106,7 @@ public partial class InstallManager : Control
         _validityMap.Add(path, true);
         _installPaths.AddItem(path, _blankIcon);
         _installPaths.SortItemsByText();
-        EditorConfig.Instance.InstallPaths.Add(path);
+        _config.InstallPaths.Add(path);
     }
 
     private void EditInstallPath()
@@ -126,7 +125,7 @@ public partial class InstallManager : Control
         var path = _installPaths.GetItemText(idx);
         _installPaths.RemoveItem(idx);
         _validityMap.Remove(path);
-        EditorConfig.Instance.InstallPaths.Remove(path);
+        _config.InstallPaths.Remove(path);
 
         _editButton.Disabled = true;
         _removeButton.Disabled = true;

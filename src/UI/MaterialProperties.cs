@@ -1,6 +1,5 @@
 using System.IO;
 using Godot;
-using KeepersCompound.Dark.Resources;
 using KeepersCompound.Formats.Model;
 using Serilog;
 
@@ -25,8 +24,8 @@ public partial class MaterialProperties : FoldableContainer
 
     #endregion
 
-    private ResourceManager? _resourceManager;
-    private ModelDocument? _modelDocument;
+    private EditorState _state = null!;
+    private ModelDocument _document = null!;
     private int _materialIndex;
     private PackedScene _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
 
@@ -47,13 +46,16 @@ public partial class MaterialProperties : FoldableContainer
         _colorContainer = GetNode<HBoxContainer>("%Color");
         _paletteIndexContainer = GetNode<HBoxContainer>("%PaletteIndex");
 
+        _document.ActionDone += ModelDocumentOnActionDone;
         _materialName.TextSubmitted += MaterialNameOnTextSubmitted;
         _materialNameBrowse.Pressed += MaterialNameBrowseOnPressed;
+
+        RefreshUi();
     }
 
     public override void _ExitTree()
     {
-        _modelDocument?.ActionDone -= ModelDocumentOnActionDone;
+        _document.ActionDone -= ModelDocumentOnActionDone;
         _materialName.TextSubmitted -= MaterialNameOnTextSubmitted;
         _materialNameBrowse.Pressed -= MaterialNameBrowseOnPressed;
     }
@@ -69,11 +71,6 @@ public partial class MaterialProperties : FoldableContainer
 
     private void MaterialNameBrowseOnPressed()
     {
-        if (_resourceManager == null)
-        {
-            return;
-        }
-
         if (_itemSelectorScene.Instantiate() is not ItemSelectorWindow instance)
         {
             Log.Error("Item Selector Window failed to initialise.");
@@ -81,10 +78,10 @@ public partial class MaterialProperties : FoldableContainer
         }
 
         // We want to be showing both OM and FM model textures
-        foreach (var campaign in new[] { "", _resourceManager.ActiveCampaign })
+        foreach (var campaign in new[] { "", _state.Resources.ActiveCampaign })
         {
-            _resourceManager.SetActiveCampaign(campaign);
-            foreach (var name in _resourceManager.GetModelTextureNames())
+            _state.Resources.SetActiveCampaign(campaign);
+            foreach (var name in _state.Resources.GetModelTextureNames())
             {
                 Log.Debug("Model Texture: {name}", name);
                 instance.AddItem(Path.GetFileName(name).ToLower());
@@ -109,24 +106,16 @@ public partial class MaterialProperties : FoldableContainer
 
     #endregion
 
-    public void SetModelMaterial(ResourceManager resourceManager, ModelDocument modelDocument, int index)
+    public void SetState(EditorState state, ModelDocument modelDocument, int index)
     {
-        _resourceManager = resourceManager;
-        _modelDocument = modelDocument;
+        _state = state;
+        _document = modelDocument;
         _materialIndex = index;
-
-        _modelDocument.ActionDone += ModelDocumentOnActionDone;
-        RefreshUi();
     }
 
     private void RefreshUi()
     {
-        if (_modelDocument == null)
-        {
-            return;
-        }
-
-        var modelFile = _modelDocument.Model;
+        var modelFile = _document.Model;
         if (_materialIndex < 0 || _materialIndex >= modelFile.Materials.Count)
         {
             Log.Error("Material index {idx} out of range.", _materialIndex);
@@ -159,13 +148,8 @@ public partial class MaterialProperties : FoldableContainer
 
     private void DoNameChange(string newName)
     {
-        if (_modelDocument == null)
-        {
-            return;
-        }
-
-        var previousName = _modelDocument.Model.Materials[_materialIndex].Name;
-        _modelDocument.DoAction((
+        var previousName = _document.Model.Materials[_materialIndex].Name;
+        _document.DoAction((
             m => { m.Materials[_materialIndex].Name = newName; },
             m => { m.Materials[_materialIndex].Name = previousName; }
         ));

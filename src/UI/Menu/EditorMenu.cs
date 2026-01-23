@@ -38,6 +38,8 @@ public partial class EditorMenu : MenuBar
 
     #endregion
 
+    private EditorState _state = null!;
+
     #region Godot Overrides
 
     public override void _Ready()
@@ -49,12 +51,6 @@ public partial class EditorMenu : MenuBar
         _fileMenu.IndexPressed += FileMenuOnIndexPressed;
         _editMenu.IndexPressed += EditMenuOnIndexPressed;
         _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
-        EditorConfig.Instance.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
-        EditorConfig.Instance.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
-        EditorConfig.Instance.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
-        EditorConfig.Instance.TextureModeChanged += EditorConfigOnTextureModeChanged;
-
-        SetInitialMenuStates();
     }
 
     public override void _ExitTree()
@@ -62,10 +58,10 @@ public partial class EditorMenu : MenuBar
         _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
         _editMenu.IndexPressed -= EditMenuOnIndexPressed;
         _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
-        EditorConfig.Instance.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
-        EditorConfig.Instance.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
-        EditorConfig.Instance.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
-        EditorConfig.Instance.TextureModeChanged -= EditorConfigOnTextureModeChanged;
+        _state.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        _state.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        _state.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
+        _state.Config.TextureModeChanged -= EditorConfigOnTextureModeChanged;
     }
 
     #endregion
@@ -118,19 +114,19 @@ public partial class EditorMenu : MenuBar
         switch (index)
         {
             case ViewMenuIndex.BoundingBox:
-                EditorConfig.Instance.ShowBoundingBox = !_viewMenu.IsItemChecked((int)index);
+                _state.Config.ShowBoundingBox = !_viewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.Wireframe:
-                EditorConfig.Instance.ShowWireframe = !_viewMenu.IsItemChecked((int)index);
+                _state.Config.ShowWireframe = !_viewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.VHots:
-                EditorConfig.Instance.ShowVHots = !_viewMenu.IsItemChecked((int)index);
+                _state.Config.ShowVHots = !_viewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.Linear:
-                EditorConfig.Instance.TextureMode = TextureMode.Linear;
+                _state.Config.TextureMode = TextureMode.Linear;
                 break;
             case ViewMenuIndex.NearestNeighbour:
-                EditorConfig.Instance.TextureMode = TextureMode.NearestNeighbour;
+                _state.Config.TextureMode = TextureMode.NearestNeighbour;
                 break;
             default:
                 Log.Debug("Unknown view menu index pressed: {index}", index);
@@ -183,12 +179,18 @@ public partial class EditorMenu : MenuBar
 
     #endregion
 
-    private void SetInitialMenuStates()
+    public void SetState(EditorState state)
     {
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, EditorConfig.Instance.ShowBoundingBox);
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, EditorConfig.Instance.ShowWireframe);
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.VHots, EditorConfig.Instance.ShowVHots);
-        SetFileMenuTextureMode(EditorConfig.Instance.TextureMode);
+        _state = state;
+
+        _state.Config.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        _state.Config.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        _state.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
+        _state.Config.TextureModeChanged += EditorConfigOnTextureModeChanged;
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, _state.Config.ShowBoundingBox);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, _state.Config.ShowWireframe);
+        _viewMenu.SetItemChecked((int)ViewMenuIndex.VHots, _state.Config.ShowVHots);
+        SetFileMenuTextureMode(_state.Config.TextureMode);
     }
 
     private void SetFileMenuTextureMode(TextureMode textureMode)

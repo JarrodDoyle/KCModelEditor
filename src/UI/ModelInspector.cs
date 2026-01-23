@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Godot;
-using KeepersCompound.Dark.Resources;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
@@ -25,8 +24,8 @@ public partial class ModelInspector : PanelContainer
 
     #endregion
 
-    private ResourceManager? _resourceManager;
-    private ModelDocument? _modelDocument;
+    private EditorState _state = null!;
+    private ModelDocument? _document;
     private PackedScene _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
     private PackedScene _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
 
@@ -48,54 +47,65 @@ public partial class ModelInspector : PanelContainer
 
     public override void _ExitTree()
     {
-        _modelDocument?.ActionDone -= ModelDocumentOnActionDone;
+        _state.ActiveModelChanged -= StateOnActiveModelChanged;
+        _document?.ActionDone -= DocumentOnActionDone;
     }
 
     #endregion
 
     #region Event Handling
 
-    private void ModelDocumentOnActionDone()
+    private void StateOnActiveModelChanged(ModelDocument document)
+    {
+        _document?.ActionDone -= DocumentOnActionDone;
+        _document = document;
+        _document.ActionDone += DocumentOnActionDone;
+        RefreshUi();
+    }
+
+    private void DocumentOnActionDone()
     {
         RefreshUi();
     }
 
     #endregion
 
-    public void SetModel(ResourceManager resourceManager, ModelDocument modelDocument)
+    public void SetState(EditorState state)
     {
-        _resourceManager = resourceManager;
-        _modelDocument = modelDocument;
-        _modelDocument.ActionDone += ModelDocumentOnActionDone;
+        _state = state;
+        _state.ActiveModelChanged += StateOnActiveModelChanged;
         RefreshUi();
     }
 
     private void RefreshUi()
     {
-        if (_resourceManager == null)
+        foreach (var node in _objectProperties)
         {
-            Log.Error("Resource manager is null.");
+            node.QueueFree();
+        }
+
+        foreach (var node in _materialProperties)
+        {
+            node.QueueFree();
+        }
+
+        _objectProperties.Clear();
+        _materialProperties.Clear();
+
+        if (_document == null)
+        {
+            _modelName.Text = "";
+            _modelVersion.Text = "";
+            _modelRadius.Text = "";
+            _modelCenterX.Value = 0;
+            _modelCenterY.Value = 0;
+            _modelCenterZ.Value = 0;
+            _modelVertexCount.Text = "";
+            _modelPolygonCount.Text = "";
             return;
         }
 
-        if (_modelDocument == null)
-        {
-            foreach (var node in _objectProperties)
-            {
-                node.QueueFree();
-            }
-
-            foreach (var node in _materialProperties)
-            {
-                node.QueueFree();
-            }
-
-            _objectProperties.Clear();
-            _materialProperties.Clear();
-            return;
-        }
-
-        var modelFile = _modelDocument.Model;
+        var modelFile = _document.Model;
         _modelName.Text = modelFile.Name;
         _modelVersion.Text = modelFile.Version.ToString();
         _modelRadius.Text = modelFile.Radius.ToString(CultureInfo.InvariantCulture);
@@ -105,50 +115,40 @@ public partial class ModelInspector : PanelContainer
         _modelVertexCount.Text = modelFile.VertexPositions.Count.ToString();
         _modelPolygonCount.Text = modelFile.Polygons.Count.ToString();
 
-        for (var i = _objectProperties.Count - 1; i >= modelFile.Objects.Count; i--)
-        {
-            _objectProperties[i].QueueFree();
-            _objectProperties.RemoveAt(i);
-        }
-
         for (var i = 0; i < modelFile.Objects.Count; i++)
         {
-            if (i >= _objectProperties.Count)
+            if (i < _objectProperties.Count)
             {
-                if (_objectPropertiesScene.Instantiate() is not ObjectProperties instance)
-                {
-                    Log.Error("Object Properties inspector scene is null.");
-                    continue;
-                }
-
-                _objectPropertiesContainer.AddChild(instance);
-                _objectProperties.Add(instance);
+                continue;
             }
 
-            _objectProperties[i].SetModelObject(_modelDocument, i);
-        }
+            if (_objectPropertiesScene.Instantiate() is not ObjectProperties instance)
+            {
+                Log.Error("Object Properties inspector scene is null.");
+                continue;
+            }
 
-        for (var i = _materialProperties.Count - 1; i >= modelFile.Materials.Count; i--)
-        {
-            _materialProperties[i].QueueFree();
-            _materialProperties.RemoveAt(i);
+            instance.SetState(_document, i);
+            _objectPropertiesContainer.AddChild(instance);
+            _objectProperties.Add(instance);
         }
 
         for (var i = 0; i < modelFile.Materials.Count; i++)
         {
-            if (i >= _materialProperties.Count)
+            if (i < _materialProperties.Count)
             {
-                if (_materialPropertiesScene.Instantiate() is not MaterialProperties instance)
-                {
-                    Log.Error("Object Properties inspector scene is null.");
-                    continue;
-                }
-
-                _materialPropertiesContainer.AddChild(instance);
-                _materialProperties.Add(instance);
+                continue;
             }
 
-            _materialProperties[i].SetModelMaterial(_resourceManager, _modelDocument, i);
+            if (_materialPropertiesScene.Instantiate() is not MaterialProperties instance)
+            {
+                Log.Error("Object Properties inspector scene is null.");
+                continue;
+            }
+
+            instance.SetState(_state, _document, i);
+            _materialPropertiesContainer.AddChild(instance);
+            _materialProperties.Add(instance);
         }
     }
 }

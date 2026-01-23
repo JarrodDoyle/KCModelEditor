@@ -26,7 +26,6 @@ public class EditorConfig
 
     #endregion
 
-    public static EditorConfig Instance { get; } = new();
     public HashSet<string> InstallPaths { get; } = [];
 
     public bool ShowBoundingBox
@@ -86,7 +85,7 @@ public class EditorConfig
     private const string ConfigFilePath = "user://config.ini";
     private readonly ConfigFile _configFile = new();
 
-    private EditorConfig()
+    public EditorConfig()
     {
         Log.Information("Initialising editor config: {path}", ConfigFilePath);
         if (_configFile.Load(ConfigFilePath) != Error.Ok)

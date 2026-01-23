@@ -5,7 +5,7 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ObjectProperties : FoldableContainer
 {
-    private ModelDocument? _modelDocument;
+    private ModelDocument _document = null!;
     private int _objectIndex;
 
     #region Nodes
@@ -23,11 +23,15 @@ public partial class ObjectProperties : FoldableContainer
         _objectName = GetNode<LineEdit>("%ObjectName");
         _objectJointType = GetNode<OptionButton>("%ObjectJointType");
         _objectJointIndex = GetNode<SpinBox>("%ObjectJointIndex");
+
+        _document.ActionDone += ModelDocumentOnActionDone;
+
+        RefreshUi();
     }
 
     public override void _ExitTree()
     {
-        _modelDocument?.ActionDone -= ModelDocumentOnActionDone;
+        _document.ActionDone -= ModelDocumentOnActionDone;
     }
 
     #endregion
@@ -41,22 +45,15 @@ public partial class ObjectProperties : FoldableContainer
 
     #endregion
 
-    public void SetModelObject(ModelDocument modelDocument, int index)
+    public void SetState(ModelDocument modelDocument, int index)
     {
-        _modelDocument = modelDocument;
+        _document = modelDocument;
         _objectIndex = index;
-        _modelDocument.ActionDone += ModelDocumentOnActionDone;
-        RefreshUi();
     }
 
     private void RefreshUi()
     {
-        if (_modelDocument == null)
-        {
-            return;
-        }
-
-        var modelFile = _modelDocument.Model;
+        var modelFile = _document.Model;
         if (_objectIndex < 0 || _objectIndex >= modelFile.Objects.Count)
         {
             Log.Error("Object index {idx} out of range.", _objectIndex);
