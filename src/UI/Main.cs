@@ -8,10 +8,13 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class Main : Node
 {
+    private PackedScene _installManagerScene = GD.Load<PackedScene>("uid://dm8et7nwwnq34");
+    private PackedScene _modelEditorScene = GD.Load<PackedScene>("uid://bmvch3t460c6k");
+
     #region Nodes
 
-    private InstallManager _installManager = null!;
-    private ModelEditor _modelEditor = null!;
+    private InstallManager? _installManager;
+    private ModelEditor? _modelEditor;
 
     #endregion
 
@@ -24,17 +27,13 @@ public partial class Main : Node
 
     public override void _Ready()
     {
-        _installManager = GetNode<InstallManager>("%InstallManager");
-        _modelEditor = GetNode<ModelEditor>("%ModelEditor");
-
-        _installManager.LoadInstall += LoadEditor;
-        _modelEditor.QuitToInstalls += ModelEditorOnQuitToInstalls;
+        LoadInstallManager();
     }
 
     public override void _ExitTree()
     {
-        _installManager.LoadInstall -= LoadEditor;
-        _modelEditor.QuitToInstalls -= ModelEditorOnQuitToInstalls;
+        _installManager?.LoadInstall -= InstallManagerOnLoadEditor;
+        _modelEditor?.QuitToInstalls -= ModelEditorOnQuitToInstalls;
         EditorConfig.Instance.Save();
     }
 
@@ -42,23 +41,18 @@ public partial class Main : Node
 
     #region Event Handling
 
-    private void LoadEditor(string installPath)
+    private void InstallManagerOnLoadEditor(string installPath)
     {
         var installContext = new InstallContext(installPath);
-        if (!installContext.Valid)
+        if (installContext.Valid)
         {
-            return;
+            LoadModelEditor(installContext);
         }
-
-        _modelEditor.SetInstallContext(installContext);
-        _modelEditor.Visible = true;
-        _installManager.Visible = false;
     }
 
     private void ModelEditorOnQuitToInstalls()
     {
-        _modelEditor.Visible = false;
-        _installManager.Visible = true;
+        LoadInstallManager();
     }
 
     #endregion
@@ -75,5 +69,44 @@ public partial class Main : Node
         config.WriteTo.Console(theme: AnsiConsoleTheme.Sixteen, outputTemplate: outputTemplate);
         config.WriteTo.File(logPath, outputTemplate: outputTemplate);
         Log.Logger = config.CreateLogger();
+    }
+
+    private void LoadInstallManager()
+    {
+        if (_installManagerScene.Instantiate() is not InstallManager instance)
+        {
+            Log.Error("Install Manager failed to initialise.");
+            return;
+        }
+
+        _installManager = instance;
+        _installManager.LoadInstall += InstallManagerOnLoadEditor;
+        AddChild(_installManager);
+
+        if (_modelEditor != null)
+        {
+            _modelEditor.QuitToInstalls -= ModelEditorOnQuitToInstalls;
+            _modelEditor.QueueFree();
+        }
+    }
+
+    private void LoadModelEditor(InstallContext context)
+    {
+        if (_modelEditorScene.Instantiate() is not ModelEditor instance)
+        {
+            Log.Error("ModelEditor failed to initialise.");
+            return;
+        }
+
+        _modelEditor = instance;
+        _modelEditor.Ready += () => _modelEditor.SetInstallContext(context);
+        _modelEditor.QuitToInstalls += ModelEditorOnQuitToInstalls;
+        AddChild(_modelEditor);
+
+        if (_installManager != null)
+        {
+            _installManager.LoadInstall -= InstallManagerOnLoadEditor;
+            _installManager.QueueFree();
+        }
     }
 }
