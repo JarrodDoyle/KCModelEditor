@@ -1,7 +1,5 @@
 using System.IO;
 using Godot;
-using KeepersCompound.Dark;
-using KeepersCompound.Dark.Resources;
 using KeepersCompound.ModelEditor.Render;
 using KeepersCompound.ModelEditor.UI.Menu;
 
@@ -9,9 +7,8 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
-    private InstallContext _installContext = null!;
-    private ResourceManager _resourceManager = null!;
-    private ModelDocument? _currentModel;
+    private EditorState _state = null!;
+    private ModelDocument? _document;
 
     #region Nodes
 
@@ -45,31 +42,31 @@ public partial class ModelEditor : Control
         _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
         _editorMenu.QuitPressed += EditorMenuOnQuitPressed;
         _editorMenu.QuitToInstallsPressed += EditorMenuOnQuitToInstallsPressed;
-        _editorMenu.UndoPressed += EditorMenuOnUndoPressed;
-        _editorMenu.RedoPressed += EditorMenuOnRedoPressed;
-        _modelSelectorPanel.ModelSelected += OnModelSelected;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
+
+        _editorMenu.SetState(_state);
+        _modelViewport.SetState(_state);
+        _modelInspector.SetState(_state);
+        _modelSelectorPanel.SetEditorState(_state);
     }
 
     public override void _ExitTree()
     {
         _editorMenu.SavePressed -= EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
-        _editorMenu.UndoPressed -= EditorMenuOnUndoPressed;
-        _editorMenu.RedoPressed -= EditorMenuOnRedoPressed;
-        _modelSelectorPanel.ModelSelected -= OnModelSelected;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
+        _state.ActiveModelChanged -= StateOnActiveModelChanged;
     }
 
     public override void _Input(InputEvent inputEvent)
     {
         if (inputEvent.IsActionPressed("ui_redo"))
         {
-            _currentModel?.RedoAction();
+            _document?.RedoAction();
         }
         else if (inputEvent.IsActionPressed("ui_undo"))
         {
-            _currentModel?.UndoAction();
+            _document?.UndoAction();
         }
     }
 
@@ -79,17 +76,17 @@ public partial class ModelEditor : Control
 
     private void EditorMenuOnSavePressed()
     {
-        if (_currentModel is not { Dirty: true })
+        if (_document is not { Dirty: true })
         {
             return;
         }
 
-        var modelName = _currentModel.Name;
-        var campaignName = _currentModel.Campaign;
+        var modelName = _document.Name;
+        var campaignName = _document.Campaign;
         var virtualPath = $"FMs/{campaignName}/obj/{modelName}.bin";
-        if (campaignName != "" && _resourceManager.TryGetFilePath(virtualPath, out var path))
+        if (campaignName != "" && _state.Resources.TryGetFilePath(virtualPath, out var path))
         {
-            _currentModel.Save(path);
+            _document.Save(path);
         }
         else
         {
@@ -99,7 +96,7 @@ public partial class ModelEditor : Control
 
     private void EditorMenuOnSaveAsPressed()
     {
-        if (_currentModel != null)
+        if (_document != null)
         {
             _saveAsDialog.Show();
         }
@@ -117,43 +114,22 @@ public partial class ModelEditor : Control
         QuitToInstalls?.Invoke();
     }
 
-    private void EditorMenuOnUndoPressed()
-    {
-        _currentModel?.UndoAction();
-    }
-
-    private void EditorMenuOnRedoPressed()
-    {
-        _currentModel?.RedoAction();
-    }
-
     private void SaveAsDialogOnFileSelected(string path)
     {
-        _currentModel?.Save(path);
+        _document?.Save(path);
     }
 
-    private void OnModelSelected()
+    private void StateOnActiveModelChanged(ModelDocument document)
     {
-        var campaignName = _modelSelectorPanel.Campaign;
-        var campaignPath = Path.Join(_installContext.FmsDir, campaignName);
-        _resourceManager.SetActiveCampaign(campaignName);
-        _saveAsDialog.CurrentDir = campaignPath;
-
-        var modelName = _modelSelectorPanel.Model;
-        if (_resourceManager.TryGetModel(modelName, out var modelFile))
-        {
-            _currentModel = new ModelDocument(modelFile, modelName, campaignName);
-            _modelViewport.SetModel(_resourceManager, _currentModel);
-            _modelInspector.SetModel(_resourceManager, _currentModel);
-        }
+        _document = document;
+        _saveAsDialog.CurrentDir = Path.Join(_state.Context.FmsDir, document.Campaign);
     }
 
     #endregion
 
-    public void SetInstallContext(InstallContext installContext)
+    public void SetEditorState(EditorState state)
     {
-        _installContext = installContext;
-        _resourceManager = new ResourceManager(installContext);
-        _modelSelectorPanel.SetResourceManager(_resourceManager);
+        _state = state;
+        _state.ActiveModelChanged += StateOnActiveModelChanged;
     }
 }
