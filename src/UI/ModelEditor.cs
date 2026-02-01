@@ -42,8 +42,6 @@ public partial class ModelEditor : Control
         _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
         _editorMenu.QuitPressed += EditorMenuOnQuitPressed;
         _editorMenu.QuitToInstallsPressed += EditorMenuOnQuitToInstallsPressed;
-        _editorMenu.UndoPressed += EditorMenuOnUndoPressed;
-        _editorMenu.RedoPressed += EditorMenuOnRedoPressed;
         _modelSelectorPanel.ModelSelected += OnModelSelected;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
 
@@ -57,8 +55,6 @@ public partial class ModelEditor : Control
     {
         _editorMenu.SavePressed -= EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
-        _editorMenu.UndoPressed -= EditorMenuOnUndoPressed;
-        _editorMenu.RedoPressed -= EditorMenuOnRedoPressed;
         _modelSelectorPanel.ModelSelected -= OnModelSelected;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
         _state.ActiveModelChanged -= StateOnActiveModelChanged;
@@ -118,16 +114,6 @@ public partial class ModelEditor : Control
     {
         // TODO: Handle saving dirty file
         QuitToInstalls?.Invoke();
-    }
-
-    private void EditorMenuOnUndoPressed()
-    {
-        _document?.UndoAction();
-    }
-
-    private void EditorMenuOnRedoPressed()
-    {
-        _document?.RedoAction();
     }
 
     private void SaveAsDialogOnFileSelected(string path)

@@ -17,16 +17,10 @@ public partial class EditorMenu : MenuBar
 
     public delegate void QuitToInstallsPressedEventHandler();
 
-    public delegate void UndoPressedEventHandler();
-
-    public delegate void RedoPressedEventHandler();
-
     public event SavePressedEventHandler? SavePressed;
     public event SaveAsPressedEventHandler? SaveAsPressed;
     public event QuitPressedEventHandler? QuitPressed;
     public event QuitToInstallsPressedEventHandler? QuitToInstallsPressed;
-    public event UndoPressedEventHandler? UndoPressed;
-    public event RedoPressedEventHandler? RedoPressed;
 
     #endregion
 
@@ -97,10 +91,16 @@ public partial class EditorMenu : MenuBar
         switch (index)
         {
             case EditMenuIndex.Undo:
-                UndoPressed?.Invoke();
+                if (_state.TryGetDocument(out var document))
+                {
+                    document.UndoAction();
+                }
                 break;
             case EditMenuIndex.Redo:
-                RedoPressed?.Invoke();
+                if (_state.TryGetDocument(out document))
+                {
+                    document.RedoAction();
+                }
                 break;
             default:
                 Log.Debug("Unknown edit menu index pressed: {index}", index);
