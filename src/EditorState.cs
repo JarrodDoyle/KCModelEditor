@@ -40,6 +40,13 @@ public class EditorState
 
     public void SetDocument(ModelDocument document)
     {
+        if (_document is { Dirty: true })
+        {
+            while (_document.UndoAction())
+            {
+            }
+        }
+
         _document = document;
         ActiveModelChanged?.Invoke(_document);
     }
