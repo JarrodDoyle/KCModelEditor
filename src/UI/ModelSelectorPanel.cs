@@ -13,14 +13,6 @@ public partial class ModelSelectorPanel : PanelContainer
         NameDescending,
     }
 
-    #region Events
-
-    public delegate void ModelSelectedEventHandler();
-
-    public event ModelSelectedEventHandler? ModelSelected;
-
-    #endregion
-
     #region Nodes
 
     private Button _reloadResourcesButton = null!;
@@ -79,7 +71,7 @@ public partial class ModelSelectorPanel : PanelContainer
         {
             Model = newModel;
             Campaign = newCampaign;
-            ModelSelected?.Invoke();
+            _state.TrySetDocument(Campaign, Model);
         }
     }
 

@@ -42,7 +42,6 @@ public partial class ModelEditor : Control
         _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
         _editorMenu.QuitPressed += EditorMenuOnQuitPressed;
         _editorMenu.QuitToInstallsPressed += EditorMenuOnQuitToInstallsPressed;
-        _modelSelectorPanel.ModelSelected += OnModelSelected;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
 
         _editorMenu.SetState(_state);
@@ -55,7 +54,6 @@ public partial class ModelEditor : Control
     {
         _editorMenu.SavePressed -= EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
-        _modelSelectorPanel.ModelSelected -= OnModelSelected;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
         _state.ActiveModelChanged -= StateOnActiveModelChanged;
     }
@@ -121,23 +119,10 @@ public partial class ModelEditor : Control
         _document?.Save(path);
     }
 
-    private void OnModelSelected()
-    {
-        var campaignName = _modelSelectorPanel.Campaign;
-        var campaignPath = Path.Join(_state.Context.FmsDir, campaignName);
-        _state.Resources.SetActiveCampaign(campaignName);
-        _saveAsDialog.CurrentDir = campaignPath;
-
-        var modelName = _modelSelectorPanel.Model;
-        if (_state.Resources.TryGetModel(modelName, out var modelFile))
-        {
-            _state.SetDocument(new ModelDocument(modelFile, modelName, campaignName));
-        }
-    }
-
     private void StateOnActiveModelChanged(ModelDocument document)
     {
         _document = document;
+        _saveAsDialog.CurrentDir = Path.Join(_state.Context.FmsDir, document.Campaign);
     }
 
     #endregion

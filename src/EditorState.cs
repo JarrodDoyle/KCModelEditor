@@ -27,6 +27,17 @@ public class EditorState
         Resources = new ResourceManager(context);
     }
 
+    public bool TrySetDocument(string campaignName, string modelName)
+    {
+        if (!Resources.SetActiveCampaign(campaignName) || !Resources.TryGetModel(modelName, out var modelFile))
+        {
+            return false;
+        }
+
+        SetDocument(new ModelDocument(modelFile, modelName, campaignName));
+        return true;
+    }
+
     public void SetDocument(ModelDocument document)
     {
         _document = document;
