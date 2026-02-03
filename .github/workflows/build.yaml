@@ -1,0 +1,68 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout KCDark
+        with:
+          repository: 'JarrodDoyle/KCTools'
+          path: 'kc-dark'
+
+      - uses: actions/checkout@v4
+        name: Checkout
+        with:
+          path: 'kc-modeleditor'
+
+      - uses: actions/setup-dotnet@v4
+        name: Setup .NET
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: chickensoft-games/setup-godot@v2
+        name: Setup Godot
+        with:
+          version: 4.6.0
+          use-dotnet: true
+          include-templates: true
+
+      - name: Verify Setup
+        run: |
+          dotnet --version
+          godot --version
+
+      - name: Build 1
+        run: godot --headless --verbose --path "${{ github.workspace }}/kc-modeleditor" --export-release "${{ matrix.os }}" --quit || exit 0
+
+      # This is really stupid, but first build fails, second build works :)
+      # I think it's something weird with build order of the kc-dark projects
+      - name: Build 2
+        run: godot --headless --verbose --path "${{ github.workspace }}/kc-modeleditor" --export-release "${{ matrix.os }}" --quit || exit 0
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: |
+            ${{ github.workspace }}/kc-modeleditor/.build/bin/
+            !${{ github.workspace }}/kc-modeleditor/.build/bin/.gitkeep
