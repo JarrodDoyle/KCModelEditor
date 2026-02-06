@@ -17,10 +17,14 @@ public partial class EditorMenu : MenuBar
 
     public delegate void QuitToInstallsPressedEventHandler();
 
+    public delegate void RefocusCameraEventHandler();
+
+
     public event SavePressedEventHandler? SavePressed;
     public event SaveAsPressedEventHandler? SaveAsPressed;
     public event QuitPressedEventHandler? QuitPressed;
     public event QuitToInstallsPressedEventHandler? QuitToInstallsPressed;
+    public event RefocusCameraEventHandler? RefocusCameraPressed;
 
     #endregion
 
@@ -127,6 +131,9 @@ public partial class EditorMenu : MenuBar
                 break;
             case ViewMenuIndex.NearestNeighbour:
                 _state.Config.TextureMode = TextureMode.NearestNeighbour;
+                break;
+            case ViewMenuIndex.RefocusCamera:
+                RefocusCameraPressed?.Invoke();
                 break;
             default:
                 Log.Debug("Unknown view menu index pressed: {index}", index);

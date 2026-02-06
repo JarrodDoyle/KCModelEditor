@@ -1,11 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://dsjg056lyuh41"]
+[gd_scene format=3 uid="uid://dsjg056lyuh41"]
 
 [ext_resource type="Script" uid="uid://countgixvouqi" path="res://src/UI/Menu/EditorMenu.cs" id="1_bv1s7"]
 
-[node name="EditorMenu" type="MenuBar"]
+[node name="EditorMenu" type="MenuBar" unique_id=1547039806]
 script = ExtResource("1_bv1s7")
 
-[node name="File" type="PopupMenu" parent="."]
+[node name="File" type="PopupMenu" parent="." unique_id=698066523]
 unique_name_in_owner = true
 item_count = 5
 item_0/text = "Save"
@@ -19,7 +19,7 @@ item_3/id = 3
 item_4/text = "Quit to install manager"
 item_4/id = 4
 
-[node name="Edit" type="PopupMenu" parent="."]
+[node name="Edit" type="PopupMenu" parent="." unique_id=2138216311]
 unique_name_in_owner = true
 auto_translate_mode = 1
 item_count = 2
@@ -28,10 +28,10 @@ item_0/id = 0
 item_1/text = "Redo"
 item_1/id = 1
 
-[node name="View" type="PopupMenu" parent="."]
+[node name="View" type="PopupMenu" parent="." unique_id=1110394284]
 unique_name_in_owner = true
 auto_translate_mode = 1
-item_count = 7
+item_count = 9
 item_0/text = "Show"
 item_0/id = 5
 item_0/separator = true
@@ -53,6 +53,11 @@ item_5/id = 3
 item_6/text = "Nearest Neighbour"
 item_6/checkable = 2
 item_6/id = 4
+item_7/text = "Camera"
+item_7/id = 7
+item_7/separator = true
+item_8/text = "Re-focus"
+item_8/id = 8
 
-[node name="Help" type="PopupMenu" parent="."]
+[node name="Help" type="PopupMenu" parent="." unique_id=489721461]
 auto_translate_mode = 1

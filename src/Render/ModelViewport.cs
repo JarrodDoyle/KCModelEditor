@@ -52,10 +52,7 @@ public partial class ModelViewport : SubViewport
         _document = document;
         _document.ActionDone += ModelDocumentOnActionDone;
         RefreshRender();
-
-        var minBounds = _document.Model.MinBounds.ToGodot();
-        var maxBounds = _document.Model.MaxBounds.ToGodot();
-        _orbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
+        RefocusCamera();
     }
 
     private void EditorConfigOnShowWireframeChanged(bool value)
@@ -94,6 +91,18 @@ public partial class ModelViewport : SubViewport
         _state.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
         _state.ActiveModelChanged += StateOnActiveModelChanged;
         RefreshRender();
+    }
+
+    public void RefocusCamera()
+    {
+        if (_document == null)
+        {
+            return;
+        }
+
+        var minBounds = _document.Model.MinBounds.ToGodot();
+        var maxBounds = _document.Model.MaxBounds.ToGodot();
+        _orbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
     }
 
     private void RefreshRender()
