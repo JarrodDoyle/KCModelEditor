@@ -42,6 +42,7 @@ public partial class ModelEditor : Control
         _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
         _editorMenu.QuitPressed += EditorMenuOnQuitPressed;
         _editorMenu.QuitToInstallsPressed += EditorMenuOnQuitToInstallsPressed;
+        _editorMenu.RefocusCameraPressed += EditorMenuOnRefocusCameraPressed;
         _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
 
         _editorMenu.SetState(_state);
@@ -54,6 +55,7 @@ public partial class ModelEditor : Control
     {
         _editorMenu.SavePressed -= EditorMenuOnSavePressed;
         _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
+        _editorMenu.RefocusCameraPressed -= EditorMenuOnRefocusCameraPressed;
         _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
         _state.ActiveModelChanged -= StateOnActiveModelChanged;
     }
@@ -112,6 +114,11 @@ public partial class ModelEditor : Control
     {
         // TODO: Handle saving dirty file
         QuitToInstalls?.Invoke();
+    }
+
+    private void EditorMenuOnRefocusCameraPressed()
+    {
+        _modelViewport.RefocusCamera();
     }
 
     private void SaveAsDialogOnFileSelected(string path)

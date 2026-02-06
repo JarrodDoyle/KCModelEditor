@@ -17,10 +17,11 @@ public partial class OrbitCamera : Node3D
 
     #region Nodes
 
-    private Camera3D? _camera;
+    private Camera3D _camera = null!;
 
     #endregion
 
+    private Vector3 _targetPosition = Vector3.Zero;
     private Vector2 _mouseMotion = Vector2.Zero;
     private float _cameraPitch;
     private float _panSensitivity;
@@ -32,6 +33,7 @@ public partial class OrbitCamera : Node3D
     {
         _camera = GetNode<Camera3D>("%Camera");
         _panSensitivity = Distance / 25.0f;
+        _targetPosition = Position;
     }
 
     public override void _UnhandledInput(InputEvent inputEvent)
@@ -47,7 +49,7 @@ public partial class OrbitCamera : Node3D
                     case MouseButton.Right:
                         _panning = button.Pressed;
                         break;
-                    case MouseButton.Middle:
+                    case MouseButton.Left:
                         Input.SetMouseMode(button.Pressed ? Input.MouseModeEnum.Captured : Input.MouseModeEnum.Visible);
                         break;
                     case MouseButton.WheelUp:
@@ -59,6 +61,7 @@ public partial class OrbitCamera : Node3D
                         _panSensitivity = Distance / 25.0f;
                         break;
                 }
+
                 break;
         }
     }
@@ -72,16 +75,39 @@ public partial class OrbitCamera : Node3D
             RotateY(float.DegreesToRadians(-yaw));
             RotateObjectLocal(Vector3.Right, float.DegreesToRadians(-pitch));
             _cameraPitch += pitch;
-        } else if (_panning)
+        }
+        else if (_panning)
         {
             var targetOffset = new Vector3(-_mouseMotion.X, _mouseMotion.Y, 0) * _panSensitivity;
             var offset = Vector3.Zero.Lerp(targetOffset, LerpSpeed * (float)delta);
             TranslateObjectLocal(offset);
+            _targetPosition = Position;
         }
 
         _mouseMotion = Vector2.Zero;
-        _camera?.Position = _camera.Position.Lerp(new Vector3(0, 0, Distance), LerpSpeed * (float)delta);
+        _camera.Position = _camera.Position.Lerp(new Vector3(0, 0, Distance), LerpSpeed * (float)delta);
+        Position = Position.Lerp(_targetPosition, LerpSpeed * (float)delta);
     }
 
     #endregion
+
+    public void FocusBounds(Aabb bounds)
+    {
+        bounds = bounds.Grow(0.1f);
+
+        _targetPosition = bounds.GetCenter();
+        Distance = 0.0f;
+        var cameraDirection = _camera.GlobalTransform.Basis.Z;
+        foreach (var plane in _camera.GetFrustum()[2..])
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                var point = bounds.GetEndpoint(i);
+                var boundsFrustumPlane = new Plane(plane.Normal, point);
+                var hitPoint = boundsFrustumPlane.IntersectsRay(_targetPosition, cameraDirection);
+                var dist = (_targetPosition - hitPoint)?.Length() ?? 0.0f;
+                Distance = float.Max(Distance, dist);
+            }
+        }
+    }
 }

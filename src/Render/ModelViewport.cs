@@ -18,6 +18,7 @@ public partial class ModelViewport : SubViewport
     #region Nodes
 
     private Node3D _modelContainer = null!;
+    private OrbitCamera _orbitCamera = null!;
     private LineRenderer? _boundingBox;
     private readonly List<LineRenderer> _wireframes = [];
     private readonly List<VHotRenderer> _vhots = [];
@@ -29,6 +30,7 @@ public partial class ModelViewport : SubViewport
     public override void _Ready()
     {
         _modelContainer = GetNode<Node3D>("%ModelContainer");
+        _orbitCamera = GetNode<OrbitCamera>("%OrbitCamera");
     }
 
     public override void _ExitTree()
@@ -50,6 +52,7 @@ public partial class ModelViewport : SubViewport
         _document = document;
         _document.ActionDone += ModelDocumentOnActionDone;
         RefreshRender();
+        RefocusCamera();
     }
 
     private void EditorConfigOnShowWireframeChanged(bool value)
@@ -88,6 +91,18 @@ public partial class ModelViewport : SubViewport
         _state.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
         _state.ActiveModelChanged += StateOnActiveModelChanged;
         RefreshRender();
+    }
+
+    public void RefocusCamera()
+    {
+        if (_document == null)
+        {
+            return;
+        }
+
+        var minBounds = _document.Model.MinBounds.ToGodot();
+        var maxBounds = _document.Model.MaxBounds.ToGodot();
+        _orbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
     }
 
     private void RefreshRender()

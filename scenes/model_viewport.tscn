@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://cjis76ea3bcw4"]
+[gd_scene format=3 uid="uid://cjis76ea3bcw4"]
 
 [ext_resource type="Script" uid="uid://b4pf8koqmkgfv" path="res://src/Render/ModelViewport.cs" id="1_onm0c"]
 [ext_resource type="PackedScene" uid="uid://bot2kma0yfxnn" path="res://scenes/orbit_camera.tscn" id="2_n01q7"]
@@ -7,14 +7,15 @@
 ambient_light_source = 2
 ambient_light_color = Color(1, 1, 1, 1)
 
-[node name="ModelViewport" type="SubViewport"]
+[node name="ModelViewport" type="SubViewport" unique_id=1551164789]
 msaa_3d = 3
 script = ExtResource("1_onm0c")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=958153267]
 environment = SubResource("Environment_nuyio")
 
-[node name="ModelContainer" type="Node3D" parent="."]
+[node name="ModelContainer" type="Node3D" parent="." unique_id=959550091]
 unique_name_in_owner = true
 
-[node name="OrbitCamera" parent="." instance=ExtResource("2_n01q7")]
+[node name="OrbitCamera" parent="." unique_id=1276013181 instance=ExtResource("2_n01q7")]
+unique_name_in_owner = true

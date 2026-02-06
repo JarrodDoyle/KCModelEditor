@@ -7,4 +7,5 @@ public enum ViewMenuIndex
     VHots = 3,
     Linear = 5,
     NearestNeighbour = 6,
+    RefocusCamera = 8,
 }
