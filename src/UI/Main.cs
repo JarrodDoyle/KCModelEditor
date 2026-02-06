@@ -10,7 +10,6 @@ public partial class Main : Node
 {
     private PackedScene _installManagerScene = GD.Load<PackedScene>("uid://dm8et7nwwnq34");
     private PackedScene _modelEditorScene = GD.Load<PackedScene>("uid://bmvch3t460c6k");
-    private EditorConfig _config = new();
 
     #region Nodes
 
@@ -35,7 +34,7 @@ public partial class Main : Node
     {
         _installManager?.LoadInstall -= InstallManagerOnLoadEditor;
         _modelEditor?.QuitToInstalls -= ModelEditorOnQuitToInstalls;
-        _config.Save();
+        _installManager?.Config.Save();
     }
 
     #endregion
@@ -100,7 +99,7 @@ public partial class Main : Node
         }
 
         _modelEditor = instance;
-        _modelEditor.SetEditorState(new EditorState(_config, context));
+        _modelEditor.SetEditorState(new EditorState(_installManager?.Config ?? new EditorConfig(), context));
         _modelEditor.QuitToInstalls += ModelEditorOnQuitToInstalls;
         AddChild(_modelEditor);
 
