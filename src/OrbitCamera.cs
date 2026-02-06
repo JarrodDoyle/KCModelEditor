@@ -21,6 +21,7 @@ public partial class OrbitCamera : Node3D
 
     #endregion
 
+    private Vector3 _targetPosition = Vector3.Zero;
     private Vector2 _mouseMotion = Vector2.Zero;
     private float _cameraPitch;
     private float _panSensitivity;
@@ -32,6 +33,7 @@ public partial class OrbitCamera : Node3D
     {
         _camera = GetNode<Camera3D>("%Camera");
         _panSensitivity = Distance / 25.0f;
+        _targetPosition = Position;
     }
 
     public override void _UnhandledInput(InputEvent inputEvent)
@@ -79,10 +81,12 @@ public partial class OrbitCamera : Node3D
             var targetOffset = new Vector3(-_mouseMotion.X, _mouseMotion.Y, 0) * _panSensitivity;
             var offset = Vector3.Zero.Lerp(targetOffset, LerpSpeed * (float)delta);
             TranslateObjectLocal(offset);
+            _targetPosition = Position;
         }
 
         _mouseMotion = Vector2.Zero;
         _camera.Position = _camera.Position.Lerp(new Vector3(0, 0, Distance), LerpSpeed * (float)delta);
+        Position = Position.Lerp(_targetPosition, LerpSpeed * (float)delta);
     }
 
     #endregion
@@ -91,7 +95,7 @@ public partial class OrbitCamera : Node3D
     {
         bounds = bounds.Grow(0.1f);
 
-        Position = bounds.GetCenter();
+        _targetPosition = bounds.GetCenter();
         Distance = 0.0f;
         var cameraDirection = _camera.GlobalTransform.Basis.Z;
         foreach (var plane in _camera.GetFrustum()[2..])
@@ -100,8 +104,8 @@ public partial class OrbitCamera : Node3D
             {
                 var point = bounds.GetEndpoint(i);
                 var boundsFrustumPlane = new Plane(plane.Normal, point);
-                var hitPoint = boundsFrustumPlane.IntersectsRay(Position, cameraDirection);
-                var dist = (Position - hitPoint)?.Length() ?? 0.0f;
+                var hitPoint = boundsFrustumPlane.IntersectsRay(_targetPosition, cameraDirection);
+                var dist = (_targetPosition - hitPoint)?.Length() ?? 0.0f;
                 Distance = float.Max(Distance, dist);
             }
         }
