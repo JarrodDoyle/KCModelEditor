@@ -8,13 +8,10 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class Main : Node
 {
-    private PackedScene _installManagerScene = GD.Load<PackedScene>("uid://dm8et7nwwnq34");
-    private PackedScene _modelEditorScene = GD.Load<PackedScene>("uid://bmvch3t460c6k");
-
     #region Nodes
 
-    private InstallManager? _installManager;
-    private ModelEditor? _modelEditor;
+    private InstallManager _installManager = InstantiatePackedScene<InstallManager>("uid://dm8et7nwwnq34");
+    private ModelEditor _modelEditor = InstantiatePackedScene<ModelEditor>("uid://bmvch3t460c6k");
 
     #endregion
 
@@ -27,14 +24,17 @@ public partial class Main : Node
 
     public override void _Ready()
     {
-        LoadInstallManager();
+        _installManager.LoadInstall += InstallManagerOnLoadEditor;
+        _modelEditor.QuitToInstalls += ModelEditorOnQuitToInstalls;
+
+        AddChild(_installManager);
     }
 
     public override void _ExitTree()
     {
-        _installManager?.LoadInstall -= InstallManagerOnLoadEditor;
-        _modelEditor?.QuitToInstalls -= ModelEditorOnQuitToInstalls;
-        _installManager?.Config.Save();
+        _installManager.LoadInstall -= InstallManagerOnLoadEditor;
+        _modelEditor.QuitToInstalls -= ModelEditorOnQuitToInstalls;
+        _installManager.Config.Save();
     }
 
     #endregion
@@ -46,13 +46,16 @@ public partial class Main : Node
         var installContext = new InstallContext(installPath);
         if (installContext.Valid)
         {
-            LoadModelEditor(installContext);
+            _modelEditor.SetEditorState(new EditorState(_installManager.Config, installContext));
+            RemoveChild(_installManager);
+            AddChild(_modelEditor);
         }
     }
 
     private void ModelEditorOnQuitToInstalls()
     {
-        LoadInstallManager();
+        RemoveChild(_modelEditor);
+        AddChild(_installManager);
     }
 
     #endregion
@@ -71,42 +74,8 @@ public partial class Main : Node
         Log.Logger = config.CreateLogger();
     }
 
-    private void LoadInstallManager()
+    private static T InstantiatePackedScene<T>(string uid) where T : Node
     {
-        if (_installManagerScene.Instantiate() is not InstallManager instance)
-        {
-            Log.Error("Install Manager failed to initialise.");
-            return;
-        }
-
-        _installManager = instance;
-        _installManager.LoadInstall += InstallManagerOnLoadEditor;
-        AddChild(_installManager);
-
-        if (_modelEditor != null)
-        {
-            _modelEditor.QuitToInstalls -= ModelEditorOnQuitToInstalls;
-            _modelEditor.QueueFree();
-        }
-    }
-
-    private void LoadModelEditor(InstallContext context)
-    {
-        if (_modelEditorScene.Instantiate() is not ModelEditor instance)
-        {
-            Log.Error("ModelEditor failed to initialise.");
-            return;
-        }
-
-        _modelEditor = instance;
-        _modelEditor.SetEditorState(new EditorState(_installManager?.Config ?? new EditorConfig(), context));
-        _modelEditor.QuitToInstalls += ModelEditorOnQuitToInstalls;
-        AddChild(_modelEditor);
-
-        if (_installManager != null)
-        {
-            _installManager.LoadInstall -= InstallManagerOnLoadEditor;
-            _installManager.QueueFree();
-        }
+        return (T)GD.Load<PackedScene>(uid).Instantiate();
     }
 }
