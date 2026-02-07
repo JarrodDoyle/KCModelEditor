@@ -35,6 +35,9 @@ public partial class Main : Node
         _installManager.LoadInstall -= InstallManagerOnLoadEditor;
         _modelEditor.QuitToInstalls -= ModelEditorOnQuitToInstalls;
         _installManager.Config.Save();
+
+        _installManager.QueueFree();
+        _modelEditor.QueueFree();
     }
 
     #endregion
