@@ -33,3 +33,8 @@ project/assembly_name="KeepersCompound.ModelEditor"
 [gui]
 
 theme/custom="uid://bcibt73qths3g"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
