@@ -15,6 +15,12 @@ public partial class Main : Node
     public void OnResolved()
     {
         ConfigureLogger();
+        SetProcess(true);
+    }
+
+    public void OnProcess(double delta)
+    {
+        // We do this in OnProcess to avoid the issues described here: https://github.com/godotengine/godot/issues/99651#issuecomment-2807113330
         var result = GetTree().ChangeSceneToFile(SceneUids.InstallManager);
         if (result != Error.Ok)
         {
