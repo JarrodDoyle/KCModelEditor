@@ -1,51 +1,51 @@
-[gd_scene load_steps=3 format=3 uid="uid://g8haby7whlv2"]
+[gd_scene format=3 uid="uid://g8haby7whlv2"]
 
 [ext_resource type="Script" uid="uid://tj1hkpb862fq" path="res://src/UI/MaterialProperties.cs" id="1_2magm"]
 [ext_resource type="Texture2D" uid="uid://cl55shbqwd8hy" path="res://assets/icons/FileBrowse.svg" id="2_lr8pg"]
 
-[node name="MaterialProperties" type="FoldableContainer"]
+[node name="MaterialProperties" type="FoldableContainer" unique_id=404766765]
 title_text_overrun_behavior = 3
 script = ExtResource("1_2magm")
 
-[node name="Properties" type="VBoxContainer" parent="."]
+[node name="Properties" type="VBoxContainer" parent="." unique_id=914220832]
 layout_mode = 2
 
-[node name="Name" type="HBoxContainer" parent="Properties"]
+[node name="Name" type="HBoxContainer" parent="Properties" unique_id=2081559470]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/Name"]
+[node name="Label" type="Label" parent="Properties/Name" unique_id=1948521632]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Name"
 text_overrun_behavior = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Properties/Name"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Properties/Name" unique_id=1799307787]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MaterialName" type="LineEdit" parent="Properties/Name/HBoxContainer"]
+[node name="MaterialName" type="LineEdit" parent="Properties/Name/HBoxContainer" unique_id=776412609]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MaterialNameBrowse" type="Button" parent="Properties/Name/HBoxContainer"]
+[node name="MaterialNameBrowse" type="Button" parent="Properties/Name/HBoxContainer" unique_id=701080777]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 icon = ExtResource("2_lr8pg")
 
-[node name="JointType" type="HBoxContainer" parent="Properties"]
+[node name="JointType" type="HBoxContainer" parent="Properties" unique_id=1187725027]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/JointType"]
+[node name="Label" type="Label" parent="Properties/JointType" unique_id=387754182]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Type"
 text_overrun_behavior = 3
 
-[node name="MaterialType" type="OptionButton" parent="Properties/JointType"]
+[node name="MaterialType" type="OptionButton" parent="Properties/JointType" unique_id=1612018406]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -59,69 +59,69 @@ popup/item_1/text = "Color"
 popup/item_1/id = 1
 popup/item_1/disabled = true
 
-[node name="Slot" type="HBoxContainer" parent="Properties"]
+[node name="Slot" type="HBoxContainer" parent="Properties" unique_id=1014843014]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/Slot"]
+[node name="Label" type="Label" parent="Properties/Slot" unique_id=69135792]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Slot"
 text_overrun_behavior = 3
 
-[node name="MaterialSlot" type="SpinBox" parent="Properties/Slot"]
+[node name="MaterialSlot" type="SpinBox" parent="Properties/Slot" unique_id=1690982281]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 rounded = true
 editable = false
 
-[node name="Transparency" type="HBoxContainer" parent="Properties"]
+[node name="TransparencyContainer" type="HBoxContainer" parent="Properties" unique_id=1268234226]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/Transparency"]
+[node name="Label" type="Label" parent="Properties/TransparencyContainer" unique_id=171947498]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Transparency"
 text_overrun_behavior = 3
 
-[node name="MaterialTransparency" type="SpinBox" parent="Properties/Transparency"]
+[node name="MaterialTransparency" type="SpinBox" parent="Properties/TransparencyContainer" unique_id=455944864]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="SelfIllumination" type="HBoxContainer" parent="Properties"]
+[node name="SelfIlluminationContainer" type="HBoxContainer" parent="Properties" unique_id=1065644953]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/SelfIllumination"]
+[node name="Label" type="Label" parent="Properties/SelfIlluminationContainer" unique_id=1672661354]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Self-Illumination"
 text_overrun_behavior = 3
 
-[node name="MaterialSelfIllumination" type="SpinBox" parent="Properties/SelfIllumination"]
+[node name="MaterialSelfIllumination" type="SpinBox" parent="Properties/SelfIlluminationContainer" unique_id=2098898387]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="Color" type="HBoxContainer" parent="Properties"]
+[node name="ColorContainer" type="HBoxContainer" parent="Properties" unique_id=627917239]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/Color"]
+[node name="Label" type="Label" parent="Properties/ColorContainer" unique_id=1602172709]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Color"
 text_overrun_behavior = 3
 
-[node name="MaterialColor" type="ColorPickerButton" parent="Properties/Color"]
+[node name="MaterialColor" type="ColorPickerButton" parent="Properties/ColorContainer" unique_id=1860428004]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -129,18 +129,18 @@ disabled = true
 edit_alpha = false
 edit_intensity = false
 
-[node name="PaletteIndex" type="HBoxContainer" parent="Properties"]
+[node name="PaletteIndexContainer" type="HBoxContainer" parent="Properties" unique_id=262853636]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/PaletteIndex"]
+[node name="Label" type="Label" parent="Properties/PaletteIndexContainer" unique_id=1367375616]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Palette Index"
 text_overrun_behavior = 3
 
-[node name="MaterialPaletteIndex" type="SpinBox" parent="Properties/PaletteIndex"]
+[node name="MaterialPaletteIndex" type="SpinBox" parent="Properties/PaletteIndexContainer" unique_id=936536361]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

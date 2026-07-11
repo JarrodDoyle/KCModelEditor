@@ -1,21 +1,20 @@
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 
 namespace KeepersCompound.ModelEditor.Render;
 
+[Meta(typeof(IAutoNode))]
 public partial class VHotRenderer : Node3D
 {
-    public string DisplayName { get; init; } = "";
+    public override void _Notification(int what) => this.Notify(what);
 
-    #region Nodes
+    public string DisplayName { get; init; } = "";
 
     private MeshInstance3D _mesh = null!;
     private Label3D _label = null!;
 
-    #endregion
-
-    #region Godot Overrides
-
-    public override void _Ready()
+    public void OnReady()
     {
         var arrayMesh = new ArrayMesh();
         var sphere = new SphereMesh();
@@ -36,6 +35,4 @@ public partial class VHotRenderer : Node3D
         AddChild(_mesh);
         AddChild(_label);
     }
-
-    #endregion
 }

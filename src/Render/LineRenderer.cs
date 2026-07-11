@@ -1,17 +1,20 @@
 using System.Collections.Generic;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using Godot.Collections;
 
 namespace KeepersCompound.ModelEditor.Render;
 
+[Meta(typeof(IAutoNode))]
 public partial class LineRenderer : Node3D
 {
+    public override void _Notification(int what) => this.Notify(what);
+
     public List<Vector3> Vertices { get; init; } = [];
     public Color LineColor { get; init; } = Colors.White;
 
-    #region Godot Overrides
-
-    public override void _Ready()
+    public void OnReady()
     {
         var array = new Array();
         array.Resize((int)Mesh.ArrayType.Max);
@@ -23,8 +26,6 @@ public partial class LineRenderer : Node3D
 
         AddChild(new MeshInstance3D { Mesh = arrayMesh });
     }
-
-    #endregion
 
     public static LineRenderer CreateAabb(Aabb aabb, Color color = new())
     {

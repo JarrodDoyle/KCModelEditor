@@ -1,25 +1,24 @@
 using System;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.ModelEditor.Render;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI.Menu;
 
+[Meta(typeof(IAutoNode))]
 public partial class EditorMenu : MenuBar
 {
+    public override void _Notification(int what) => this.Notify(what);
+
     #region Events
 
     public delegate void SavePressedEventHandler();
-
     public delegate void SaveAsPressedEventHandler();
-
     public delegate void QuitPressedEventHandler();
-
     public delegate void QuitToInstallsPressedEventHandler();
-
     public delegate void RefocusCameraEventHandler();
-
-
     public event SavePressedEventHandler? SavePressed;
     public event SaveAsPressedEventHandler? SaveAsPressed;
     public event QuitPressedEventHandler? QuitPressed;
@@ -28,41 +27,41 @@ public partial class EditorMenu : MenuBar
 
     #endregion
 
-    #region Nodes
+    [Node("%File")] private PopupMenu FileMenu { get; set; } = null!;
+    [Node("%Edit")] private PopupMenu EditMenu { get; set; } = null!;
+    [Node("%View")] private PopupMenu ViewMenu { get; set; } = null!;
 
-    private PopupMenu _fileMenu = null!;
-    private PopupMenu _editMenu = null!;
-    private PopupMenu _viewMenu = null!;
+    [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
 
-    #endregion
-
-    private EditorState _state = null!;
-
-    #region Godot Overrides
-
-    public override void _Ready()
+    public void OnReady()
     {
-        _fileMenu = GetNode<PopupMenu>("%File");
-        _editMenu = GetNode<PopupMenu>("%Edit");
-        _viewMenu = GetNode<PopupMenu>("%View");
-
-        _fileMenu.IndexPressed += FileMenuOnIndexPressed;
-        _editMenu.IndexPressed += EditMenuOnIndexPressed;
-        _viewMenu.IndexPressed += ViewMenuOnIndexPressed;
+        FileMenu.IndexPressed += FileMenuOnIndexPressed;
+        EditMenu.IndexPressed += EditMenuOnIndexPressed;
+        ViewMenu.IndexPressed += ViewMenuOnIndexPressed;
     }
 
-    public override void _ExitTree()
+    public void OnResolved()
     {
-        _fileMenu.IndexPressed -= FileMenuOnIndexPressed;
-        _editMenu.IndexPressed -= EditMenuOnIndexPressed;
-        _viewMenu.IndexPressed -= ViewMenuOnIndexPressed;
-        _state.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
-        _state.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
-        _state.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
-        _state.Config.TextureModeChanged -= EditorConfigOnTextureModeChanged;
+        EditorState.Config.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        EditorState.Config.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorState.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
+        EditorState.Config.TextureModeChanged += EditorConfigOnTextureModeChanged;
+        ViewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, EditorState.Config.ShowBoundingBox);
+        ViewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, EditorState.Config.ShowWireframe);
+        ViewMenu.SetItemChecked((int)ViewMenuIndex.VHots, EditorState.Config.ShowVHots);
+        SetFileMenuTextureMode(EditorState.Config.TextureMode);
     }
 
-    #endregion
+    public void OnExitTree()
+    {
+        FileMenu.IndexPressed -= FileMenuOnIndexPressed;
+        EditMenu.IndexPressed -= EditMenuOnIndexPressed;
+        ViewMenu.IndexPressed -= ViewMenuOnIndexPressed;
+        EditorState.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        EditorState.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorState.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
+        EditorState.Config.TextureModeChanged -= EditorConfigOnTextureModeChanged;
+    }
 
     #region Event Handling
 
@@ -95,16 +94,18 @@ public partial class EditorMenu : MenuBar
         switch (index)
         {
             case EditMenuIndex.Undo:
-                if (_state.TryGetDocument(out var document))
+                if (EditorState.TryGetDocument(out var document))
                 {
                     document.UndoAction();
                 }
+
                 break;
             case EditMenuIndex.Redo:
-                if (_state.TryGetDocument(out document))
+                if (EditorState.TryGetDocument(out document))
                 {
                     document.RedoAction();
                 }
+
                 break;
             default:
                 Log.Debug("Unknown edit menu index pressed: {index}", index);
@@ -118,19 +119,19 @@ public partial class EditorMenu : MenuBar
         switch (index)
         {
             case ViewMenuIndex.BoundingBox:
-                _state.Config.ShowBoundingBox = !_viewMenu.IsItemChecked((int)index);
+                EditorState.Config.ShowBoundingBox = !ViewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.Wireframe:
-                _state.Config.ShowWireframe = !_viewMenu.IsItemChecked((int)index);
+                EditorState.Config.ShowWireframe = !ViewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.VHots:
-                _state.Config.ShowVHots = !_viewMenu.IsItemChecked((int)index);
+                EditorState.Config.ShowVHots = !ViewMenu.IsItemChecked((int)index);
                 break;
             case ViewMenuIndex.Linear:
-                _state.Config.TextureMode = TextureMode.Linear;
+                EditorState.Config.TextureMode = TextureMode.Linear;
                 break;
             case ViewMenuIndex.NearestNeighbour:
-                _state.Config.TextureMode = TextureMode.NearestNeighbour;
+                EditorState.Config.TextureMode = TextureMode.NearestNeighbour;
                 break;
             case ViewMenuIndex.RefocusCamera:
                 RefocusCameraPressed?.Invoke();
@@ -143,17 +144,17 @@ public partial class EditorMenu : MenuBar
 
     private void EditorConfigOnShowWireframeChanged(bool value)
     {
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, value);
+        ViewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, value);
     }
 
     private void EditorConfigOnShowBoundingBoxChanged(bool value)
     {
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, value);
+        ViewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, value);
     }
 
     private void EditorConfigOnShowVHotsChanged(bool value)
     {
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.VHots, value);
+        ViewMenu.SetItemChecked((int)ViewMenuIndex.VHots, value);
     }
 
     private void EditorConfigOnTextureModeChanged(TextureMode value)
@@ -186,31 +187,17 @@ public partial class EditorMenu : MenuBar
 
     #endregion
 
-    public void SetState(EditorState state)
-    {
-        _state = state;
-
-        _state.Config.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
-        _state.Config.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
-        _state.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
-        _state.Config.TextureModeChanged += EditorConfigOnTextureModeChanged;
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.BoundingBox, _state.Config.ShowBoundingBox);
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.Wireframe, _state.Config.ShowWireframe);
-        _viewMenu.SetItemChecked((int)ViewMenuIndex.VHots, _state.Config.ShowVHots);
-        SetFileMenuTextureMode(_state.Config.TextureMode);
-    }
-
     private void SetFileMenuTextureMode(TextureMode textureMode)
     {
         switch (textureMode)
         {
             case TextureMode.Linear:
-                _viewMenu.SetItemChecked((int)ViewMenuIndex.Linear, true);
-                _viewMenu.SetItemChecked((int)ViewMenuIndex.NearestNeighbour, false);
+                ViewMenu.SetItemChecked((int)ViewMenuIndex.Linear, true);
+                ViewMenu.SetItemChecked((int)ViewMenuIndex.NearestNeighbour, false);
                 break;
             case TextureMode.NearestNeighbour:
-                _viewMenu.SetItemChecked((int)ViewMenuIndex.Linear, false);
-                _viewMenu.SetItemChecked((int)ViewMenuIndex.NearestNeighbour, true);
+                ViewMenu.SetItemChecked((int)ViewMenuIndex.Linear, false);
+                ViewMenu.SetItemChecked((int)ViewMenuIndex.NearestNeighbour, true);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(textureMode), textureMode, null);

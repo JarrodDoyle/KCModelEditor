@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using Godot.Collections;
 using KeepersCompound.Dark;
@@ -10,43 +12,41 @@ using Serilog;
 
 namespace KeepersCompound.ModelEditor.Render;
 
+[Meta(typeof(IAutoNode))]
 public partial class ModelViewport : SubViewport
 {
-    private EditorState _state = null!;
-    private ModelDocument? _document;
+    public override void _Notification(int what) => this.Notify(what);
 
-    #region Nodes
-
-    private Node3D _modelContainer = null!;
-    private OrbitCamera _orbitCamera = null!;
+    [Node] private Node3D ModelContainer { get; set; } = null!;
+    [Node] private OrbitCamera OrbitCamera { get; set; } = null!;
     private LineRenderer? _boundingBox;
     private readonly List<LineRenderer> _wireframes = [];
     private readonly List<VHotRenderer> _vhots = [];
 
-    #endregion
+    [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
+    private ModelDocument? _document;
 
-    #region Godot Overrides
-
-    public override void _Ready()
+    public void OnResolved()
     {
-        _modelContainer = GetNode<Node3D>("%ModelContainer");
-        _orbitCamera = GetNode<OrbitCamera>("%OrbitCamera");
+        EditorState.Config.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
+        EditorState.Config.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
+        EditorState.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
+        EditorState.ActiveModelChanged += EditorStateOnActiveModelChanged;
+        RefreshRender();
     }
 
-    public override void _ExitTree()
+    public void OnExitTree()
     {
-        _state.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
-        _state.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
-        _state.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
-        _state.ActiveModelChanged -= StateOnActiveModelChanged;
+        EditorState.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
+        EditorState.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
+        EditorState.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
+        EditorState.ActiveModelChanged -= EditorStateOnActiveModelChanged;
         _document?.ActionDone -= ModelDocumentOnActionDone;
     }
 
-    #endregion
-
     #region Event Handling
 
-    private void StateOnActiveModelChanged(ModelDocument document)
+    private void EditorStateOnActiveModelChanged(ModelDocument document)
     {
         _document?.ActionDone -= ModelDocumentOnActionDone;
         _document = document;
@@ -83,16 +83,6 @@ public partial class ModelViewport : SubViewport
 
     #endregion
 
-    public void SetState(EditorState state)
-    {
-        _state = state;
-        _state.Config.ShowBoundingBoxChanged += EditorConfigOnShowBoundingBoxChanged;
-        _state.Config.ShowWireframeChanged += EditorConfigOnShowWireframeChanged;
-        _state.Config.ShowVHotsChanged += EditorConfigOnShowVHotsChanged;
-        _state.ActiveModelChanged += StateOnActiveModelChanged;
-        RefreshRender();
-    }
-
     public void RefocusCamera()
     {
         if (_document == null)
@@ -102,14 +92,14 @@ public partial class ModelViewport : SubViewport
 
         var minBounds = _document.Model.MinBounds.ToGodot();
         var maxBounds = _document.Model.MaxBounds.ToGodot();
-        _orbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
+        OrbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
     }
 
     private void RefreshRender()
     {
         _vhots.Clear();
         _wireframes.Clear();
-        foreach (var child in _modelContainer.GetChildren())
+        foreach (var child in ModelContainer.GetChildren())
         {
             child.QueueFree();
         }
@@ -129,7 +119,7 @@ public partial class ModelViewport : SubViewport
             if (rawMaterial.Type == 0)
             {
                 var resName = PathUtils.ConvertSeparator(Path.GetFileNameWithoutExtension(rawMaterial.Name));
-                if (!_state.Resources.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
+                if (!EditorState.Resources.TryGetObjectTextureVirtualPath(resName, out var virtualPath) ||
                     !TryLoadTexture(virtualPath, out var texture))
                 {
                     Log.Warning(
@@ -143,7 +133,7 @@ public partial class ModelViewport : SubViewport
                     {
                         AlbedoTexture = texture,
                         Transparency = BaseMaterial3D.TransparencyEnum.AlphaDepthPrePass,
-                        TextureFilter = _state.Config.TextureMode switch
+                        TextureFilter = EditorState.Config.TextureMode switch
                         {
                             TextureMode.Linear => BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
                             TextureMode.NearestNeighbour => BaseMaterial3D.TextureFilterEnum
@@ -276,7 +266,7 @@ public partial class ModelViewport : SubViewport
             }
 
             var objectWireframe = new LineRenderer { Vertices = lineVertices, LineColor = Colors.AliceBlue };
-            objectWireframe.Visible = _state.Config.ShowWireframe;
+            objectWireframe.Visible = EditorState.Config.ShowWireframe;
             _wireframes.Add(objectWireframe);
             meshes[i].AddChild(objectWireframe);
 
@@ -289,7 +279,7 @@ public partial class ModelViewport : SubViewport
                 {
                     DisplayName = ((int)modelVHot.Type).ToString(),
                     Position = modelVHot.Position.ToGodot(),
-                    Visible = _state.Config.ShowVHots,
+                    Visible = EditorState.Config.ShowVHots,
                 };
 
                 _vhots.Add(vHot);
@@ -297,7 +287,7 @@ public partial class ModelViewport : SubViewport
             }
         }
 
-        _modelContainer.AddChild(meshes[0]);
+        ModelContainer.AddChild(meshes[0]);
         for (var i = 0; i < objCount; i++)
         {
             var childIndex = modelFile.Objects[i].ChildObjectIndex;
@@ -319,15 +309,15 @@ public partial class ModelViewport : SubViewport
         var maxBounds = modelFile.MaxBounds.ToGodot();
         var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
         _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
-        _modelContainer.AddChild(_boundingBox);
-        _boundingBox.Visible = _state.Config.ShowBoundingBox;
+        ModelContainer.AddChild(_boundingBox);
+        _boundingBox.Visible = EditorState.Config.ShowBoundingBox;
     }
 
     private bool TryLoadTexture(string virtualPath,
         [MaybeNullWhen(false)] out Texture2D texture)
     {
         texture = null;
-        if (!_state.Resources.TryGetFileMemoryStream(virtualPath, out var stream))
+        if (!EditorState.Resources.TryGetFileMemoryStream(virtualPath, out var stream))
         {
             return false;
         }

@@ -1,62 +1,55 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class ItemSelectorWindow : Window
 {
+    public override void _Notification(int what) => this.Notify(what);
+
     #region Events
 
     public delegate void CanceledEventHandler();
-
     public delegate void SelectedEventHandler(int index);
-
     public event CanceledEventHandler? Canceled;
     public event SelectedEventHandler? Selected;
 
     #endregion
 
-    #region Nodes
-
-    private LineEdit _searchBar = null!;
-    private ItemList _itemList = null!;
-    private Button _cancelButton = null!;
-    private Button _selectButton = null!;
-
-    #endregion
+    [Node] private LineEdit SearchBar { get; set; } = null!;
+    [Node] private ItemList ItemList { get; set; } = null!;
+    [Node] private Button CancelButton { get; set; } = null!;
+    [Node] private Button SelectButton { get; set; } = null!;
 
     private readonly HashSet<string> _items = [];
 
     #region Overrides
 
-    public override void _Ready()
+    public void OnReady()
     {
-        _searchBar = GetNode<LineEdit>("%SearchBar");
-        _itemList = GetNode<ItemList>("%ItemList");
-        _cancelButton = GetNode<Button>("%CancelButton");
-        _selectButton = GetNode<Button>("%SelectButton");
-
         CloseRequested += OnCloseRequested;
-        _cancelButton.Pressed += CancelButtonOnPressed;
-        _selectButton.Pressed += SelectButtonOnPressed;
-        _itemList.ItemSelected += ItemListOnItemSelected;
-        _itemList.ItemActivated += ItemListOnItemActivated;
-        _searchBar.TextChanged += SearchBarOnTextChanged;
+        CancelButton.Pressed += CancelButtonOnPressed;
+        SelectButton.Pressed += SelectButtonOnPressed;
+        ItemList.ItemSelected += ItemListOnItemSelected;
+        ItemList.ItemActivated += ItemListOnItemActivated;
+        SearchBar.TextChanged += SearchBarOnTextChanged;
 
         UpdateItemList("");
     }
 
-    public override void _ExitTree()
+    public void OnExitTree()
     {
         CloseRequested -= OnCloseRequested;
-        _cancelButton.Pressed -= CancelButtonOnPressed;
-        _selectButton.Pressed -= SelectButtonOnPressed;
-        _itemList.ItemSelected -= ItemListOnItemSelected;
-        _itemList.ItemActivated -= ItemListOnItemActivated;
-        _searchBar.TextChanged -= SearchBarOnTextChanged;
+        CancelButton.Pressed -= CancelButtonOnPressed;
+        SelectButton.Pressed -= SelectButtonOnPressed;
+        ItemList.ItemSelected -= ItemListOnItemSelected;
+        ItemList.ItemActivated -= ItemListOnItemActivated;
+        SearchBar.TextChanged -= SearchBarOnTextChanged;
     }
 
     #endregion
@@ -80,7 +73,7 @@ public partial class ItemSelectorWindow : Window
 
     private void ItemListOnItemSelected(long index)
     {
-        _selectButton.Disabled = false;
+        SelectButton.Disabled = false;
     }
 
     private void ItemListOnItemActivated(long index)
@@ -102,22 +95,22 @@ public partial class ItemSelectorWindow : Window
 
     public bool TryGetItem(int index, [MaybeNullWhen(false)] out string item)
     {
-        item = _itemList.GetItemText(index);
+        item = ItemList.GetItemText(index);
         return item != null;
     }
 
     public bool TrySelectItem(string targetText)
     {
-        for (var i = 0; i < _itemList.ItemCount; i++)
+        for (var i = 0; i < ItemList.ItemCount; i++)
         {
-            if (_itemList.GetItemText(i) != targetText)
+            if (ItemList.GetItemText(i) != targetText)
             {
                 continue;
             }
 
-            _itemList.Select(i);
-            _itemList.EnsureCurrentIsVisible();
-            _selectButton.Disabled = false;
+            ItemList.Select(i);
+            ItemList.EnsureCurrentIsVisible();
+            SelectButton.Disabled = false;
             return true;
         }
 
@@ -133,7 +126,7 @@ public partial class ItemSelectorWindow : Window
     private void TriggerSelected()
     {
         QueueFree();
-        var selectedItems = _itemList.GetSelectedItems();
+        var selectedItems = ItemList.GetSelectedItems();
         if (selectedItems.Length > 0)
         {
             Selected?.Invoke(selectedItems[0]);
@@ -142,28 +135,28 @@ public partial class ItemSelectorWindow : Window
 
     private void UpdateItemList(string search)
     {
-        _selectButton.Disabled = true;
-        var previousSelection = _itemList.IsAnythingSelected()
-            ? _itemList.GetItemText(_itemList.GetSelectedItems()[0])
+        SelectButton.Disabled = true;
+        var previousSelection = ItemList.IsAnythingSelected()
+            ? ItemList.GetItemText(ItemList.GetSelectedItems()[0])
             : null;
 
-        _itemList.Clear();
+        ItemList.Clear();
         foreach (var item in _items)
         {
             if (item.Contains(search, StringComparison.InvariantCultureIgnoreCase))
             {
-                _itemList.AddItem(item);
+                ItemList.AddItem(item);
                 if (item != previousSelection)
                 {
                     continue;
                 }
 
-                _itemList.Select(_itemList.ItemCount - 1);
-                _selectButton.Disabled = false;
+                ItemList.Select(ItemList.ItemCount - 1);
+                SelectButton.Disabled = false;
             }
         }
 
-        _itemList.SortItemsByText();
-        _itemList.EnsureCurrentIsVisible();
+        ItemList.SortItemsByText();
+        ItemList.EnsureCurrentIsVisible();
     }
 }

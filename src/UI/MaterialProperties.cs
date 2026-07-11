@@ -1,66 +1,50 @@
 using System.IO;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.Formats.Model;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class MaterialProperties : FoldableContainer
 {
-    #region Nodes
+    public override void _Notification(int what) => this.Notify(what);
 
-    private LineEdit _materialName = null!;
-    private Button _materialNameBrowse = null!;
-    private OptionButton _materialType = null!;
-    private SpinBox _materialSlot = null!;
-    private SpinBox _materialTransparency = null!;
-    private SpinBox _materialSelfIllumination = null!;
-    private ColorPickerButton _materialColor = null!;
-    private SpinBox _materialPaletteIndex = null!;
-    private HBoxContainer _transparencyContainer = null!;
-    private HBoxContainer _selfIlluminationContainer = null!;
-    private HBoxContainer _colorContainer = null!;
-    private HBoxContainer _paletteIndexContainer = null!;
-
-    #endregion
+    [Node] private LineEdit MaterialName { get; set; } = null!;
+    [Node] private Button MaterialNameBrowse { get; set; } = null!;
+    [Node] private OptionButton MaterialType { get; set; } = null!;
+    [Node] private SpinBox MaterialSlot { get; set; } = null!;
+    [Node] private SpinBox MaterialTransparency { get; set; } = null!;
+    [Node] private SpinBox MaterialSelfIllumination { get; set; } = null!;
+    [Node] private ColorPickerButton MaterialColor { get; set; } = null!;
+    [Node] private SpinBox MaterialPaletteIndex { get; set; } = null!;
+    [Node] private HBoxContainer TransparencyContainer { get; set; } = null!;
+    [Node] private HBoxContainer SelfIlluminationContainer { get; set; } = null!;
+    [Node] private HBoxContainer ColorContainer { get; set; } = null!;
+    [Node] private HBoxContainer PaletteIndexContainer { get; set; } = null!;
 
     private EditorState _state = null!;
     private ModelDocument _document = null!;
     private int _materialIndex;
     private PackedScene _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
 
-    #region Overrides
-
-    public override void _Ready()
+    public void OnReady()
     {
-        _materialName = GetNode<LineEdit>("%MaterialName");
-        _materialNameBrowse = GetNode<Button>("%MaterialNameBrowse");
-        _materialType = GetNode<OptionButton>("%MaterialType");
-        _materialSlot = GetNode<SpinBox>("%MaterialSlot");
-        _materialTransparency = GetNode<SpinBox>("%MaterialTransparency");
-        _materialSelfIllumination = GetNode<SpinBox>("%MaterialSelfIllumination");
-        _materialColor = GetNode<ColorPickerButton>("%MaterialColor");
-        _materialPaletteIndex = GetNode<SpinBox>("%MaterialPaletteIndex");
-        _transparencyContainer = GetNode<HBoxContainer>("%Transparency");
-        _selfIlluminationContainer = GetNode<HBoxContainer>("%SelfIllumination");
-        _colorContainer = GetNode<HBoxContainer>("%Color");
-        _paletteIndexContainer = GetNode<HBoxContainer>("%PaletteIndex");
-
         _document.ActionDone += ModelDocumentOnActionDone;
-        _materialName.TextSubmitted += MaterialNameOnTextSubmitted;
-        _materialNameBrowse.Pressed += MaterialNameBrowseOnPressed;
+        MaterialName.TextSubmitted += MaterialNameOnTextSubmitted;
+        MaterialNameBrowse.Pressed += MaterialNameBrowseOnPressed;
 
         RefreshUi();
     }
 
-    public override void _ExitTree()
+    public void OnExitTree()
     {
         _document.ActionDone -= ModelDocumentOnActionDone;
-        _materialName.TextSubmitted -= MaterialNameOnTextSubmitted;
-        _materialNameBrowse.Pressed -= MaterialNameBrowseOnPressed;
+        MaterialName.TextSubmitted -= MaterialNameOnTextSubmitted;
+        MaterialNameBrowse.Pressed -= MaterialNameBrowseOnPressed;
     }
-
-    #endregion
 
     #region Event Handling
 
@@ -89,7 +73,7 @@ public partial class MaterialProperties : FoldableContainer
         }
 
         AddChild(instance);
-        instance.TrySelectItem(_materialName.Text.ToLower());
+        instance.TrySelectItem(MaterialName.Text.ToLower());
         instance.Selected += index =>
         {
             if (instance.TryGetItem(index, out var item))
@@ -124,25 +108,25 @@ public partial class MaterialProperties : FoldableContainer
 
         var modelMaterial = modelFile.Materials[_materialIndex];
         Title = $"Material #{_materialIndex}";
-        _materialName.Text = modelMaterial.Name;
-        _materialType.Selected = (int)modelMaterial.Type;
-        _materialSlot.Value = modelMaterial.Slot;
-        _materialTransparency.Value = modelMaterial.Transparency;
-        _materialSelfIllumination.Value = modelMaterial.SelfIllumination;
-        _materialColor.Color = modelMaterial.Color.ToGodot();
-        _materialPaletteIndex.Value = modelMaterial.PaletteIndex;
+        MaterialName.Text = modelMaterial.Name;
+        MaterialType.Selected = (int)modelMaterial.Type;
+        MaterialSlot.Value = modelMaterial.Slot;
+        MaterialTransparency.Value = modelMaterial.Transparency;
+        MaterialSelfIllumination.Value = modelMaterial.SelfIllumination;
+        MaterialColor.Color = modelMaterial.Color.ToGodot();
+        MaterialPaletteIndex.Value = modelMaterial.PaletteIndex;
 
         if (modelFile.Version < 4)
         {
-            _transparencyContainer.Visible = false;
-            _selfIlluminationContainer.Visible = false;
+            TransparencyContainer.Visible = false;
+            SelfIlluminationContainer.Visible = false;
         }
 
         if (modelMaterial.Type == ModelMaterialType.Texture)
         {
-            _materialNameBrowse.Visible = true;
-            _colorContainer.Visible = false;
-            _paletteIndexContainer.Visible = false;
+            MaterialNameBrowse.Visible = true;
+            ColorContainer.Visible = false;
+            PaletteIndexContainer.Visible = false;
         }
     }
 

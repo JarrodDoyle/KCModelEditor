@@ -1,40 +1,33 @@
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class ObjectProperties : FoldableContainer
 {
+    public override void _Notification(int what) => this.Notify(what);
+
     private ModelDocument _document = null!;
     private int _objectIndex;
 
-    #region Nodes
+    [Node] private LineEdit ObjectName {get; set;} = null!;
+    [Node] private OptionButton ObjectJointType {get; set;} = null!;
+    [Node] private SpinBox ObjectJointIndex {get; set;} = null!;
 
-    private LineEdit _objectName = null!;
-    private OptionButton _objectJointType = null!;
-    private SpinBox _objectJointIndex = null!;
-
-    #endregion
-
-    #region Overrides
-
-    public override void _Ready()
+    public void OnReady()
     {
-        _objectName = GetNode<LineEdit>("%ObjectName");
-        _objectJointType = GetNode<OptionButton>("%ObjectJointType");
-        _objectJointIndex = GetNode<SpinBox>("%ObjectJointIndex");
-
         _document.ActionDone += ModelDocumentOnActionDone;
 
         RefreshUi();
     }
 
-    public override void _ExitTree()
+    public void OnExitTree()
     {
         _document.ActionDone -= ModelDocumentOnActionDone;
     }
-
-    #endregion
 
     #region Event Handling
 
@@ -62,8 +55,8 @@ public partial class ObjectProperties : FoldableContainer
 
         var modelObject = modelFile.Objects[_objectIndex];
         Title = $"Object #{_objectIndex}";
-        _objectName.Text = modelObject.Name;
-        _objectJointType.Selected = (int)modelObject.JointType;
-        _objectJointIndex.Value = (float)modelObject.JointIndex;
+        ObjectName.Text = modelObject.Name;
+        ObjectJointType.Selected = (int)modelObject.JointType;
+        ObjectJointIndex.Value = (float)modelObject.JointIndex;
     }
 }

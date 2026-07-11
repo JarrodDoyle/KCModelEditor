@@ -1,15 +1,26 @@
 using System;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class Main : Node
 {
-    public override void _Ready()
+    public override void _Notification(int what) => this.Notify(what);
+
+    public void OnResolved()
     {
         ConfigureLogger();
+        SetProcess(true);
+    }
+
+    public void OnProcess(double delta)
+    {
+        // We do this in OnProcess to avoid the issues described here: https://github.com/godotengine/godot/issues/99651#issuecomment-2807113330
         var result = GetTree().ChangeSceneToFile(SceneUids.InstallManager);
         if (result != Error.Ok)
         {
