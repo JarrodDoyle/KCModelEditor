@@ -7,15 +7,13 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class Main : Node
 {
-    private const string InstallManagerSceneUid = "uid://dm8et7nwwnq34";
-
     public override void _Ready()
     {
         ConfigureLogger();
-        var result = GetTree().ChangeSceneToFile(InstallManagerSceneUid);
+        var result = GetTree().ChangeSceneToFile(SceneUids.InstallManager);
         if (result != Error.Ok)
         {
-            Log.Error("Failed to change scene: {UID}", InstallManagerSceneUid);
+            Log.Error("Failed to change scene: {UID}", SceneUids.InstallManager);
             GetTree().Quit();
         }
     }

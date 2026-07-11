@@ -8,8 +8,6 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class InstallManager : Control
 {
-    private const string ModelEditorSceneUid = "uid://bmvch3t460c6k";
-
     #region Nodes
 
     private LineEdit _searchBar = null!;
@@ -141,7 +139,7 @@ public partial class InstallManager : Control
             }
 
             var editorState = new EditorState(Config, context);
-            var editor = (ModelEditor)GD.Load<PackedScene>(ModelEditorSceneUid).Instantiate();
+            var editor = (ModelEditor)GD.Load<PackedScene>(SceneUids.ModelEditor).Instantiate();
             editor.SetEditorState(editorState);
             var result = GetTree().ChangeSceneToNode(editor);
             if (result != Error.Ok)

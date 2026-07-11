@@ -8,8 +8,6 @@ namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
-    private const string InstallManagerSceneUid = "uid://dm8et7nwwnq34";
-
     private EditorState _state = null!;
     private ModelDocument? _document;
 
@@ -108,10 +106,10 @@ public partial class ModelEditor : Control
     private void EditorMenuOnQuitToInstallsPressed()
     {
         // TODO: Handle saving dirty file
-        var result = GetTree().ChangeSceneToFile(InstallManagerSceneUid);
+        var result = GetTree().ChangeSceneToFile(SceneUids.InstallManager);
         if (result != Error.Ok)
         {
-            Log.Error("Failed to change scene: {UID}", InstallManagerSceneUid);
+            Log.Error("Failed to change scene: {UID}", SceneUids.InstallManager);
             GetTree().Quit();
         }
     }
