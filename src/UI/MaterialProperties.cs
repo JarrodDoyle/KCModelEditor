@@ -3,6 +3,7 @@ using Chickensoft.AutoInject;
 using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.Formats.Model;
+using KeepersCompound.ModelEditor.Constants;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
@@ -28,7 +29,7 @@ public partial class MaterialProperties : FoldableContainer
     private EditorState _state = null!;
     private ModelDocument _document = null!;
     private int _materialIndex;
-    private PackedScene _itemSelectorScene = GD.Load<PackedScene>("uid://b1otvvvkdloah");
+    private PackedScene _itemSelectorScene = GD.Load<PackedScene>(SceneUids.ItemSelector);
 
     public void OnReady()
     {

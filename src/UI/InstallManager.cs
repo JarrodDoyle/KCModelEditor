@@ -4,6 +4,7 @@ using Chickensoft.AutoInject;
 using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.Dark;
+using KeepersCompound.ModelEditor.Constants;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
@@ -25,7 +26,7 @@ public partial class InstallManager : Control
     private EditorConfig Config { get; } = new();
     private bool _editMode = false;
     private readonly Dictionary<string, bool> _validityMap = new();
-    private Texture2D _invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
+    private Texture2D _invalidIcon = ResourceLoader.Load<Texture2D>(IconUids.Invalid);
     private Texture2D? _blankIcon;
 
     public void OnReady()
