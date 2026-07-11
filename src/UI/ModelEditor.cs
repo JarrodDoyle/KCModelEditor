@@ -2,11 +2,14 @@ using System.IO;
 using Godot;
 using KeepersCompound.ModelEditor.Render;
 using KeepersCompound.ModelEditor.UI.Menu;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
 public partial class ModelEditor : Control
 {
+    private const string InstallManagerSceneUid = "uid://dm8et7nwwnq34";
+
     private EditorState _state = null!;
     private ModelDocument? _document;
 
@@ -17,14 +20,6 @@ public partial class ModelEditor : Control
     private ModelViewport _modelViewport = null!;
     private ModelInspector _modelInspector = null!;
     private FileDialog _saveAsDialog = null!;
-
-    #endregion
-
-    #region Events
-
-    public delegate void QuitToInstallsEventHandler();
-
-    public event QuitToInstallsEventHandler? QuitToInstalls;
 
     #endregion
 
@@ -113,7 +108,12 @@ public partial class ModelEditor : Control
     private void EditorMenuOnQuitToInstallsPressed()
     {
         // TODO: Handle saving dirty file
-        QuitToInstalls?.Invoke();
+        var result = GetTree().ChangeSceneToFile(InstallManagerSceneUid);
+        if (result != Error.Ok)
+        {
+            Log.Error("Failed to change scene: {UID}", InstallManagerSceneUid);
+            GetTree().Quit();
+        }
     }
 
     private void EditorMenuOnRefocusCameraPressed()
