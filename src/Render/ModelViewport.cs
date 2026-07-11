@@ -8,6 +8,7 @@ using Godot.Collections;
 using KeepersCompound.Dark;
 using KeepersCompound.Formats.Images;
 using KeepersCompound.Formats.Model;
+using KeepersCompound.ModelEditor.Constants;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.Render;

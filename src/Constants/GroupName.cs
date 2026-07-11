@@ -1,4 +1,4 @@
-namespace KeepersCompound.ModelEditor;
+namespace KeepersCompound.ModelEditor.Constants;
 
 public static class GroupName
 {

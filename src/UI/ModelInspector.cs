@@ -3,6 +3,7 @@ using System.Globalization;
 using Chickensoft.AutoInject;
 using Chickensoft.Introspection;
 using Godot;
+using KeepersCompound.ModelEditor.Constants;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
@@ -27,8 +28,8 @@ public partial class ModelInspector : PanelContainer
 
     [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
     private ModelDocument? _document;
-    private PackedScene _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
-    private PackedScene _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
+    private PackedScene _objectPropertiesScene = GD.Load<PackedScene>(SceneUids.ObjectProperties);
+    private PackedScene _materialPropertiesScene = GD.Load<PackedScene>(SceneUids.MaterialProperties);
 
     public void OnResolved()
     {

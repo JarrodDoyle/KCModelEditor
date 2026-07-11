@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Chickensoft.AutoInject;
 using Chickensoft.Introspection;
 using Godot;
+using KeepersCompound.ModelEditor.Constants;
 
 namespace KeepersCompound.ModelEditor.UI;
 
@@ -28,8 +29,8 @@ public partial class ModelSelectorPanel : PanelContainer
 
     [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
     private SortMode _currentSortMode;
-    private Texture2D _folderIcon = ResourceLoader.Load<Texture2D>("uid://w5l7qwkxn1wo");
-    private Texture2D _modelIcon = ResourceLoader.Load<Texture2D>("uid://5qhdsw7gx3h2");
+    private Texture2D _folderIcon = ResourceLoader.Load<Texture2D>(IconUids.Folder);
+    private Texture2D _modelIcon = ResourceLoader.Load<Texture2D>(IconUids.Model);
 
     public void OnReady()
     {

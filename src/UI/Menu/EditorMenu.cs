@@ -2,6 +2,7 @@ using System;
 using Chickensoft.AutoInject;
 using Chickensoft.Introspection;
 using Godot;
+using KeepersCompound.ModelEditor.Constants;
 using KeepersCompound.ModelEditor.Render;
 using Serilog;
 
