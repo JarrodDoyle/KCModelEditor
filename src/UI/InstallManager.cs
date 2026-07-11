@@ -2,19 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using KeepersCompound.Dark;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
 public partial class InstallManager : Control
 {
-    #region Events
-
-    public delegate void LoadInstallEventHandler(string installPath);
-
-    public event LoadInstallEventHandler? LoadInstall;
-
-    #endregion
-
     #region Nodes
 
     private LineEdit _searchBar = null!;
@@ -138,7 +131,21 @@ public partial class InstallManager : Control
         var path = _installPaths.GetItemText(idx);
         if (_validityMap.GetValueOrDefault(path, false))
         {
-            LoadInstall?.Invoke(path);
+            var context = new InstallContext(path);
+            if (!context.Valid)
+            {
+                Log.Error("Invalid install context, cannot load editor.");
+                return;
+            }
+
+            var editorState = new EditorState(Config, context);
+            var editor = (ModelEditor)GD.Load<PackedScene>(SceneUids.ModelEditor).Instantiate();
+            editor.SetEditorState(editorState);
+            var result = GetTree().ChangeSceneToNode(editor);
+            if (result != Error.Ok)
+            {
+                Log.Error("Failed to change to editor scene.");
+            }
         }
     }
 
