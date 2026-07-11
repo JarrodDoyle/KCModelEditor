@@ -1,26 +1,27 @@
 using System;
 using System.Collections.Generic;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
-using KeepersCompound.Dark.Resources;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class ModelSelectorPanel : PanelContainer
 {
+    public override void _Notification(int what) => this.Notify(what);
+
     private enum SortMode
     {
         NameAscending,
         NameDescending,
     }
 
-    #region Nodes
-
-    private Button _reloadResourcesButton = null!;
-    private LineEdit _searchBar = null!;
-    private PopupMenu _sortMenu = null!;
-    private Tree _modelsTree = null!;
-
-    #endregion
+    [Node] private Button ReloadResourcesButton { get; set; } = null!;
+    [Node] private LineEdit SearchBar { get; set; } = null!;
+    [Node] private MenuButton SortMenu { get; set; } = null!;
+    [Node] private Tree ModelsTree { get; set; } = null!;
+    private PopupMenu SortMenuPopup { get; set; } = null!;
 
     public string Campaign { get; private set; } = "";
     public string Model { get; private set; } = "";
@@ -30,28 +31,21 @@ public partial class ModelSelectorPanel : PanelContainer
     private Texture2D _folderIcon = ResourceLoader.Load<Texture2D>("uid://w5l7qwkxn1wo");
     private Texture2D _modelIcon = ResourceLoader.Load<Texture2D>("uid://5qhdsw7gx3h2");
 
-    #region Overrides
-
-    public override void _Ready()
+    public void OnReady()
     {
-        _reloadResourcesButton = GetNode<Button>("%ReloadResourcesButton");
-        _searchBar = GetNode<LineEdit>("%SearchBar");
-        _sortMenu = GetNode<MenuButton>("%SortMenu").GetPopup();
-        _modelsTree = GetNode<Tree>("%ModelsTree");
+        SortMenuPopup = SortMenu.GetPopup();
 
-        _searchBar.TextChanged += OnSearchBarTextChanged;
-        _sortMenu.IndexPressed += OnSortMenuIndexPressed;
-        _modelsTree.ItemSelected += OnModelsTreeItemSelected;
+        SearchBar.TextChanged += OnSearchBarTextChanged;
+        SortMenuPopup.IndexPressed += OnSortMenuIndexPressed;
+        ModelsTree.ItemSelected += OnModelsTreeItemSelected;
     }
 
-    public override void _ExitTree()
+    public void OnExitTree()
     {
-        _searchBar.TextChanged -= OnSearchBarTextChanged;
-        _sortMenu.IndexPressed -= OnSortMenuIndexPressed;
-        _modelsTree.ItemSelected -= OnModelsTreeItemSelected;
+        SearchBar.TextChanged -= OnSearchBarTextChanged;
+        SortMenuPopup.IndexPressed -= OnSortMenuIndexPressed;
+        ModelsTree.ItemSelected -= OnModelsTreeItemSelected;
     }
-
-    #endregion
 
     #region Event Responses
 
@@ -63,7 +57,7 @@ public partial class ModelSelectorPanel : PanelContainer
     private void OnModelsTreeItemSelected()
     {
         // Avoids resending event when using search bar
-        var item = _modelsTree.GetSelected();
+        var item = ModelsTree.GetSelected();
         var metaData = item.GetMetadata(0).AsStringArray();
         var newCampaign = metaData[0];
         var newModel = metaData[1];
@@ -82,14 +76,14 @@ public partial class ModelSelectorPanel : PanelContainer
         switch (index)
         {
             case 1:
-                _sortMenu.SetItemChecked(1, true);
-                _sortMenu.SetItemChecked(2, false);
+                SortMenuPopup.SetItemChecked(1, true);
+                SortMenuPopup.SetItemChecked(2, false);
                 treeRecalculationNeeded = _currentSortMode != SortMode.NameAscending;
                 _currentSortMode = SortMode.NameAscending;
                 break;
             case 2:
-                _sortMenu.SetItemChecked(1, false);
-                _sortMenu.SetItemChecked(2, true);
+                SortMenuPopup.SetItemChecked(1, false);
+                SortMenuPopup.SetItemChecked(2, true);
                 treeRecalculationNeeded = _currentSortMode != SortMode.NameDescending;
                 _currentSortMode = SortMode.NameDescending;
                 break;
@@ -111,9 +105,9 @@ public partial class ModelSelectorPanel : PanelContainer
 
     private void RebuildTree()
     {
-        _modelsTree.Clear();
+        ModelsTree.Clear();
 
-        var root = _modelsTree.CreateItem();
+        var root = ModelsTree.CreateItem();
         _state.Resources.SetActiveCampaign("");
         AddCurrentCampaignModels("Original Resources");
 
@@ -165,7 +159,7 @@ public partial class ModelSelectorPanel : PanelContainer
 
     private void FilterTree(string filter)
     {
-        var root = _modelsTree.GetRoot();
+        var root = ModelsTree.GetRoot();
         foreach (var campaignItem in root.GetChildren())
         {
             var visibleChildren = 0;

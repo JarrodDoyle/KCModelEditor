@@ -1,4 +1,6 @@
 using System.IO;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.ModelEditor.Render;
 using KeepersCompound.ModelEditor.UI.Menu;
@@ -6,50 +8,43 @@ using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class ModelEditor : Control
 {
+    public override void _Notification(int what) => this.Notify(what);
+
+    [Node] private EditorMenu EditorMenu { get; set; } = null!;
+    [Node] private ModelSelectorPanel ModelSelectorPanel { get; set; } = null!;
+    [Node] private ModelViewport ModelViewport { get; set; } = null!;
+    [Node] private ModelInspector ModelInspector { get; set; } = null!;
+    [Node] private FileDialog SaveAsDialog { get; set; } = null!;
+
     private EditorState _state = null!;
     private ModelDocument? _document;
 
-    #region Nodes
-
-    private EditorMenu _editorMenu = null!;
-    private ModelSelectorPanel _modelSelectorPanel = null!;
-    private ModelViewport _modelViewport = null!;
-    private ModelInspector _modelInspector = null!;
-    private FileDialog _saveAsDialog = null!;
-
-    #endregion
-
     #region Overrides
 
-    public override void _Ready()
+    public void OnReady()
     {
-        _editorMenu = GetNode<EditorMenu>("%EditorMenu");
-        _modelSelectorPanel = GetNode<ModelSelectorPanel>("%ModelSelectorPanel");
-        _modelViewport = GetNode<ModelViewport>("%ModelViewport");
-        _modelInspector = GetNode<ModelInspector>("%ModelInspector");
-        _saveAsDialog = GetNode<FileDialog>("%SaveAsDialog");
+        EditorMenu.SavePressed += EditorMenuOnSavePressed;
+        EditorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
+        EditorMenu.QuitPressed += EditorMenuOnQuitPressed;
+        EditorMenu.QuitToInstallsPressed += EditorMenuOnQuitToInstallsPressed;
+        EditorMenu.RefocusCameraPressed += EditorMenuOnRefocusCameraPressed;
+        SaveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
 
-        _editorMenu.SavePressed += EditorMenuOnSavePressed;
-        _editorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
-        _editorMenu.QuitPressed += EditorMenuOnQuitPressed;
-        _editorMenu.QuitToInstallsPressed += EditorMenuOnQuitToInstallsPressed;
-        _editorMenu.RefocusCameraPressed += EditorMenuOnRefocusCameraPressed;
-        _saveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
-
-        _editorMenu.SetState(_state);
-        _modelViewport.SetState(_state);
-        _modelInspector.SetState(_state);
-        _modelSelectorPanel.SetEditorState(_state);
+        EditorMenu.SetState(_state);
+        ModelViewport.SetState(_state);
+        ModelInspector.SetState(_state);
+        ModelSelectorPanel.SetEditorState(_state);
     }
 
-    public override void _ExitTree()
+    public void OnExitTree()
     {
-        _editorMenu.SavePressed -= EditorMenuOnSavePressed;
-        _editorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
-        _editorMenu.RefocusCameraPressed -= EditorMenuOnRefocusCameraPressed;
-        _saveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
+        EditorMenu.SavePressed -= EditorMenuOnSavePressed;
+        EditorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
+        EditorMenu.RefocusCameraPressed -= EditorMenuOnRefocusCameraPressed;
+        SaveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
         _state.ActiveModelChanged -= StateOnActiveModelChanged;
     }
 
@@ -85,7 +80,7 @@ public partial class ModelEditor : Control
         }
         else
         {
-            _saveAsDialog.Show();
+            SaveAsDialog.Show();
         }
     }
 
@@ -93,7 +88,7 @@ public partial class ModelEditor : Control
     {
         if (_document != null)
         {
-            _saveAsDialog.Show();
+            SaveAsDialog.Show();
         }
     }
 
@@ -116,7 +111,7 @@ public partial class ModelEditor : Control
 
     private void EditorMenuOnRefocusCameraPressed()
     {
-        _modelViewport.RefocusCamera();
+        ModelViewport.RefocusCamera();
     }
 
     private void SaveAsDialogOnFileSelected(string path)
@@ -127,7 +122,7 @@ public partial class ModelEditor : Control
     private void StateOnActiveModelChanged(ModelDocument document)
     {
         _document = document;
-        _saveAsDialog.CurrentDir = Path.Join(_state.Context.FmsDir, document.Campaign);
+        SaveAsDialog.CurrentDir = Path.Join(_state.Context.FmsDir, document.Campaign);
     }
 
     #endregion

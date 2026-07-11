@@ -1,52 +1,44 @@
 using System.Collections.Generic;
 using System.Linq;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.Dark;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class InstallManager : Control
 {
-    #region Nodes
+    public override void _Notification(int what) => this.Notify(what);
 
-    private LineEdit _searchBar = null!;
-    private Button _addButton = null!;
-    private Button _editButton = null!;
-    private Button _removeButton = null!;
-    private Button _loadButton = null!;
-    private ItemList _installPaths = null!;
-    private FileDialog _folderSelect = null!;
-    private ConfirmationDialog _invalidPathDialog = null!;
+    [Node] private LineEdit SearchBar { get; set; } = null!;
+    [Node] private Button AddButton { get; set; } = null!;
+    [Node] private Button EditButton { get; set; } = null!;
+    [Node] private Button RemoveButton { get; set; } = null!;
+    [Node] private Button LoadButton { get; set; } = null!;
+    [Node] private ItemList InstallPaths { get; set; } = null!;
+    [Node] private FileDialog FolderSelect { get; set; } = null!;
+    [Node] private ConfirmationDialog InvalidPathDialog { get; set; } = null!;
 
-    #endregion
-
-    public EditorConfig Config { get; } = new();
+    private EditorConfig Config { get; } = new();
     private bool _editMode = false;
     private readonly Dictionary<string, bool> _validityMap = new();
     private Texture2D _invalidIcon = ResourceLoader.Load<Texture2D>("uid://dwnx0x7y5n0gu");
     private Texture2D? _blankIcon;
 
-    public override void _Ready()
+    public void OnReady()
     {
-        _searchBar = GetNode<LineEdit>("%SearchBar");
-        _addButton = GetNode<Button>("%AddButton");
-        _editButton = GetNode<Button>("%EditButton");
-        _removeButton = GetNode<Button>("%RemoveButton");
-        _loadButton = GetNode<Button>("%LoadButton");
-        _installPaths = GetNode<ItemList>("%InstallPaths");
-        _folderSelect = GetNode<FileDialog>("%FolderSelect");
-        _invalidPathDialog = GetNode<ConfirmationDialog>("%InvalidPathDialog");
-
-        _addButton.Pressed += () => _folderSelect.Visible = true;
-        _editButton.Pressed += EditInstallPath;
-        _removeButton.Pressed += RemoveInstallPath;
-        _loadButton.Pressed += LoadInstallPath;
-        _folderSelect.DirSelected += SelectDir;
-        _folderSelect.Canceled += () => _editMode = false;
-        _invalidPathDialog.Confirmed += () => _folderSelect.Visible = true;
-        _installPaths.ItemActivated += _ => LoadInstallPath();
-        _installPaths.ItemSelected += SelectedInstallPath;
+        AddButton.Pressed += () => FolderSelect.Visible = true;
+        EditButton.Pressed += EditInstallPath;
+        RemoveButton.Pressed += RemoveInstallPath;
+        LoadButton.Pressed += LoadInstallPath;
+        FolderSelect.DirSelected += SelectDir;
+        FolderSelect.Canceled += () => _editMode = false;
+        InvalidPathDialog.Confirmed += () => FolderSelect.Visible = true;
+        InstallPaths.ItemActivated += _ => LoadInstallPath();
+        InstallPaths.ItemSelected += SelectedInstallPath;
 
         var width = _invalidIcon.GetWidth();
         var height = _invalidIcon.GetHeight();
@@ -56,13 +48,13 @@ public partial class InstallManager : Control
         foreach (var path in paths)
         {
             var valid = IsInstallPathValid(path);
-            _installPaths.AddItem(path, valid ? _blankIcon : _invalidIcon);
+            InstallPaths.AddItem(path, valid ? _blankIcon : _invalidIcon);
             _validityMap.Add(path, valid);
         }
 
         if (paths.Count > 0)
         {
-            _installPaths.Select(0);
+            InstallPaths.Select(0);
             SelectedInstallPath(0);
         }
     }
@@ -80,55 +72,55 @@ public partial class InstallManager : Control
         }
         else
         {
-            _invalidPathDialog.Show();
+            InvalidPathDialog.Show();
         }
     }
 
     private void SelectedInstallPath(long index)
     {
-        var path = _installPaths.GetItemText((int)index);
+        var path = InstallPaths.GetItemText((int)index);
         var valid = _validityMap.GetValueOrDefault(path, false);
 
-        _editButton.Disabled = false;
-        _removeButton.Disabled = false;
-        _loadButton.Disabled = !valid;
+        EditButton.Disabled = false;
+        RemoveButton.Disabled = false;
+        LoadButton.Disabled = !valid;
     }
 
     private void AddInstallPath(string path)
     {
         _validityMap.Add(path, true);
-        _installPaths.AddItem(path, _blankIcon);
-        _installPaths.SortItemsByText();
+        InstallPaths.AddItem(path, _blankIcon);
+        InstallPaths.SortItemsByText();
         Config.InstallPaths.Add(path);
     }
 
     private void EditInstallPath()
     {
-        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
-        var path = _installPaths.GetItemText(idx);
+        var idx = InstallPaths.GetSelectedItems().FirstOrDefault(0);
+        var path = InstallPaths.GetItemText(idx);
 
-        _folderSelect.CurrentDir = path;
-        _folderSelect.Visible = true;
+        FolderSelect.CurrentDir = path;
+        FolderSelect.Visible = true;
         _editMode = true;
     }
 
     private void RemoveInstallPath()
     {
-        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
-        var path = _installPaths.GetItemText(idx);
-        _installPaths.RemoveItem(idx);
+        var idx = InstallPaths.GetSelectedItems().FirstOrDefault(0);
+        var path = InstallPaths.GetItemText(idx);
+        InstallPaths.RemoveItem(idx);
         _validityMap.Remove(path);
         Config.InstallPaths.Remove(path);
 
-        _editButton.Disabled = true;
-        _removeButton.Disabled = true;
-        _loadButton.Disabled = true;
+        EditButton.Disabled = true;
+        RemoveButton.Disabled = true;
+        LoadButton.Disabled = true;
     }
 
     private void LoadInstallPath()
     {
-        var idx = _installPaths.GetSelectedItems().FirstOrDefault(0);
-        var path = _installPaths.GetItemText(idx);
+        var idx = InstallPaths.GetSelectedItems().FirstOrDefault(0);
+        var path = InstallPaths.GetItemText(idx);
         if (_validityMap.GetValueOrDefault(path, false))
         {
             var context = new InstallContext(path);

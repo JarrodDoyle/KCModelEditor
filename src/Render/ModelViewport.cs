@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using Godot.Collections;
 using KeepersCompound.Dark;
@@ -10,30 +12,21 @@ using Serilog;
 
 namespace KeepersCompound.ModelEditor.Render;
 
+[Meta(typeof(IAutoNode))]
 public partial class ModelViewport : SubViewport
 {
-    private EditorState _state = null!;
-    private ModelDocument? _document;
+    public override void _Notification(int what) => this.Notify(what);
 
-    #region Nodes
-
-    private Node3D _modelContainer = null!;
-    private OrbitCamera _orbitCamera = null!;
+    [Node] private Node3D ModelContainer { get; set; } = null!;
+    [Node] private OrbitCamera OrbitCamera { get; set; } = null!;
     private LineRenderer? _boundingBox;
     private readonly List<LineRenderer> _wireframes = [];
     private readonly List<VHotRenderer> _vhots = [];
 
-    #endregion
+    private EditorState _state = null!;
+    private ModelDocument? _document;
 
-    #region Godot Overrides
-
-    public override void _Ready()
-    {
-        _modelContainer = GetNode<Node3D>("%ModelContainer");
-        _orbitCamera = GetNode<OrbitCamera>("%OrbitCamera");
-    }
-
-    public override void _ExitTree()
+    public void OnExitTree()
     {
         _state.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         _state.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
@@ -41,8 +34,6 @@ public partial class ModelViewport : SubViewport
         _state.ActiveModelChanged -= StateOnActiveModelChanged;
         _document?.ActionDone -= ModelDocumentOnActionDone;
     }
-
-    #endregion
 
     #region Event Handling
 
@@ -102,14 +93,14 @@ public partial class ModelViewport : SubViewport
 
         var minBounds = _document.Model.MinBounds.ToGodot();
         var maxBounds = _document.Model.MaxBounds.ToGodot();
-        _orbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
+        OrbitCamera.FocusBounds(new Aabb(minBounds, maxBounds - minBounds));
     }
 
     private void RefreshRender()
     {
         _vhots.Clear();
         _wireframes.Clear();
-        foreach (var child in _modelContainer.GetChildren())
+        foreach (var child in ModelContainer.GetChildren())
         {
             child.QueueFree();
         }
@@ -297,7 +288,7 @@ public partial class ModelViewport : SubViewport
             }
         }
 
-        _modelContainer.AddChild(meshes[0]);
+        ModelContainer.AddChild(meshes[0]);
         for (var i = 0; i < objCount; i++)
         {
             var childIndex = modelFile.Objects[i].ChildObjectIndex;
@@ -319,7 +310,7 @@ public partial class ModelViewport : SubViewport
         var maxBounds = modelFile.MaxBounds.ToGodot();
         var boundsAabb = new Aabb(minBounds, maxBounds - minBounds);
         _boundingBox = LineRenderer.CreateAabb(boundsAabb, Colors.Brown);
-        _modelContainer.AddChild(_boundingBox);
+        ModelContainer.AddChild(_boundingBox);
         _boundingBox.Visible = _state.Config.ShowBoundingBox;
     }
 

@@ -1,13 +1,18 @@
 using System;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace KeepersCompound.ModelEditor.UI;
 
+[Meta(typeof(IAutoNode))]
 public partial class Main : Node
 {
-    public override void _Ready()
+    public override void _Notification(int what) => this.Notify(what);
+
+    public void OnResolved()
     {
         ConfigureLogger();
         var result = GetTree().ChangeSceneToFile(SceneUids.InstallManager);
