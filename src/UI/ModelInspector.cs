@@ -25,20 +25,26 @@ public partial class ModelInspector : PanelContainer
     private readonly List<ObjectProperties> _objectProperties = [];
     private readonly List<MaterialProperties> _materialProperties = [];
 
-    private EditorState _state = null!;
+    [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
     private ModelDocument? _document;
     private PackedScene _objectPropertiesScene = GD.Load<PackedScene>("uid://dm7t23ax6kh1s");
     private PackedScene _materialPropertiesScene = GD.Load<PackedScene>("uid://g8haby7whlv2");
 
+    public void OnResolved()
+    {
+        EditorState.ActiveModelChanged += EditorStateOnActiveModelChanged;
+        RefreshUi();
+    }
+
     public void OnExitTree()
     {
-        _state.ActiveModelChanged -= StateOnActiveModelChanged;
+        EditorState.ActiveModelChanged -= EditorStateOnActiveModelChanged;
         _document?.ActionDone -= DocumentOnActionDone;
     }
 
     #region Event Handling
 
-    private void StateOnActiveModelChanged(ModelDocument document)
+    private void EditorStateOnActiveModelChanged(ModelDocument document)
     {
         _document?.ActionDone -= DocumentOnActionDone;
         _document = document;
@@ -52,13 +58,6 @@ public partial class ModelInspector : PanelContainer
     }
 
     #endregion
-
-    public void SetState(EditorState state)
-    {
-        _state = state;
-        _state.ActiveModelChanged += StateOnActiveModelChanged;
-        RefreshUi();
-    }
 
     private void RefreshUi()
     {
@@ -129,7 +128,7 @@ public partial class ModelInspector : PanelContainer
                 continue;
             }
 
-            instance.SetState(_state, _document, i);
+            instance.SetState(EditorState, _document, i);
             MaterialPropertiesContainer.AddChild(instance);
             _materialProperties.Add(instance);
         }

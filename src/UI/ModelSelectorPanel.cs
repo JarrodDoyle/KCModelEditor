@@ -26,7 +26,7 @@ public partial class ModelSelectorPanel : PanelContainer
     public string Campaign { get; private set; } = "";
     public string Model { get; private set; } = "";
 
-    private EditorState _state = null!;
+    [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
     private SortMode _currentSortMode;
     private Texture2D _folderIcon = ResourceLoader.Load<Texture2D>("uid://w5l7qwkxn1wo");
     private Texture2D _modelIcon = ResourceLoader.Load<Texture2D>("uid://5qhdsw7gx3h2");
@@ -38,6 +38,11 @@ public partial class ModelSelectorPanel : PanelContainer
         SearchBar.TextChanged += OnSearchBarTextChanged;
         SortMenuPopup.IndexPressed += OnSortMenuIndexPressed;
         ModelsTree.ItemSelected += OnModelsTreeItemSelected;
+    }
+
+    public void OnResolved()
+    {
+        RebuildTree();
     }
 
     public void OnExitTree()
@@ -65,7 +70,7 @@ public partial class ModelSelectorPanel : PanelContainer
         {
             Model = newModel;
             Campaign = newCampaign;
-            _state.TrySetDocument(Campaign, Model);
+            EditorState.TrySetDocument(Campaign, Model);
         }
     }
 
@@ -97,21 +102,15 @@ public partial class ModelSelectorPanel : PanelContainer
 
     #endregion
 
-    public void SetEditorState(EditorState state)
-    {
-        _state = state;
-        RebuildTree();
-    }
-
     private void RebuildTree()
     {
         ModelsTree.Clear();
 
         var root = ModelsTree.CreateItem();
-        _state.Resources.SetActiveCampaign("");
+        EditorState.Resources.SetActiveCampaign("");
         AddCurrentCampaignModels("Original Resources");
 
-        var fmsRaw = new SortedSet<string>(_state.Resources.Context.Fms);
+        var fmsRaw = new SortedSet<string>(EditorState.Resources.Context.Fms);
         var fms = _currentSortMode switch
         {
             SortMode.NameAscending => fmsRaw,
@@ -120,7 +119,7 @@ public partial class ModelSelectorPanel : PanelContainer
         };
         foreach (var fm in fms)
         {
-            _state.Resources.SetActiveCampaign(fm);
+            EditorState.Resources.SetActiveCampaign(fm);
             AddCurrentCampaignModels(fm);
         }
 
@@ -134,8 +133,8 @@ public partial class ModelSelectorPanel : PanelContainer
             campaignItem.SetIcon(0, _folderIcon);
             campaignItem.Collapsed = true;
 
-            var campaign = _state.Resources.ActiveCampaign;
-            var rawItems = new SortedSet<string>(_state.Resources.GetModelNames());
+            var campaign = EditorState.Resources.ActiveCampaign;
+            var rawItems = new SortedSet<string>(EditorState.Resources.GetModelNames());
             var items = _currentSortMode switch
             {
                 SortMode.NameAscending => rawItems,

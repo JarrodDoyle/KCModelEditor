@@ -132,7 +132,7 @@ public partial class InstallManager : Control
 
             var editorState = new EditorState(Config, context);
             var editor = (ModelEditor)GD.Load<PackedScene>(SceneUids.ModelEditor).Instantiate();
-            editor.SetEditorState(editorState);
+            editor.EditorState = editorState;
             var result = GetTree().ChangeSceneToNode(editor);
             if (result != Error.Ok)
             {

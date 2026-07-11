@@ -9,7 +9,7 @@ using Serilog;
 namespace KeepersCompound.ModelEditor.UI;
 
 [Meta(typeof(IAutoNode))]
-public partial class ModelEditor : Control
+public partial class ModelEditor : Control, IProvide<EditorState>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -19,13 +19,16 @@ public partial class ModelEditor : Control
     [Node] private ModelInspector ModelInspector { get; set; } = null!;
     [Node] private FileDialog SaveAsDialog { get; set; } = null!;
 
-    private EditorState _state = null!;
+    EditorState IProvide<EditorState>.Value() => EditorState;
+    public required EditorState EditorState { get; set; }
+
     private ModelDocument? _document;
 
     #region Overrides
 
     public void OnReady()
     {
+        EditorState.ActiveModelChanged += EditorStateOnActiveModelChanged;
         EditorMenu.SavePressed += EditorMenuOnSavePressed;
         EditorMenu.SaveAsPressed += EditorMenuOnSaveAsPressed;
         EditorMenu.QuitPressed += EditorMenuOnQuitPressed;
@@ -33,10 +36,7 @@ public partial class ModelEditor : Control
         EditorMenu.RefocusCameraPressed += EditorMenuOnRefocusCameraPressed;
         SaveAsDialog.FileSelected += SaveAsDialogOnFileSelected;
 
-        EditorMenu.SetState(_state);
-        ModelViewport.SetState(_state);
-        ModelInspector.SetState(_state);
-        ModelSelectorPanel.SetEditorState(_state);
+        this.Provide();
     }
 
     public void OnExitTree()
@@ -45,7 +45,7 @@ public partial class ModelEditor : Control
         EditorMenu.SaveAsPressed -= EditorMenuOnSaveAsPressed;
         EditorMenu.RefocusCameraPressed -= EditorMenuOnRefocusCameraPressed;
         SaveAsDialog.FileSelected -= SaveAsDialogOnFileSelected;
-        _state.ActiveModelChanged -= StateOnActiveModelChanged;
+        EditorState.ActiveModelChanged -= EditorStateOnActiveModelChanged;
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -74,7 +74,7 @@ public partial class ModelEditor : Control
         var modelName = _document.Name;
         var campaignName = _document.Campaign;
         var virtualPath = $"FMs/{campaignName}/obj/{modelName}.bin";
-        if (campaignName != "" && _state.Resources.TryGetFilePath(virtualPath, out var path))
+        if (campaignName != "" && EditorState.Resources.TryGetFilePath(virtualPath, out var path))
         {
             _document.Save(path);
         }
@@ -119,17 +119,11 @@ public partial class ModelEditor : Control
         _document?.Save(path);
     }
 
-    private void StateOnActiveModelChanged(ModelDocument document)
+    private void EditorStateOnActiveModelChanged(ModelDocument document)
     {
         _document = document;
-        SaveAsDialog.CurrentDir = Path.Join(_state.Context.FmsDir, document.Campaign);
+        SaveAsDialog.CurrentDir = Path.Join(EditorState.Context.FmsDir, document.Campaign);
     }
 
     #endregion
-
-    public void SetEditorState(EditorState state)
-    {
-        _state = state;
-        _state.ActiveModelChanged += StateOnActiveModelChanged;
-    }
 }
