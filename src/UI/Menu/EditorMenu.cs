@@ -31,14 +31,18 @@ public partial class EditorMenu : MenuBar
     [Node("%File")] private PopupMenu FileMenu { get; set; } = null!;
     [Node("%Edit")] private PopupMenu EditMenu { get; set; } = null!;
     [Node("%View")] private PopupMenu ViewMenu { get; set; } = null!;
+    [Node("%Help")] private PopupMenu HelpMenu { get; set; } = null!;
 
     [Dependency] private EditorState EditorState => this.DependOn<EditorState>();
+
+    private const string IssuesUrl = "https://codeberg.org/keepers-compound/kc-model-editor/issues/";
 
     public void OnReady()
     {
         FileMenu.IndexPressed += FileMenuOnIndexPressed;
         EditMenu.IndexPressed += EditMenuOnIndexPressed;
         ViewMenu.IndexPressed += ViewMenuOnIndexPressed;
+        HelpMenu.IndexPressed += HelpMenuOnIndexPressed;
     }
 
     public void OnResolved()
@@ -58,6 +62,7 @@ public partial class EditorMenu : MenuBar
         FileMenu.IndexPressed -= FileMenuOnIndexPressed;
         EditMenu.IndexPressed -= EditMenuOnIndexPressed;
         ViewMenu.IndexPressed -= ViewMenuOnIndexPressed;
+        HelpMenu.IndexPressed -= HelpMenuOnIndexPressed;
         EditorState.Config.ShowBoundingBoxChanged -= EditorConfigOnShowBoundingBoxChanged;
         EditorState.Config.ShowWireframeChanged -= EditorConfigOnShowWireframeChanged;
         EditorState.Config.ShowVHotsChanged -= EditorConfigOnShowVHotsChanged;
@@ -139,6 +144,22 @@ public partial class EditorMenu : MenuBar
                 break;
             default:
                 Log.Debug("Unknown view menu index pressed: {index}", index);
+                break;
+        }
+    }
+
+    private void HelpMenuOnIndexPressed(long indexLong)
+    {
+        var index = (HelpMenuIndex)indexLong;
+        switch (index)
+        {
+            case HelpMenuIndex.ReportIssue:
+                OS.ShellOpen(IssuesUrl);
+                break;
+            case HelpMenuIndex.About:
+                throw new NotImplementedException();
+            default:
+                Log.Debug("Unknown help menu index pressed: {index}", index);
                 break;
         }
     }
