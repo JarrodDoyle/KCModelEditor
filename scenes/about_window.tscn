@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://dw6orji86waqc"]
+
+[ext_resource type="Script" uid="uid://b7y5muo4c5t2f" path="res://src/UI/About/AboutWindow.cs" id="1_t63ls"]
+
+[node name="AboutWindow" type="Window" unique_id=1079919301]
+oversampling_override = 1.0
+title = "About KC Model Editor"
+initial_position = 2
+size = Vector2i(640, 480)
+transient = true
+exclusive = true
+min_size = Vector2i(480, 320)
+script = ExtResource("1_t63ls")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=678358474]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.078431375, 0.078431375, 0.078431375, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect" unique_id=1975404474]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer" unique_id=800429209]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=903983397]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="License" type="RichTextLabel" parent="ColorRect/MarginContainer/VBoxContainer/TabContainer" unique_id=1228054152]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Third-party Licenses" type="VBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/TabContainer" unique_id=2115633310]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/TabContainer/Third-party Licenses" unique_id=40723523]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "KC Model Editor uses a number of third-party free and open source libraries, all compatible with the terms of it's MIT license. Below is a list of all such third-party components and their respective copyright statements and license terms."
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/TabContainer/Third-party Licenses" unique_id=1380204829]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ThirdPartyItemList" type="ItemList" parent="ColorRect/MarginContainer/VBoxContainer/TabContainer/Third-party Licenses/HBoxContainer" unique_id=1569086196]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+
+[node name="ThirdPartyLicenseLabel" type="RichTextLabel" parent="ColorRect/MarginContainer/VBoxContainer/TabContainer/Third-party Licenses/HBoxContainer" unique_id=935480152]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3

@@ -1,5 +1,6 @@
 [gd_resource type="Theme" format=3 uid="uid://bcibt73qths3g"]
 
+[ext_resource type="FontFile" uid="uid://dov4d1sdrrkly" path="res://assets/fonts/JetBrainsMono[wght].ttf" id="1_60c3j"]
 [ext_resource type="FontFile" uid="uid://cberbvcwkdhrr" path="res://assets/fonts/OpenSans-VariableFont_wdth,wght.ttf" id="1_avkgp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fp7y4"]
@@ -1069,6 +1070,7 @@ PopupMenu/styles/separator = SubResource("StyleBoxLine_10qcc")
 PopupPanel/styles/panel = SubResource("StyleBoxFlat_js6f5")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_v122p")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_qmrmp")
+RichTextLabel/fonts/mono_font = ExtResource("1_60c3j")
 RichTextLabel/styles/normal = SubResource("StyleBoxFlat_ekwtf")
 ScrollContainer/styles/focus = SubResource("StyleBoxFlat_ybm4w")
 ScrollContainer/styles/panel = SubResource("StyleBoxFlat_ybm4w")

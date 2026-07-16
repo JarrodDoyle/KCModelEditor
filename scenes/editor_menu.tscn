@@ -63,6 +63,8 @@ item_8/id = 8
 [node name="Help" type="PopupMenu" parent="." unique_id=489721461]
 unique_name_in_owner = true
 auto_translate_mode = 1
-item_count = 1
+item_count = 2
 item_0/text = "Report an Issue..."
 item_0/id = 0
+item_1/text = "About..."
+item_1/id = 1

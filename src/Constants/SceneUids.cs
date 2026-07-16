@@ -2,6 +2,7 @@ namespace KeepersCompound.ModelEditor.Constants;
 
 public static class SceneUids
 {
+    public const string AboutWindow = "uid://dw6orji86waqc";
     public const string InstallManager = "uid://dm8et7nwwnq34";
     public const string ItemSelector = "uid://b1otvvvkdloah";
     public const string MaterialProperties = "uid://g8haby7whlv2";

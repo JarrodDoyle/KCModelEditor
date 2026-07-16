@@ -1,0 +1,36 @@
+{
+  "Primary": {
+    "Name": "Keepers Compound Model Editor",
+    "Copyright": [
+      "2026 Jarrod Doyle"
+    ],
+    "License": "MIT"
+  },
+  "ThirdParties": [
+    {
+      "Name": "Open Sans font",
+      "Copyright": [
+        "2020 The Open Sans Project Authors"
+      ],
+      "License": "OFL v1.1"
+    },
+    {
+      "Name": "Godot Editor Icons",
+      "Copyright": [
+        "2007-2014 Juan Linietsky, Ariel Manzur",
+        "2014-present Godot Engine Contributors"
+      ],
+      "License": "MIT"
+    }
+  ],
+  "Licenses": [
+    {
+      "Name": "OFL v1.1",
+      "File": "ofl.txt"
+    },
+    {
+      "Name": "MIT",
+      "File": "mit.txt"
+    }
+  ]
+}
