@@ -4,6 +4,7 @@ using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.ModelEditor.Constants;
 using KeepersCompound.ModelEditor.Render;
+using KeepersCompound.ModelEditor.UI.About;
 using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI.Menu;
@@ -156,8 +157,15 @@ public partial class EditorMenu : MenuBar
             case HelpMenuIndex.ReportIssue:
                 OS.ShellOpen(IssuesUrl);
                 break;
-            // case HelpMenuIndex.About:
-            //     throw new NotImplementedException();
+            case HelpMenuIndex.About:
+                if (GD.Load<PackedScene>(SceneUids.AboutWindow).Instantiate() is not AboutWindow instance)
+                {
+                    Log.Error("About Window failed to initialise.");
+                    return;
+                }
+
+                AddChild(instance);
+                break;
             default:
                 Log.Debug("Unknown help menu index pressed: {index}", index);
                 break;
