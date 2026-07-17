@@ -6,13 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://cjis76ea3bcw4" path="res://scenes/model_viewport.tscn" id="8_728lh"]
 [ext_resource type="PackedScene" uid="uid://b3a0dd2e8diyp" path="res://scenes/model_inspector.tscn" id="9_fjp6t"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ypwed"]
-bg_color = Color(0.145098, 0.145098, 0.145098, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
 [node name="ModelEditor" type="Control" unique_id=789533403]
 layout_mode = 3
 anchors_preset = 15
@@ -30,70 +23,50 @@ access = 2
 filters = PackedStringArray("*.bin")
 use_native_dialog = true
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=482582474]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=583929509]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0784314, 0.0784314, 0.0784314, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect" unique_id=554598292]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer" unique_id=2054178334]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=2054178334]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="EditorMenu" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=877287217 instance=ExtResource("2_xnqnd")]
+[node name="EditorMenu" parent="PanelContainer/VBoxContainer" unique_id=877287217 instance=ExtResource("2_xnqnd")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="HSplitContainer" type="HSplitContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=389285503]
+[node name="HSplitContainer" type="HSplitContainer" parent="PanelContainer/VBoxContainer" unique_id=389285503]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ModelSelectorPanel" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer" unique_id=1993299844 instance=ExtResource("2_fq75r")]
+[node name="ModelSelectorPanel" parent="PanelContainer/VBoxContainer/HSplitContainer" unique_id=1993299844 instance=ExtResource("2_fq75r")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="HSplitContainer" type="HSplitContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer" unique_id=1816482835]
+[node name="HSplitContainer" type="HSplitContainer" parent="PanelContainer/VBoxContainer/HSplitContainer" unique_id=1816482835]
 layout_mode = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer" unique_id=417154425]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBoxContainer/HSplitContainer/HSplitContainer" unique_id=417154425]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ypwed")
+theme_type_variation = &"PanelForeground"
 
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer" unique_id=600574960]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer/MarginContainer" unique_id=1062449667]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="PanelContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer" unique_id=1062449667]
 layout_mode = 2
 size_flags_vertical = 3
 stretch = true
 
-[node name="ModelViewport" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer/MarginContainer/SubViewportContainer" unique_id=1755470048 instance=ExtResource("8_728lh")]
+[node name="ModelViewport" parent="PanelContainer/VBoxContainer/HSplitContainer/HSplitContainer/PanelContainer/SubViewportContainer" unique_id=1755470048 instance=ExtResource("8_728lh")]
 unique_name_in_owner = true
 handle_input_locally = false
-size = Vector2i(725, 672)
+size = Vector2i(689, 661)
 render_target_update_mode = 4
 
-[node name="ModelInspector" parent="ColorRect/MarginContainer/VBoxContainer/HSplitContainer/HSplitContainer" unique_id=464156287 instance=ExtResource("9_fjp6t")]
+[node name="ModelInspector" parent="PanelContainer/VBoxContainer/HSplitContainer/HSplitContainer" unique_id=464156287 instance=ExtResource("9_fjp6t")]
 unique_name_in_owner = true
 layout_mode = 2

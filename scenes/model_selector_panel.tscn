@@ -1,40 +1,26 @@
-[gd_scene load_steps=6 format=3 uid="uid://boeq66jstbagx"]
+[gd_scene format=3 uid="uid://boeq66jstbagx"]
 
 [ext_resource type="Script" uid="uid://uk44par4dr1k" path="res://src/UI/ModelSelectorPanel.cs" id="1_mjb0t"]
 [ext_resource type="Texture2D" uid="uid://c5fivllqo0d7s" path="res://assets/icons/Reload.svg" id="2_g44gu"]
 [ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="3_iakj5"]
 [ext_resource type="Texture2D" uid="uid://c5d4yxllrje7b" path="res://assets/icons/Sort.svg" id="5_agkdy"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xnqnd"]
-bg_color = Color(0.145098, 0.145098, 0.145098, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[node name="ModelSelectorPanel" type="PanelContainer"]
+[node name="ModelSelectorPanel" type="PanelContainer" unique_id=1722393895]
 custom_minimum_size = Vector2(256, 0)
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 206.0
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_xnqnd")
+theme_type_variation = &"PanelForeground"
 script = ExtResource("1_mjb0t")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2007072793]
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=607578835]
 layout_mode = 2
 
-[node name="SearchBar" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="SearchBar" type="LineEdit" parent="VBoxContainer/HBoxContainer2" unique_id=268238956]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -42,13 +28,13 @@ placeholder_text = "Filter Models"
 clear_button_enabled = true
 right_icon = ExtResource("3_iakj5")
 
-[node name="ReloadResourcesButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="ReloadResourcesButton" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=614121699]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("2_g44gu")
 flat = true
 
-[node name="SortMenu" type="MenuButton" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="SortMenu" type="MenuButton" parent="VBoxContainer/HBoxContainer2" unique_id=1269091110]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("5_agkdy")
@@ -64,7 +50,7 @@ popup/item_2/text = "Name (Descending)"
 popup/item_2/checkable = 2
 popup/item_2/id = 2
 
-[node name="ModelsTree" type="Tree" parent="MarginContainer/VBoxContainer"]
+[node name="ModelsTree" type="Tree" parent="VBoxContainer" unique_id=303741807]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3

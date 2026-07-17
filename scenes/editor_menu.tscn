@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://countgixvouqi" path="res://src/UI/Menu/EditorMenu.cs" id="1_bv1s7"]
 
 [node name="EditorMenu" type="MenuBar" unique_id=1547039806]
+theme_type_variation = &"MainMenuBar"
 script = ExtResource("1_bv1s7")
 
 [node name="File" type="PopupMenu" parent="." unique_id=698066523]
