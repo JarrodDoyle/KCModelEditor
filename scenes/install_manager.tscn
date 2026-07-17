@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dm8et7nwwnq34"]
+[gd_scene format=3 uid="uid://dm8et7nwwnq34"]
 
 [ext_resource type="Texture2D" uid="uid://c4ukfkcaoojw2" path="res://assets/icons/Search.svg" id="2_0givp"]
 [ext_resource type="Script" uid="uid://bn6fyumt2nyv7" path="res://src/UI/InstallManager.cs" id="2_dopy0"]
@@ -7,23 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://bk0yy14avn0ee" path="res://assets/icons/Remove.svg" id="4_e5p1l"]
 [ext_resource type="Texture2D" uid="uid://cf05oajen41h2" path="res://assets/icons/Load.svg" id="5_jnyo6"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m736f"]
-bg_color = Color(0.145098, 0.145098, 0.145098, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g2bo6"]
-bg_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rsxub"]
-
-[node name="InstallManager" type="Control"]
+[node name="InstallManager" type="Control" unique_id=1534300546]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,7 +16,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_dopy0")
 
-[node name="FolderSelect" type="FileDialog" parent="."]
+[node name="FolderSelect" type="FileDialog" parent="." unique_id=39681696]
 unique_name_in_owner = true
 title = "Open a Directory"
 initial_position = 2
@@ -41,106 +25,86 @@ file_mode = 2
 access = 2
 use_native_dialog = true
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1841140301]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0784314, 0.0784314, 0.0784314, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=2008418566]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=526341874]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=103903695]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=2060805995]
 layout_mode = 2
 text = "KeepersCompound"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=1913332168]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="Label2" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer/HBoxContainer2"]
+[node name="Label2" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer/HBoxContainer2" unique_id=863194138]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Install Manager"
 horizontal_alignment = 1
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=146149340]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PanelContainer" type="PanelContainer" parent="ColorRect/MarginContainer/VBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBoxContainer" unique_id=109863666]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_m736f")
+theme_type_variation = &"PanelForeground"
 
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/PanelContainer" unique_id=1767372405]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer" unique_id=1912193182]
 layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 2
 
-[node name="AddButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AddButton" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" unique_id=366872758]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Add"
 icon = ExtResource("3_dopy0")
 
-[node name="EditButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="EditButton" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" unique_id=1287860964]
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
 text = "Edit"
 icon = ExtResource("4_dopy0")
 
-[node name="RemoveButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="RemoveButton" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" unique_id=1439723361]
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
 text = "Remove"
 icon = ExtResource("4_e5p1l")
 
-[node name="LoadButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="LoadButton" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" unique_id=876407657]
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
 text = "Load"
 icon = ExtResource("5_jnyo6")
 
-[node name="SearchBar" type="LineEdit" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="SearchBar" type="LineEdit" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" unique_id=1053118366]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -149,15 +113,15 @@ placeholder_text = "Filter Installs"
 clear_button_enabled = true
 right_icon = ExtResource("2_0givp")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer" unique_id=531484224]
 visible = false
 layout_mode = 2
 
-[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=1940658726]
 layout_mode = 2
 text = "Sort:"
 
-[node name="OptionButton" type="OptionButton" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/HBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=498968008]
 layout_mode = 2
 selected = 0
 item_count = 2
@@ -166,28 +130,17 @@ popup/item_0/id = 0
 popup/item_1/text = "Name"
 popup/item_1/id = 1
 
-[node name="PanelContainer" type="PanelContainer" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_g2bo6")
-
-[node name="MarginContainer" type="MarginContainer" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="InstallPaths" type="ItemList" parent="ColorRect/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+[node name="InstallPaths" type="ItemList" parent="PanelContainer/VBoxContainer/PanelContainer/VBoxContainer" unique_id=564210925]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxEmpty_rsxub")
+size_flags_vertical = 3
+theme_type_variation = &"ItemListSecondary"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=228282505]
 layout_mode = 2
 alignment = 2
 
-[node name="LinkButton" type="LinkButton" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="LinkButton" type="LinkButton" parent="PanelContainer/VBoxContainer/HBoxContainer2" unique_id=670436958]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.4)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 0.4)
@@ -196,7 +149,7 @@ text = "v4.4.1.stable.linux_x64"
 underline = 1
 uri = "https://github.com/godotengine/godot/releases/tag/4.4.1-stable"
 
-[node name="InvalidPathDialog" type="ConfirmationDialog" parent="."]
+[node name="InvalidPathDialog" type="ConfirmationDialog" parent="." unique_id=167053991]
 unique_name_in_owner = true
 title = "Invalid Install Path"
 initial_position = 2

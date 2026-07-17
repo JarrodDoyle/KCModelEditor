@@ -1,21 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://b3a0dd2e8diyp"]
+[gd_scene format=3 uid="uid://b3a0dd2e8diyp"]
 
 [ext_resource type="FontVariation" uid="uid://devcfr6woegw3" path="res://assets/fonts/Bold.tres" id="1_wmqxc"]
 [ext_resource type="Script" uid="uid://dsmaqihepjnvo" path="res://src/UI/ModelInspector.cs" id="2_p8omd"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xnqnd"]
-bg_color = Color(0.145098, 0.145098, 0.145098, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_728lh"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
-bg_color = Color(0.19607843, 0.19607843, 0.19607843, 1)
+bg_color = Color(0.18039216, 0.19607843, 0.20784314, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -26,179 +19,172 @@ font = ExtResource("1_wmqxc")
 font_size = 14
 font_color = Color(1, 1, 1, 0.7019608)
 
-[node name="ModelInspector" type="PanelContainer"]
+[node name="ModelInspector" type="PanelContainer" unique_id=938746227]
 custom_minimum_size = Vector2(224, 0)
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 101.0
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_xnqnd")
+theme_type_variation = &"PanelForeground"
 script = ExtResource("2_p8omd")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1874645945]
 layout_mode = 2
 follow_focus = true
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer" unique_id=60512042]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ModelHeader" type="PanelContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="ModelHeader" type="PanelContainer" parent="ScrollContainer/VBoxContainer" unique_id=255061382]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_728lh")
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelHeader"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelHeader" unique_id=1695799390]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Model"
 label_settings = SubResource("LabelSettings_xpsmv")
 
-[node name="ModelProperties" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="ModelProperties" type="VBoxContainer" parent="ScrollContainer/VBoxContainer" unique_id=724256564]
 layout_mode = 2
 
-[node name="Name" type="HBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties"]
+[node name="Name" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties" unique_id=436808385]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Name"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelProperties/Name" unique_id=1352488587]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Name"
 text_overrun_behavior = 3
 
-[node name="ModelName" type="LineEdit" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Name"]
+[node name="ModelName" type="LineEdit" parent="ScrollContainer/VBoxContainer/ModelProperties/Name" unique_id=1779270411]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="Version" type="HBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties"]
+[node name="Version" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties" unique_id=1503782496]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Version"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelProperties/Version" unique_id=1834331470]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Version"
 text_overrun_behavior = 3
 
-[node name="ModelVersion" type="LineEdit" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Version"]
+[node name="ModelVersion" type="LineEdit" parent="ScrollContainer/VBoxContainer/ModelProperties/Version" unique_id=1784516560]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="Radius" type="HBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties"]
+[node name="Radius" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties" unique_id=2052383313]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Radius"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelProperties/Radius" unique_id=699393223]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Radius"
 text_overrun_behavior = 3
 
-[node name="ModelRadius" type="LineEdit" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Radius"]
+[node name="ModelRadius" type="LineEdit" parent="ScrollContainer/VBoxContainer/ModelProperties/Radius" unique_id=121510244]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="Center" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties"]
+[node name="Center" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties" unique_id=1337950486]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Center"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelProperties/Center" unique_id=1231936713]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Center"
 text_overrun_behavior = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Center"]
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties/Center" unique_id=1217736655]
 layout_mode = 2
 
-[node name="ModelCenterX" type="SpinBox" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Center/HBoxContainer"]
+[node name="ModelCenterX" type="SpinBox" parent="ScrollContainer/VBoxContainer/ModelProperties/Center/HBoxContainer" unique_id=1575294405]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="ModelCenterY" type="SpinBox" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Center/HBoxContainer"]
+[node name="ModelCenterY" type="SpinBox" parent="ScrollContainer/VBoxContainer/ModelProperties/Center/HBoxContainer" unique_id=727269317]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="ModelCenterZ" type="SpinBox" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/Center/HBoxContainer"]
+[node name="ModelCenterZ" type="SpinBox" parent="ScrollContainer/VBoxContainer/ModelProperties/Center/HBoxContainer" unique_id=1593704318]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="VertexCount" type="HBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties"]
+[node name="VertexCount" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties" unique_id=1517527183]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/VertexCount"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelProperties/VertexCount" unique_id=1104335828]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Vertex Count"
 text_overrun_behavior = 3
 
-[node name="ModelVertexCount" type="LineEdit" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/VertexCount"]
+[node name="ModelVertexCount" type="LineEdit" parent="ScrollContainer/VBoxContainer/ModelProperties/VertexCount" unique_id=661711086]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="PolygonCount" type="HBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties"]
+[node name="PolygonCount" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/ModelProperties" unique_id=619575160]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/PolygonCount"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ModelProperties/PolygonCount" unique_id=499353072]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Polygon Count"
 text_overrun_behavior = 3
 
-[node name="ModelPolygonCount" type="LineEdit" parent="MarginContainer/ScrollContainer/VBoxContainer/ModelProperties/PolygonCount"]
+[node name="ModelPolygonCount" type="LineEdit" parent="ScrollContainer/VBoxContainer/ModelProperties/PolygonCount" unique_id=41749631]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="ObjectHeader" type="PanelContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="ObjectHeader" type="PanelContainer" parent="ScrollContainer/VBoxContainer" unique_id=750620293]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_728lh")
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/ObjectHeader"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/ObjectHeader" unique_id=1799766930]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Objects"
 label_settings = SubResource("LabelSettings_xpsmv")
 
-[node name="ObjectPropertiesContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="ObjectPropertiesContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer" unique_id=98048515]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="MaterialHeader" type="PanelContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="MaterialHeader" type="PanelContainer" parent="ScrollContainer/VBoxContainer" unique_id=1345006373]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_728lh")
 
-[node name="Label" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/MaterialHeader"]
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/MaterialHeader" unique_id=292789887]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Materials"
 label_settings = SubResource("LabelSettings_xpsmv")
 
-[node name="MaterialPropertiesContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="MaterialPropertiesContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer" unique_id=1354951326]
 unique_name_in_owner = true
 layout_mode = 2

@@ -156,8 +156,8 @@ public partial class EditorMenu : MenuBar
             case HelpMenuIndex.ReportIssue:
                 OS.ShellOpen(IssuesUrl);
                 break;
-            case HelpMenuIndex.About:
-                throw new NotImplementedException();
+            // case HelpMenuIndex.About:
+            //     throw new NotImplementedException();
             default:
                 Log.Debug("Unknown help menu index pressed: {index}", index);
                 break;
