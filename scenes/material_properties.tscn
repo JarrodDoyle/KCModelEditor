@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://cl55shbqwd8hy" path="res://assets/icons/FileBrowse.svg" id="2_lr8pg"]
 
 [node name="MaterialProperties" type="FoldableContainer" unique_id=404766765]
+theme_type_variation = &"FoldableContainerClear"
 title_text_overrun_behavior = 3
 script = ExtResource("1_2magm")
 
