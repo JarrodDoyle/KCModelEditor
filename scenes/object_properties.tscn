@@ -1,41 +1,42 @@
-[gd_scene load_steps=2 format=3 uid="uid://dm7t23ax6kh1s"]
+[gd_scene format=3 uid="uid://dm7t23ax6kh1s"]
 
 [ext_resource type="Script" uid="uid://dv7sp0ufid7eh" path="res://src/UI/ObjectProperties.cs" id="1_8liqw"]
 
-[node name="ObjectProperties" type="FoldableContainer"]
+[node name="ObjectProperties" type="FoldableContainer" unique_id=305384850]
+theme_type_variation = &"FoldableContainerClear"
 title_text_overrun_behavior = 3
 script = ExtResource("1_8liqw")
 
-[node name="Properties" type="VBoxContainer" parent="."]
+[node name="Properties" type="VBoxContainer" parent="." unique_id=1355758869]
 layout_mode = 2
 
-[node name="Name" type="HBoxContainer" parent="Properties"]
+[node name="Name" type="HBoxContainer" parent="Properties" unique_id=1950852445]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/Name"]
+[node name="Label" type="Label" parent="Properties/Name" unique_id=1939460679]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Name"
 text_overrun_behavior = 3
 
-[node name="ObjectName" type="LineEdit" parent="Properties/Name"]
+[node name="ObjectName" type="LineEdit" parent="Properties/Name" unique_id=1887145186]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="JointType" type="HBoxContainer" parent="Properties"]
+[node name="JointType" type="HBoxContainer" parent="Properties" unique_id=1489216521]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/JointType"]
+[node name="Label" type="Label" parent="Properties/JointType" unique_id=2002802989]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Joint Type"
 text_overrun_behavior = 3
 
-[node name="ObjectJointType" type="OptionButton" parent="Properties/JointType"]
+[node name="ObjectJointType" type="OptionButton" parent="Properties/JointType" unique_id=1585120707]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -52,17 +53,17 @@ popup/item_2/text = "Sliding"
 popup/item_2/id = 2
 popup/item_2/disabled = true
 
-[node name="JointIndex" type="HBoxContainer" parent="Properties"]
+[node name="JointIndex" type="HBoxContainer" parent="Properties" unique_id=916316003]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Properties/JointIndex"]
+[node name="Label" type="Label" parent="Properties/JointIndex" unique_id=1061947213]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Joint Index"
 text_overrun_behavior = 3
 
-[node name="ObjectJointIndex" type="SpinBox" parent="Properties/JointIndex"]
+[node name="ObjectJointIndex" type="SpinBox" parent="Properties/JointIndex" unique_id=1851712801]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
