@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using KeepersCompound.Dark;
 using KeepersCompound.Dark.Resources;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor;
 
@@ -31,6 +32,7 @@ public class EditorState
     {
         if (!Resources.SetActiveCampaign(campaignName) || !Resources.TryGetModel(modelName, out var modelFile))
         {
+            Log.Error("Failed to set document: {Campaign}, {Model}", campaignName, modelName);
             return false;
         }
 
