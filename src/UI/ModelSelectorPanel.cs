@@ -4,6 +4,7 @@ using Chickensoft.AutoInject;
 using Chickensoft.Introspection;
 using Godot;
 using KeepersCompound.ModelEditor.Constants;
+using Serilog;
 
 namespace KeepersCompound.ModelEditor.UI;
 
@@ -39,6 +40,7 @@ public partial class ModelSelectorPanel : PanelContainer
         SearchBar.TextChanged += OnSearchBarTextChanged;
         SortMenuPopup.IndexPressed += OnSortMenuIndexPressed;
         ModelsTree.ItemSelected += OnModelsTreeItemSelected;
+        ReloadResourcesButton.Pressed += OnReloadResourcesButtonPressed;
     }
 
     public void OnResolved()
@@ -51,6 +53,7 @@ public partial class ModelSelectorPanel : PanelContainer
         SearchBar.TextChanged -= OnSearchBarTextChanged;
         SortMenuPopup.IndexPressed -= OnSortMenuIndexPressed;
         ModelsTree.ItemSelected -= OnModelsTreeItemSelected;
+        ReloadResourcesButton.Pressed -= OnReloadResourcesButtonPressed;
     }
 
     #region Event Responses
@@ -99,6 +102,14 @@ public partial class ModelSelectorPanel : PanelContainer
         {
             RebuildTree();
         }
+    }
+
+    private void OnReloadResourcesButtonPressed()
+    {
+        Log.Debug("Reloading resources");
+        EditorState.Resources.Reset();
+        RebuildTree();
+        TrySelectModel(Campaign, Model);
     }
 
     #endregion
@@ -178,13 +189,32 @@ public partial class ModelSelectorPanel : PanelContainer
                 }
 
                 visibleChildren++;
-                if (campaign == Campaign && model == Model)
-                {
-                    modelItem.Select(0);
-                }
             }
 
             campaignItem.Visible = visibleChildren > 0;
         }
+
+        TrySelectModel(Campaign, Model);
+    }
+
+    private bool TrySelectModel(string campaign, string model)
+    {
+        var root = ModelsTree.GetRoot();
+        foreach (var campaignItem in root.GetChildren())
+        {
+            foreach (var modelItem in campaignItem.GetChildren())
+            {
+                var metaData = modelItem.GetMetadata(0).AsStringArray();
+                if (metaData[0] == campaign && metaData[1] == model)
+                {
+                    campaignItem.Collapsed = false;
+                    modelItem.Select(0, true);
+                    ModelsTree.EnsureCursorIsVisible();
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
